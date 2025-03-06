@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true">
+	<include
+		resource="org/springframework/boot/logging/logback/defaults.xml" />
+
+	<springProperty scope="context" name="springAppName"
+		source="spring.application.name" />
+
+	<!-- You can override this to have a custom pattern -->
+	<property name="CONSOLE_LOG_PATTERN"
+		value="%d{yyyy-MM-dd HH:mm:ss.SSS} ${LOG_LEVEL_PATTERN:-%5p} [${springAppName:-}] ${PID:- } - [%t]  : %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}" />
+
+	<!-- Appender to log to console -->
+	<appender name="CONSOLE"
+		class="ch.qos.logback.core.ConsoleAppender">
+		<encoder
+			class="ch.qos.logback.core.encoder.LayoutWrappingEncoder">
+			<layout class="com.one.digitalapi.logger.MaskingPatternLayout">
+				<maskPattern>(\d+\.\d+\.\d+\.\d+)</maskPattern> <!-- Ip address IPv4 pattern -->
+				<maskPattern>(\w+@\w+\.\w+)</maskPattern> <!-- Email pattern -->
+				<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+				<charset>utf8</charset>
+			</layout>
+		</encoder>
+	</appender>
+
+	<!-- Appender to log to File -->
+	<appender name="appLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./logs/digitalapi.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/digitalapi-%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<maxHistory>30</maxHistory>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="perfLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./logs/digitalapi_performance.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/digitalapi_performance-%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<maxFileSize>5MB</maxFileSize>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="auditLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./logs/digitalapi_audit.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/digitalapi_audit-%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<maxFileSize>5MB</maxFileSize>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<appender name="serverLog"
+		class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>./logs/digitalapi_server.log</file>
+		<rollingPolicy
+			class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>./logs/digitalapi_server-%d{yyyy-MM-dd}.log
+			</fileNamePattern>
+			<maxFileSize>5MB</maxFileSize>
+		</rollingPolicy>
+
+		<triggeringPolicy
+			class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+			<maxFileSize>10MB</maxFileSize>
+		</triggeringPolicy>
+
+		<encoder>
+			<pattern>${CONSOLE_LOG_PATTERN}</pattern>
+		</encoder>
+	</appender>
+
+	<logger name="com.one" level="DEBUG" additivity="false">
+		<appender-ref ref="appLog" />
+	</logger>
+
+	<logger name="PERFORMANCE" level="INFO" additivity="false">
+		<appender-ref ref="perfLog" />
+	</logger>
+
+	<logger name="AUDIT" level="INFO" additivity="false">
+		<appender-ref ref="auditLog" />
+	</logger>
+
+	<!-- Root logger configuration -->
+	<root level="debug">
+		<appender-ref ref="CONSOLE" />
+		<appender-ref ref="appLog" />
+	</root>
+</configuration>

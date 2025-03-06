@@ -1,0 +1,112 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '3.4.2'
+	id 'io.spring.dependency-management' version '1.1.7'
+}
+
+group = 'com.one'
+version = '0.0.1-SNAPSHOT'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(17)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2024.0.0")
+}
+
+dependencies {
+	implementation 'org.keycloak:keycloak-adapter-core:7.0.0'
+	implementation 'org.keycloak:keycloak-servlet-filter-adapter:7.0.0'
+	implementation 'org.keycloak:keycloak-authz-client:7.0.0'
+	implementation 'org.keycloak:keycloak-admin-client:7.0.0'
+	implementation 'org.jboss.resteasy:resteasy-jaxrs:3.0.19.Final'
+	implementation 'org.jboss.resteasy:resteasy-client:3.0.19.Final'
+	implementation 'org.jboss.resteasy:resteasy-jackson2-provider:3.0.19.Final'
+	implementation 'com.mchange:c3p0:0.9.5.2'
+	
+	
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	//implementation  'org.springframework.boot:spring-boot-starter-web'
+	//implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'javax.servlet:javax.servlet-api:3.0.1'
+	//implementation 'org.hibernate:hibernate-spatial'
+	implementation 'org.liquibase:liquibase-core'
+	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+	implementation 'com.h2database:h2'
+	implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.16'
+	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '8.0'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	//implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.security:spring-security-config'
+	//implementation 'io.springfox:springfox-swagger2:2.9.2'
+
+
+	//implementation 'io.springfox:springfox-swagger2:2.9.2'
+	//implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0' // Correct version
+
+
+	//implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
+	//implementation 'com.auth0:java-jwt:4.5.0'
+
+
+	
+    
+	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
+	runtimeOnly 'org.postgresql:postgresql'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
+	// New Dependency
+
+	implementation 'mysql:mysql-connector-java:8.0.33'  // Use the latest version
+
+	implementation 'org.projectlombok:lombok:1.18.30' // Use the latest version
+	annotationProcessor 'org.projectlombok:lombok:1.18.30'
+
+
+	implementation 'org.springframework.boot:spring-boot-starter-web'      // REST API support
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa' // JPA for database access
+	implementation 'mysql:mysql-connector-java'                            // MySQL driver
+	implementation 'org.springframework.boot:spring-boot-starter-validation' // For request validation
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+	// Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
+
+
+	//JWT Token
+	//implementation 'io.jsonwebtoken:jjwt:0.11.5' // JWT Library
+	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
+	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'  // For JSON parsing
+	implementation 'org.springframework.security:spring-security-crypto' // Password encryption
+
+	// For Swagger
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
+
+
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+//tasks.named('test') {
+	//useJUnitPlatform()
+//}

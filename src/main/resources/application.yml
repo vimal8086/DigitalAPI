@@ -1,0 +1,81 @@
+server:
+  port: ${ENV_SERVER_PORT:8080}
+  servlet:
+    context-path: ${ENV_CONTEXT_PATH:/digital/api}
+
+logging:
+  print:
+    payload: ${ENV_PRINT_PAYLOAD:true}
+  level:
+    root: ${ENV_ROOT_LOG_LEVEL:INFO}
+    com.one: ${ENV_ONE_LOG_LEVEL:DEBUG}
+
+spring:
+  jpa:
+    show-sql: true # Enables SQL query logging
+    properties:
+      hibernate:
+        jdbc.batch_size: 30
+    hibernate:
+      naming:
+        physical-strategy: com.one.digitalapi.config.CustomCaseNamingStrategy
+      ddl-auto: update # Use 'create' for first-time setup, 'update' for changes
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+  profiles:
+    active: ${ENV_PROFILE:local}
+  output: 
+    ansi: 
+      enabled: always
+  application:
+    name: ${ENV_APP_NAME:digital_api}
+  datasource:
+   # url: ${ENV_DB_URL:jdbc:h2:mem:test;INIT=CREATE SCHEMA IF NOT EXISTS DIGITAL_API_DB;MODE=PostgreSQL;DB_CLOSE_DELAY=FALSE;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=TRUE}
+   # username: ${ENV_DB_USERNAME:sa}
+   # password: ${ENV_DB_PASSWORD:}
+
+    url: jdbc:mysql://localhost:3306/digital
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    jpa:
+        database-platform: org.hibernate.dialect.MySQL8Dialect
+        hibernate:
+          ddl-auto: update  # Change as needed: none, validate, create, or create-drop
+        show-sql: true
+
+
+
+  liquibase:
+    enabled: false
+    drop-first: false
+    change-log: classpath:db/liquibase-changelog.xml
+    default-schema: public
+
+    autoconfigure:
+      exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+
+springdoc:
+  swagger-ui:
+    enabled: true
+  api-docs:
+    enabled: true
+
+jwt:
+  secret: "c2VjdXJlLXNlY3JldC1rZXktZm9yLWp3dC1hdXRoZW50aWNhdGlvbg=="  # Replace with a strong secret key
+  expirationMs: 3600000       # Token expiration time in milliseconds (e.g., 1 hour)
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*" 
+        
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 10000
+        readTimeout: 5000
