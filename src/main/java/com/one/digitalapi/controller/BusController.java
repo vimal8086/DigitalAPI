@@ -1,6 +1,8 @@
 package com.one.digitalapi.controller;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.one.digitalapi.entity.Bus;
 import com.one.digitalapi.exception.BusException;
@@ -54,16 +56,22 @@ public class BusController {
         return new ResponseEntity<>(busService.updateBus(bus), HttpStatus.OK);
     }
 
+
     @DeleteMapping("/delete/{busId}")
     @Operation(summary = "Delete a bus", description = "Delete bus with bus id")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Bus deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
-    })
-    public ResponseEntity<Bus> deleteBusById(@PathVariable int busId) {
+    })    public ResponseEntity<Map<String, Object>> deleteBusById(@PathVariable int busId) {
+        Bus deletedBus = busService.deleteBus(busId);
 
-        return new ResponseEntity<>(busService.deleteBus(busId), HttpStatus.OK);
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Bus deleted successfully");
+        response.put("bus", deletedBus);
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/type/{busType}")
     @Operation(summary = "Get buses by type", description = "Get a list of buses filtered by type")
