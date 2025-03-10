@@ -1,10 +1,6 @@
 package com.one.digitalapi.exception;
 
-public class RouteException extends Exception {
-
-    public RouteException() {
-        // TODO Auto-generated constructor stub
-    }
+public class RouteException extends RuntimeException {
 
     public RouteException(String message) {
         super(message);

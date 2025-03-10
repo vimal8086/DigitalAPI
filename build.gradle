@@ -34,7 +34,6 @@ dependencies {
 	
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	//implementation  'org.springframework.boot:spring-boot-starter-web'
 	//implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'javax.servlet:javax.servlet-api:3.0.1'
 	//implementation 'org.hibernate:hibernate-spatial'
@@ -44,23 +43,8 @@ dependencies {
 	implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.16'
 	implementation group: 'net.logstash.logback', name: 'logstash-logback-encoder', version: '8.0'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	//implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.security:spring-security-config'
-	//implementation 'io.springfox:springfox-swagger2:2.9.2'
 
-
-	//implementation 'io.springfox:springfox-swagger2:2.9.2'
-	//implementation 'io.springfox:springfox-swagger-ui:2.9.2'
-
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0' // Correct version
-
-
-	//implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
-	//implementation 'com.auth0:java-jwt:4.5.0'
-
-
-	
-    
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'com.oracle.database.jdbc:ojdbc11'
 	runtimeOnly 'org.postgresql:postgresql'
@@ -69,7 +53,6 @@ dependencies {
 
 
 	// New Dependency
-
 	implementation 'mysql:mysql-connector-java:8.0.33'  // Use the latest version
 
 	implementation 'org.projectlombok:lombok:1.18.30' // Use the latest version
@@ -83,10 +66,6 @@ dependencies {
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 
-	// Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0'
-
 
 	//JWT Token
 	//implementation 'io.jsonwebtoken:jjwt:0.11.5' // JWT Library
@@ -96,8 +75,7 @@ dependencies {
 	implementation 'org.springframework.security:spring-security-crypto' // Password encryption
 
 	// For Swagger
-	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.2'
-
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0'
 
 }
 
