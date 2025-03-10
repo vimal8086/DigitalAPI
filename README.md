@@ -41,12 +41,11 @@ This API For Bus Reservation System
 * Update the port number, username and password as per your local database config.
 
 ```
-    server.port=8888
+    url: jdbc:mysql://localhost:3306/digital
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-    spring.datasource.url=jdbc:mysql://localhost:3306/busdb
-    spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
-    spring.datasource.username=root
-    spring.datasource.password=root
 
 ```
 
@@ -55,3 +54,44 @@ This API For Bus Reservation System
 `https://localhost:8888/digital/api
 
 (http://localhost:8080/digital/api/swagger-ui/index.html)
+
+
+# API Usage Guide
+
+## User Registration
+To use this API, you must first create/register a user.
+
+### Endpoint:
+```
+POST http://localhost:8080/digital/api/users/register
+```
+
+### Description:
+- This API is used to register a new user.
+- Provide necessary user details in the request body.
+
+## Authentication & JWT Token
+After registering a user, you need a JWT token to access other API endpoints.
+
+### Endpoint:
+```
+POST http://localhost:8080/digital/api/auth/login
+```
+
+### Description:
+- This API is used to authenticate a user and generate a JWT token.
+- Provide the registered `UserID` and `Password` in the request body.
+- Upon successful authentication, you will receive a JWT token.
+
+## Accessing Other APIs
+- Use the obtained JWT token in the `Authorization` header as a Bearer token.
+- You can now access all secured API endpoints.
+
+### Example Authorization Header:
+```
+Authorization: Bearer <your-jwt-token>
+```
+
+Ensure you include this token in all requests to authenticate and use the API securely.
+
+
