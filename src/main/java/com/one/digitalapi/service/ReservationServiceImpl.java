@@ -80,12 +80,24 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Reservations deleteReservation(Integer reservationId) throws ReservationException, LoginException {
+    public Reservations deleteReservation(Integer reservationId, String cancellationReason) throws ReservationException, LoginException {
         Reservations existingReservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
 
-        reservationRepository.deleteById(reservationId);
-        return existingReservation;
+        // Refund Calculation Logic
+        Integer refundAmount = calculateRefund(existingReservation);
+
+        // Update Cancellation Details
+        existingReservation.setReservationStatus("CANCELLED");
+        existingReservation.setCancellationReason(cancellationReason);
+        existingReservation.setRefundAmount(refundAmount);
+
+        // Update bus seat availability
+        Bus bus = existingReservation.getBus();
+        bus.setAvailableSeats(bus.getAvailableSeats() + existingReservation.getNoOfSeatsBooked());
+        busRepository.save(bus);
+
+        return reservationRepository.save(existingReservation);
     }
 
     @Override
@@ -102,4 +114,24 @@ public class ReservationServiceImpl implements ReservationService {
         }
         return reservations;
     }
+
+    /**
+     * Refund calculation based on cancellation timing
+     */
+    private Integer calculateRefund(Reservations reservation) {
+        LocalDate today = LocalDate.now();
+        LocalDate journeyDate = reservation.getJourneyDate();
+        Integer fare = reservation.getFare();
+
+        if (today.isEqual(journeyDate) || today.isAfter(journeyDate)) {
+            return 0;  // No refund on the same day or after journey date
+        } else if (today.plusDays(1).isEqual(journeyDate)) {
+            return (int) (fare * 0.50); // 50% refund if canceled one day before
+        } else if (today.plusDays(3).isAfter(journeyDate)) {
+            return (int) (fare * 0.75); // 75% refund if canceled within 3 days
+        } else {
+            return fare; // Full refund if canceled more than 3 days in advance
+        }
+    }
+
 }

@@ -39,12 +39,6 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.updateReservation(reservation));
     }
 
-    @DeleteMapping("/delete/{id}")
-    @Operation(summary = "Delete a reservation", description = "Delete reservation with reservation id")
-    public ResponseEntity<Reservations> deleteReservation(@PathVariable Integer id) throws ReservationException, LoginException {
-        return ResponseEntity.ok(reservationService.deleteReservation(id));
-    }
-
     @GetMapping("/view/{id}")
     @Operation(summary = "Get a reservation with reservation id", description = "Get a reservation with reservation id")
     @ApiResponses({
@@ -72,4 +66,15 @@ public class ReservationController {
     public ResponseEntity<String> handleLoginException(LoginException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
+
+    @DeleteMapping("/cancel/{id}")
+    @Operation(summary = "Cancel a reservation", description = "Cancel a reservation and calculate refund")
+    public ResponseEntity<Reservations> cancelReservation(
+            @PathVariable Integer id,
+            @RequestParam String cancellationReason) throws ReservationException, LoginException {
+
+        return ResponseEntity.ok(reservationService.deleteReservation(id, cancellationReason));
+    }
+
+
 }

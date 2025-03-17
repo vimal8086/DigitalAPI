@@ -39,6 +39,10 @@ public class Reservations {
 
     private Integer fare;
 
+    private String cancellationReason;  // New Field
+
+    private Integer refundAmount;       // New Field
+
     @ManyToOne
     @JoinColumn( name = "bus_id", referencedColumnName = "busId")
     private Bus bus;
@@ -145,13 +149,28 @@ public class Reservations {
         this.user = user;
     }
 
+    public String getCancellationReason() {
+        return cancellationReason;
+    }
+
+    public void setCancellationReason(String cancellationReason) {
+        this.cancellationReason = cancellationReason;
+    }
+
+    public Integer getRefundAmount() {
+        return refundAmount;
+    }
+
+    public void setRefundAmount(Integer refundAmount) {
+        this.refundAmount = refundAmount;
+    }
 
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
                         LocalDate reservationDate, LocalDate journeyDate, LocalTime reservationTime,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String source,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
-                        Integer noOfSeatsBooked, Integer fare, Bus bus, User user) {
+                        Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -165,6 +184,8 @@ public class Reservations {
         this.fare = fare;
         this.bus = bus;
         this.user = user;
+        this.cancellationReason = cancellationReason;
+        this.refundAmount = refundAmount;
     }
 
 

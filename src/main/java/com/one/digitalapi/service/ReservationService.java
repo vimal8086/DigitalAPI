@@ -14,10 +14,11 @@ public interface ReservationService {
 
     public Reservations updateReservation(Reservations reservation) throws ReservationException, LoginException;
 
-    public Reservations deleteReservation(Integer reservationId) throws ReservationException, LoginException;
+    public Reservations deleteReservation(Integer reservationId, String cancellationReason) throws ReservationException, LoginException;
 
     public Reservations viewAllReservation(Integer reservationId) throws LoginException;
 
     public List<Reservations> getReservationDeatials() throws ReservationException, LoginException;
+
 }
 
