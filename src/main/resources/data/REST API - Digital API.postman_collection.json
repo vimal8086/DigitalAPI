@@ -1,0 +1,708 @@
+{
+  "info": {
+    "_postman_id": "d74ed72c-3f13-4fed-bfc2-2e635af72ff0",
+    "name": "REST API : Digital API",
+    "description": "# 🚀 Get started here\n\nThis template guides you through CRUD operations (GET, POST, PUT, DELETE), variables, and tests.\n\n## 🔖 **How to use this template**\n\n#### **Step 1: Send requests**\n\nRESTful APIs allow you to perform CRUD operations using the POST, GET, PUT, and DELETE HTTP methods.\n\nThis collection contains each of these [request](https://learning.postman.com/docs/sending-requests/requests/) types. Open each request and click \"Send\" to see what happens.\n\n#### **Step 2: View responses**\n\nObserve the response tab for status code (200 OK), response time, and size.\n\n#### **Step 3: Send new Body data**\n\nUpdate or add new data in \"Body\" in the POST request. Typically, Body data is also used in PUT request.\n\n```\n{\n    \"name\": \"Add your name in the body\"\n}\n\n ```\n\n#### **Step 4: Update the variable**\n\nVariables enable you to store and reuse values in Postman. We have created a [variable](https://learning.postman.com/docs/sending-requests/variables/) called `base_url` with the sample request [https://postman-api-learner.glitch.me](https://postman-api-learner.glitch.me). Replace it with your API endpoint to customize this collection.\n\n#### **Step 5: Add tests in the \"Scripts\" tab**\n\nAdding tests to your requests can help you confirm that your API is working as expected. You can write test scripts in JavaScript and view the output in the \"Test Results\" tab.\n\n<img src=\"https://content.pstmn.io/fa30ea0a-373d-4545-a668-e7b283cca343/aW1hZ2UucG5n\" alt=\"\" height=\"1530\" width=\"2162\">\n\n## 💪 Pro tips\n\n- Use folders to group related requests and organize the collection.\n    \n- Add more [scripts](https://learning.postman.com/docs/writing-scripts/intro-to-scripts/) to verify if the API works as expected and execute workflows.\n    \n\n## 💡Related templates\n\n[API testing basics](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9a37a28-055b-49cd-8c7e-97494a21eb54&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[API documentation](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=e9c28f47-1253-44af-a2f3-20dce4da1f18&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)  \n[Authorization methods](https://go.postman.co/redirect/workspace?type=personal&collectionTemplateId=31a9a6ed-4cdf-4ced-984c-d12c9aec1c27&sourceTemplateId=ddb19591-3097-41cf-82af-c84273e56719)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "33057288"
+  },
+  "item": [
+    {
+      "name": "User-Management",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Successful POST request\", function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 201]);",
+                  "});",
+                  ""
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"userId\": \"vimalnew\",\n  \"password\": \"vimal123\",\n  \"code\": \"VDER\",\n  \"email\": \"vimal@gmail.com\",\n  \"createdAt\": \"2025-03-17T11:49:24.279Z\",\n  \"updatedAt\": \"2025-03-17T11:49:24.279Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/users/register",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "users",
+                "register"
+              ]
+            },
+            "description": "This is a POST request, submitting data to an API via the request body. This request submits JSON data, and the data is reflected in the response.\n\nA successful POST request typically returns a `200 OK` or `201 Created` response code."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bus-Management",
+      "item": [
+        {
+          "name": "Get All Buses",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/buses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "buses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Bus",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"busName\": \"Payall\",\r\n  \"driverName\": \"BFS\",\r\n  \"busType\": \"Volvo\",\r\n  \"routeFrom\": \"Jamnagar\",\r\n  \"routeTo\": \"Ahmedabad\",\r\n  \"arrivalTime\": \"18:15:00\",\r\n  \"departureTime\": \"18:15:00\",\r\n  \"farePerSeat\": 1400,\r\n  \"seats\": 60,\r\n  \"availableSeats\": 60\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/buses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "buses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Bus",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"busId\": 102,\r\n  \"busName\": \"PayallNew\",\r\n  \"driverName\": \"BFS\",\r\n  \"busType\": \"Volvo\",\r\n  \"routeFrom\": \"Jamnagar\",\r\n  \"routeTo\": \"Ahmedabad\",\r\n  \"arrivalTime\": \"18:15:00\",\r\n  \"departureTime\": \"18:15:00\",\r\n  \"farePerSeat\": 1400,\r\n  \"seats\": 60,\r\n  \"availableSeats\": 60\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/buses",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "buses"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Bus by Bustype",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/buses/type/Volvo",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "buses",
+                "type",
+                "Volvo"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Bus with Bus ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/buses/find/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "buses",
+                "find",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete bus",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/buses/delete/102",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "buses",
+                "delete",
+                "102"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Authentication Management",
+      "item": [
+        {
+          "name": "UserID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ],
+                "type": "text/javascript",
+                "packages": {}
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/auth/check-user/vimal",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "auth",
+                "check-user",
+                "vimal"
+              ]
+            },
+            "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
+          },
+          "response": []
+        },
+        {
+          "name": "Token-API",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/auth/login",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Route Management",
+      "item": [
+        {
+          "name": "Get All Route",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/routes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "routes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Add Route",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"routeFrom\": \"New York\",\r\n  \"routeTo\": \"San Francisco\",\r\n  \"distance\": 600.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/routes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "routes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Routes",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"routeID\": 1,\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"distance\": 600.0\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/routes",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "routes"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Route",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/routes/1",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "routes",
+                "1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Route",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/routes/2",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "routes",
+                "2"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reservation Management",
+      "item": [
+        {
+          "name": "Add Reservation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"source\": \"Jamnagar\",\r\n  \"destination\": \"Ahmedabad\",\r\n  \"noOfSeatsToBook\": 2,\r\n  \"journeyDate\": \"2025-03-17\",\r\n  \"busDTO\": {\r\n    \"busId\": 1,\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"busJourneyDate\": \"2025-03-17\"\r\n  },\r\n  \"userId\": \"admin\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/reservations/add",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "reservations",
+                "add"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Reservation",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"reservationId\": 352,\r\n  \"reservationStatus\": \"CONFIRMED\",\r\n  \"reservationType\": \"ONLINE\",\r\n  \"reservationDate\": \"2025-03-18\",\r\n  \"journeyDate\": \"2025-03-18\",\r\n  \"reservationTime\": \"17:46:04.1736873\",\r\n  \"source\": \"Jamnagar\",\r\n  \"destination\": \"Ahmedabad\",\r\n  \"noOfSeatsBooked\": 2,\r\n  \"fare\": 800,\r\n  \"cancellationReason\": null,\r\n  \"refundAmount\": null,\r\n  \"bus\": {\r\n    \"busId\": 1,\r\n    \"busName\": \"SAMAY\",\r\n    \"driverName\": \"Nathu\",\r\n    \"busType\": \"Volvo\",\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"arrivalTime\": null,\r\n    \"departureTime\": null,\r\n    \"farePerSeat\": 400,\r\n    \"seats\": 60,\r\n    \"availableSeats\": 11\r\n  },\r\n  \"user\": {\r\n    \"id\": 3,\r\n    \"userId\": \"admin\",\r\n    \"password\": \"$2a$10$lp5GzAmVKngNzoVAzdmGwONf2BhOF9EC5CFQoT8wIUonMTF3kZ0Pq\",\r\n    \"code\": \"aas\",\r\n    \"email\": \"admin@example.com\",\r\n    \"status\": \"ACTIVE\",\r\n    \"lastLogin\": null,\r\n    \"createdAt\": \"2025-03-05T12:32:54\",\r\n    \"updatedAt\": \"2025-03-05T12:32:54\"\r\n  }\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/reservations/update",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "reservations",
+                "update"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Reservation with id",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Reservation",
+          "request": {
+            "method": "GET",
+            "header": []
+          },
+          "response": []
+        },
+        {
+          "name": "Cancel Reservation",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/reservations/cancel/352?cancellationReason=DueShedule",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "reservations",
+                "cancel",
+                "352"
+              ],
+              "query": [
+                {
+                  "key": "cancellationReason",
+                  "value": "DueShedule"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Destination Management",
+      "item": [
+        {
+          "name": "Destinations",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3MzQ2NiwiZXhwIjoxNzQxMTc3MDY2fQ.oTSvNP649vXOyRHXVZIG741LOr96f5AMPSFtt3VS8Cs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/destinations",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "destinations"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Destinations",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3MzQ2NiwiZXhwIjoxNzQxMTc3MDY2fQ.oTSvNP649vXOyRHXVZIG741LOr96f5AMPSFtt3VS8Cs",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n  \"destination\": \"Paris\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/digital/api/destinations",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "destinations"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "SwaggerURL",
+      "request": {
+        "auth": {
+          "type": "noauth"
+        },
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/digital/api/swagger-ui/index.html",
+          "protocol": "http",
+          "host": [
+            "localhost"
+          ],
+          "port": "8080",
+          "path": [
+            "digital",
+            "api",
+            "swagger-ui",
+            "index.html"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "id",
+      "value": "1"
+    },
+    {
+      "key": "base_url",
+      "value": "https://postman-rest-api-learner.glitch.me/"
+    }
+  ]
+}
