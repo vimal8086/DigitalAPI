@@ -3,11 +3,12 @@ package com.one.digitalapi.service;
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.Bus;
 import com.one.digitalapi.entity.Reservations;
+import com.one.digitalapi.entity.User;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.repository.BusRepository;
 import com.one.digitalapi.repository.ReservationRepository;
-
+import com.one.digitalapi.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,9 +25,16 @@ public class ReservationServiceImpl implements ReservationService {
     @Autowired
     private BusRepository busRepository;
 
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public Reservations addReservation(ReservationDTO reservationDTO) throws ReservationException, LoginException {
+
+        // Fetch User Detail using only userId
+        User user = userRepository.findByUserId(reservationDTO.getUserId())
+                .orElseThrow(() -> new LoginException("User Not Found for ID: " + reservationDTO.getUserId()));
+
         // Fetch bus details
         Bus bus = busRepository.findById(reservationDTO.getBusDTO().getBusId())
                 .orElseThrow(() -> new ReservationException("Bus not found for ID: " + reservationDTO.getBusDTO().getBusId()));
@@ -45,6 +53,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setReservationDate(LocalDate.now());
         reservation.setReservationTime(LocalTime.now());
         reservation.setBus(bus);
+        reservation.setUser(user);
         reservation.setFare(bus.getFarePerSeat() * reservationDTO.getNoOfSeatsToBook());
         reservation.setReservationStatus("CONFIRMED");
         reservation.setReservationType("ONLINE");
@@ -58,11 +67,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Reservations updateReservation(Reservations reservation) throws ReservationException, LoginException {
-        // Check if reservation exists
         Reservations existingReservation = reservationRepository.findById(reservation.getReservationId())
                 .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservation.getReservationId()));
 
-        // Update reservation details
         existingReservation.setSource(reservation.getSource());
         existingReservation.setDestination(reservation.getDestination());
         existingReservation.setJourneyDate(reservation.getJourneyDate());
@@ -85,7 +92,6 @@ public class ReservationServiceImpl implements ReservationService {
     public Reservations viewAllReservation(Integer reservationId) throws LoginException {
         return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
-
     }
 
     @Override
