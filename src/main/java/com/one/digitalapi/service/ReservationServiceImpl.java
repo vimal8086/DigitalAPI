@@ -9,6 +9,7 @@ import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.repository.BusRepository;
 import com.one.digitalapi.repository.ReservationRepository;
 import com.one.digitalapi.repository.UserRepository;
+import com.one.digitalapi.utils.DigitalAPIConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -55,8 +56,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setBus(bus);
         reservation.setUser(user);
         reservation.setFare(bus.getFarePerSeat() * reservationDTO.getNoOfSeatsToBook());
-        reservation.setReservationStatus("CONFIRMED");
-        reservation.setReservationType("ONLINE");
+        reservation.setReservationStatus(DigitalAPIConstant.CONFIRMED);
+        reservation.setReservationType(DigitalAPIConstant.ONLINE);
 
         // Update bus seat availability
         bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
@@ -88,7 +89,7 @@ public class ReservationServiceImpl implements ReservationService {
         Integer refundAmount = calculateRefund(existingReservation);
 
         // Update Cancellation Details
-        existingReservation.setReservationStatus("CANCELLED");
+        existingReservation.setReservationStatus(DigitalAPIConstant.CANCELLED);
         existingReservation.setCancellationReason(cancellationReason);
         existingReservation.setRefundAmount(refundAmount);
 

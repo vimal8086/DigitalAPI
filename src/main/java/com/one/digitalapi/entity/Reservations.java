@@ -29,10 +29,14 @@ public class Reservations {
 
     private LocalTime reservationTime;
 
-    @NotNull(message = "This Field can not be null..")
+    @NotNull(message = "Reservation source can not be null..")
+    @NotBlank(message = "Reservation source can not be blank..")
+    @NotEmpty(message = "Reservation source can not be empty..")
     private String source;
 
-    @NotNull(message = "This Field can not be null..")
+    @NotNull(message = "Reservation destination can not be null..")
+    @NotBlank(message = "Reservation destination can not be blank..")
+    @NotEmpty(message = "Reservation destination can not be empty..")
     private String destination;
 
     private Integer noOfSeatsBooked;

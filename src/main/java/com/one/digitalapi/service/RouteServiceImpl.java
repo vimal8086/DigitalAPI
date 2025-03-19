@@ -39,4 +39,3 @@ public class RouteServiceImpl implements RouteService {
         return routeRepository.findAll();
     }
 }
-

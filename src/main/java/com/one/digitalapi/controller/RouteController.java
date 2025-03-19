@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class RouteController {
 
     @PostMapping
     @Operation(summary = "Add a new route", description = "Creates a new route if it does not exist")
-    public ResponseEntity<Route> addRoute(@RequestBody Route route) {
+    public ResponseEntity<Route> addRoute(@Valid @RequestBody Route route) {
         return ResponseEntity.ok(routeService.addRoute(route));
     }
 
@@ -34,7 +35,7 @@ public class RouteController {
             @ApiResponse(responseCode = "200", description = "Route updated successfully"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
-    public ResponseEntity<Route> updateRoute(@RequestBody Route route) {
+    public ResponseEntity<Route> updateRoute(@Valid @RequestBody Route route) {
         return ResponseEntity.ok(routeService.updateRoute(route));
     }
 

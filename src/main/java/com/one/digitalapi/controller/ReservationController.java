@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -29,13 +30,13 @@ public class ReservationController {
 
     @PostMapping("/add")
     @Operation(summary = "Add a new reservation", description = "Creates a new reservation")
-    public ResponseEntity<Reservations> addReservation(@RequestBody ReservationDTO reservationDTO) throws ReservationException, LoginException {
+    public ResponseEntity<Reservations> addReservation(@Valid @RequestBody ReservationDTO reservationDTO) throws ReservationException, LoginException {
         return ResponseEntity.ok(reservationService.addReservation(reservationDTO));
     }
 
     @PutMapping("/update")
     @Operation(summary = "Update a reservation", description = "Update a reservation")
-    public ResponseEntity<Reservations> updateReservation(@RequestBody Reservations reservation) throws ReservationException, LoginException {
+    public ResponseEntity<Reservations> updateReservation(@Valid @RequestBody Reservations reservation) throws ReservationException, LoginException {
         return ResponseEntity.ok(reservationService.updateReservation(reservation));
     }
 
