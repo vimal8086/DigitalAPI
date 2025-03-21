@@ -5,6 +5,7 @@ import com.one.digitalapi.entity.Reservations;
 import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
+import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,6 +23,9 @@ import java.util.List;
 @Tag(name = "Reservation Management", description = "APIs for managing reservations")
 public class ReservationController {
 
+    private static final String CLASSNAME = "ReservationController";
+    private static final DefaultLogger LOGGER = new DefaultLogger(ReservationController.class);
+
     private final ReservationService reservationService;
 
     public ReservationController(ReservationService reservationService) {
@@ -31,13 +35,21 @@ public class ReservationController {
     @PostMapping("/add")
     @Operation(summary = "Add a new reservation", description = "Creates a new reservation")
     public ResponseEntity<Reservations> addReservation(@Valid @RequestBody ReservationDTO reservationDTO) throws ReservationException, LoginException {
-        return ResponseEntity.ok(reservationService.addReservation(reservationDTO));
+        String methodName = "addReservation";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to add reservation: " + reservationDTO);
+        Reservations reservation = reservationService.addReservation(reservationDTO);
+        LOGGER.infoLog(CLASSNAME, methodName, "Reservation added successfully: " + reservation);
+        return ResponseEntity.ok(reservation);
     }
 
     @PutMapping("/update")
     @Operation(summary = "Update a reservation", description = "Update a reservation")
     public ResponseEntity<Reservations> updateReservation(@Valid @RequestBody Reservations reservation) throws ReservationException, LoginException {
-        return ResponseEntity.ok(reservationService.updateReservation(reservation));
+        String methodName = "updateReservation";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update reservation: " + reservation);
+        Reservations updatedReservation = reservationService.updateReservation(reservation);
+        LOGGER.infoLog(CLASSNAME, methodName, "Reservation updated successfully: " + updatedReservation);
+        return ResponseEntity.ok(updatedReservation);
     }
 
     @GetMapping("/view/{id}")
@@ -47,25 +59,22 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "Reservation not found")
     })
     public ResponseEntity<Reservations> viewReservation(@PathVariable Integer id) throws ReservationException, LoginException {
-        return ResponseEntity.ok(reservationService.viewAllReservation(id));
+        String methodName = "viewReservation";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to view reservation with ID: " + id);
+        Reservations reservation = reservationService.viewAllReservation(id);
+        LOGGER.infoLog(CLASSNAME, methodName, "Reservation retrieved successfully: " + reservation);
+        return ResponseEntity.ok(reservation);
     }
 
     @GetMapping("/all")
     @Operation(summary = "Get all reservations", description = "Get all reservations")
     @ApiResponse(responseCode = "200", description = "List of reservations retrieved successfully")
     public ResponseEntity<List<Reservations>> getAllReservations() throws ReservationException, LoginException {
-        return ResponseEntity.ok(reservationService.getReservationDeatials());
-    }
-
-    // ✅ Global Exception Handling for BusException and LoginException
-    @ExceptionHandler(ReservationException.class)
-    public ResponseEntity<String> handleReservationException(ReservationException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
-    }
-
-    @ExceptionHandler(LoginException.class)
-    public ResponseEntity<String> handleLoginException(LoginException ex) {
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+        String methodName = "getAllReservations";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to retrieve all reservations");
+        List<Reservations> reservations = reservationService.getReservationDeatials();
+        LOGGER.infoLog(CLASSNAME, methodName, "Reservations retrieved successfully: " + reservations);
+        return ResponseEntity.ok(reservations);
     }
 
     @DeleteMapping("/cancel/{id}")
@@ -73,9 +82,25 @@ public class ReservationController {
     public ResponseEntity<Reservations> cancelReservation(
             @PathVariable Integer id,
             @RequestParam String cancellationReason) throws ReservationException, LoginException {
-
-        return ResponseEntity.ok(reservationService.deleteReservation(id, cancellationReason));
+        String methodName = "cancelReservation";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to cancel reservation with ID: " + id + " for reason: " + cancellationReason);
+        Reservations canceledReservation = reservationService.deleteReservation(id, cancellationReason);
+        LOGGER.infoLog(CLASSNAME, methodName, "Reservation canceled successfully: " + canceledReservation);
+        return ResponseEntity.ok(canceledReservation);
     }
 
+    // Global Exception Handling for ReservationException and LoginException
+    @ExceptionHandler(ReservationException.class)
+    public ResponseEntity<String> handleReservationException(ReservationException ex) {
+        String methodName = "handleReservationException";
+        LOGGER.errorLog(CLASSNAME, methodName, "ReservationException occurred: " + ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
 
+    @ExceptionHandler(LoginException.class)
+    public ResponseEntity<String> handleLoginException(LoginException ex) {
+        String methodName = "handleLoginException";
+        LOGGER.errorLog(CLASSNAME, methodName, "LoginException occurred: " + ex.getMessage());
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
 }

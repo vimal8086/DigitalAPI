@@ -1,6 +1,7 @@
 package com.one.digitalapi.controller;
 
 import com.one.digitalapi.entity.Route;
+import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.RouteService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -17,6 +18,9 @@ import java.util.List;
 @Tag(name = "Route Management", description = "APIs for managing routes")
 public class RouteController {
 
+    private static final String CLASSNAME = "RouteController";
+    private static final DefaultLogger LOGGER = new DefaultLogger(RouteController.class);
+
     private final RouteService routeService;
 
     public RouteController(RouteService routeService) {
@@ -26,7 +30,11 @@ public class RouteController {
     @PostMapping
     @Operation(summary = "Add a new route", description = "Creates a new route if it does not exist")
     public ResponseEntity<Route> addRoute(@Valid @RequestBody Route route) {
-        return ResponseEntity.ok(routeService.addRoute(route));
+        String methodName = "addRoute";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to add a new route: " + route);
+        Route createdRoute = routeService.addRoute(route);
+        LOGGER.infoLog(CLASSNAME, methodName, "Route added successfully: " + createdRoute);
+        return ResponseEntity.ok(createdRoute);
     }
 
     @PutMapping
@@ -36,7 +44,11 @@ public class RouteController {
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
     public ResponseEntity<Route> updateRoute(@Valid @RequestBody Route route) {
-        return ResponseEntity.ok(routeService.updateRoute(route));
+        String methodName = "updateRoute";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route: " + route);
+        Route updatedRoute = routeService.updateRoute(route);
+        LOGGER.infoLog(CLASSNAME, methodName, "Route updated successfully: " + updatedRoute);
+        return ResponseEntity.ok(updatedRoute);
     }
 
     @DeleteMapping("/{routeId}")
@@ -46,7 +58,10 @@ public class RouteController {
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
     public ResponseEntity<String> deleteRoute(@PathVariable int routeId) {
+        String methodName = "deleteRoute";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to delete route with ID: " + routeId);
         routeService.deleteRoute(routeId);
+        LOGGER.infoLog(CLASSNAME, methodName, "Route with ID " + routeId + " deleted successfully");
         return ResponseEntity.ok("Route deleted successfully");
     }
 
@@ -57,13 +72,21 @@ public class RouteController {
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
     public ResponseEntity<Route> viewRoute(@PathVariable int routeId) {
-        return ResponseEntity.ok(routeService.viewRoute(routeId));
+        String methodName = "viewRoute";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to view route with ID: " + routeId);
+        Route route = routeService.viewRoute(routeId);
+        LOGGER.infoLog(CLASSNAME, methodName, "Route retrieved successfully: " + route);
+        return ResponseEntity.ok(route);
     }
 
     @GetMapping
-    @Operation(summary = "Get all route", description = "Get All Routes")
+    @Operation(summary = "Get all routes", description = "Get all routes")
     @ApiResponse(responseCode = "200", description = "List of routes retrieved successfully")
     public ResponseEntity<List<Route>> viewAllRoutes() {
-        return ResponseEntity.ok(routeService.viewAllRoutes());
+        String methodName = "viewAllRoutes";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to view all routes");
+        List<Route> routes = routeService.viewAllRoutes();
+        LOGGER.infoLog(CLASSNAME, methodName, "Retrieved " + routes.size() + " routes");
+        return ResponseEntity.ok(routes);
     }
 }

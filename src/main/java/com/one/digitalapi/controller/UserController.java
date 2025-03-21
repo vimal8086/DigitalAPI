@@ -1,5 +1,6 @@
 package com.one.digitalapi.controller;
 import com.one.digitalapi.entity.User;
+import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
@@ -14,6 +15,9 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 @Tag(name = "User Management", description = "APIs for managing users")
 public class UserController {
 
+    private static final String CLASSNAME = "UserController";
+    private static final DefaultLogger LOGGER = new DefaultLogger(UserController.class);
+
     @Autowired
     private UserService userService;
 
@@ -21,8 +25,17 @@ public class UserController {
     @Operation(summary = "Register a new user", description = "Creates a new user with email and password")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
         try {
+
+            String methodName = "registerUser";
+
+            LOGGER.infoLog(CLASSNAME, methodName, "Received request to register a new user: " + user);
+
             User savedUser = userService.registerUser(user);
+
+            LOGGER.infoLog(CLASSNAME, methodName, "User Register Successfully : " + user);
+
             return ResponseEntity.ok(savedUser);
+
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
