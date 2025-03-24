@@ -1,5 +1,6 @@
 package com.one.digitalapi.service;
 import com.one.digitalapi.entity.User;
+import com.one.digitalapi.exception.UserException;
 import com.one.digitalapi.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class UserService {
         Optional<User> existingUser = userRepository.findByUserId(user.getUserId());
 
         if (existingUser.isPresent()) {
-            throw new RuntimeException("User ID already exists!");
+            throw new UserException("User ID already exists!");
         }
 
         // 🔹 Hash the password before saving

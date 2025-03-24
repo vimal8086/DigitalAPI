@@ -59,6 +59,7 @@ public class BusServiceImpl implements BusService {
                 .orElseThrow(() -> new BusException("Bus not found for ID: " + busId));
 
         bRepo.deleteById(busId);
+
         return existingBus;
     }
 

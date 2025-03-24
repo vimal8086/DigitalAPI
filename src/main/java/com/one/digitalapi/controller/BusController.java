@@ -19,6 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
+
 @RestController
 @RequestMapping("/buses")
 @Tag(name = "Bus Management", description = "APIs for managing buses")
@@ -112,16 +114,24 @@ public class BusController {
 
     // Global Exception Handling for BusException and LoginException
     @ExceptionHandler(BusException.class)
-    public ResponseEntity<String> handleBusException(BusException ex) {
+    public ResponseEntity<Map<String, Object>> handleBusException(BusException ex) {
         String methodName = "handleBusException";
         LOGGER.errorLog(CLASSNAME, methodName, "BusException occurred: " + ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+
+        return getMapResponseEntity(ex.getMessage(), ex);
     }
 
     @ExceptionHandler(LoginException.class)
-    public ResponseEntity<String> handleLoginException(LoginException ex) {
+    public ResponseEntity<Map<String, Object>> handleLoginException(LoginException ex) {
         String methodName = "handleLoginException";
         LOGGER.errorLog(CLASSNAME, methodName, "LoginException occurred: " + ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+
+        Map<String, Object> errorResponse = new HashMap<>();
+        errorResponse.put("status", HttpStatus.UNAUTHORIZED.value());
+        errorResponse.put("error", "Unauthorized");
+        errorResponse.put("message", ex.getMessage());
+        errorResponse.put("timestamp", System.currentTimeMillis());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.UNAUTHORIZED);
     }
 }

@@ -1,6 +1,8 @@
 package com.one.digitalapi.controller;
 
 import com.one.digitalapi.entity.Route;
+import com.one.digitalapi.exception.BusException;
+import com.one.digitalapi.exception.RouteException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.RouteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -12,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+
+import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
 @RestController
 @RequestMapping("/routes")
@@ -88,5 +93,14 @@ public class RouteController {
         List<Route> routes = routeService.viewAllRoutes();
         LOGGER.infoLog(CLASSNAME, methodName, "Retrieved " + routes.size() + " routes");
         return ResponseEntity.ok(routes);
+    }
+
+    // Global Exception Handling for RouteException and LoginException
+    @ExceptionHandler(RouteException.class)
+    public ResponseEntity<Map<String, Object>> handleRouteException(RouteException ex) {
+        String methodName = "handleRouteException";
+        LOGGER.errorLog(CLASSNAME, methodName, "RouteException occurred: " + ex.getMessage());
+
+        return getMapResponseEntity(ex.getMessage(), ex);
     }
 }

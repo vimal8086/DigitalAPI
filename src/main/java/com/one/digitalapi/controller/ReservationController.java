@@ -16,7 +16,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
 @RestController
 @RequestMapping("/reservations")
@@ -91,11 +95,13 @@ public class ReservationController {
 
     // Global Exception Handling for ReservationException and LoginException
     @ExceptionHandler(ReservationException.class)
-    public ResponseEntity<String> handleReservationException(ReservationException ex) {
+    public ResponseEntity<Map<String, Object>> handleReservationException(ReservationException ex) {
         String methodName = "handleReservationException";
         LOGGER.errorLog(CLASSNAME, methodName, "ReservationException occurred: " + ex.getMessage());
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+
+        return getMapResponseEntity(ex.getMessage(), ex);
     }
+
 
     @ExceptionHandler(LoginException.class)
     public ResponseEntity<String> handleLoginException(LoginException ex) {

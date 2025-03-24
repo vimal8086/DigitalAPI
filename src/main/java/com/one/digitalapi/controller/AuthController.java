@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -60,12 +61,11 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    @Operation(summary = "Generate a token using the user ID", description = "You can generate token using userID and Password")
-    public ResponseEntity<Map<String, String>> login(@RequestBody LoginRequest request) {
+    @Operation(summary = "Generate a token using the user ID", description = "You can generate a token using userID and Password")
+    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
 
-        String strMethodName="login";
-
-        LOGGER.infoLog(CLASSNAME, strMethodName, "Received login request for user: {} "+ request.getUserId());
+        String strMethodName = "login";
+        LOGGER.infoLog(CLASSNAME, strMethodName, "Received login request for user: {} " + request.getUserId());
 
         Optional<User> userOptional = userRepository.findByUserId(request.getUserId());
 
@@ -73,19 +73,23 @@ public class AuthController {
             User user = userOptional.get();
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user.getUserId());
+                Date expirationDate = jwtUtil.extractExpiration(token);
+                long expiresAtMillis = expirationDate.getTime(); // Convert to milliseconds
 
-                Map<String, String> response = new HashMap<>();
+                Map<String, Object> response = new HashMap<>();
                 response.put("token", token);
+                response.put("expires_at", expirationDate.toString());
+                response.put("time", expiresAtMillis);
 
-                LOGGER.infoLog(CLASSNAME, strMethodName, "Login successful for user: {} "+ request.getUserId());
+
+                LOGGER.infoLog(CLASSNAME, strMethodName, "Login successful for user: {} " + request.getUserId());
 
                 return ResponseEntity.ok(response);
             } else {
-                LOGGER.warnLog(CLASSNAME, strMethodName, "Invalid password attempt for user: {} "+ request.getUserId());
-
+                LOGGER.warnLog(CLASSNAME, strMethodName, "Invalid password attempt for user: {} " + request.getUserId());
             }
         } else {
-            LOGGER.warnLog(CLASSNAME, strMethodName, "Login failed - User not found: {} "+ request.getUserId());
+            LOGGER.warnLog(CLASSNAME, strMethodName, "Login failed - User not found: {} " + request.getUserId());
         }
 
         return ResponseEntity.status(401).body(Map.of("error", "Invalid Credentials"));

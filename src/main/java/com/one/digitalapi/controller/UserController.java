@@ -1,5 +1,6 @@
 package com.one.digitalapi.controller;
 import com.one.digitalapi.entity.User;
+import com.one.digitalapi.exception.UserException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -8,6 +9,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
+
+import java.util.Map;
+
+import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
 
 @RestController
@@ -24,20 +29,24 @@ public class UserController {
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Creates a new user with email and password")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
-        try {
 
-            String methodName = "registerUser";
+        String methodName = "registerUser";
 
-            LOGGER.infoLog(CLASSNAME, methodName, "Received request to register a new user: " + user);
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to register a new user: " + user);
 
-            User savedUser = userService.registerUser(user);
+        User savedUser = userService.registerUser(user);
 
-            LOGGER.infoLog(CLASSNAME, methodName, "User Register Successfully : " + user);
+        LOGGER.infoLog(CLASSNAME, methodName, "User Register Successfully : " + user);
 
-            return ResponseEntity.ok(savedUser);
+        return ResponseEntity.ok(savedUser);
+    }
 
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body(e.getMessage());
-        }
+    // Global Exception Handling for UserException
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<Map<String, Object>> handleUserException(UserException ex) {
+        String methodName = "handleUserException";
+        LOGGER.errorLog(CLASSNAME, methodName, "UserException occurred: " + ex.getMessage());
+
+        return getMapResponseEntity(ex.getMessage(), ex);
     }
 }
