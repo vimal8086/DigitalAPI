@@ -61,7 +61,7 @@ public class Bus {
     @ManyToOne
     private Route route;
 
-    // ✅ New Fields Added
+    // New Fields Added
     @NotNull(message = "Contact Number cannot be null.")
     @NotBlank(message = "Contact Number cannot be blank.")
     private String contactNumber;
@@ -71,6 +71,13 @@ public class Bus {
     private String busNumber;
 
     private String trackingUrl;
+
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Invalid email format")
+    private String email;
+
+    @NotNull(message = "Pickup address cannot be null.")
+    private String address;
 
 
     @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -85,7 +92,7 @@ public class Bus {
 
     public Bus(Integer busId, String busName, String driverName, String busType, String routeFrom, String routeTo,
                LocalTime arrivalTime, LocalTime departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
-               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints) {
+               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, String email,String address) {
         this.busId = busId;
         this.busName = busName;
         this.driverName = driverName;
@@ -102,6 +109,8 @@ public class Bus {
         this.busNumber = busNumber;
         this.trackingUrl = trackingUrl;
         this.pickupPoints = pickupPoints;
+        this.email = email;
+        this.address = address;
     }
 
     public Integer getBusId() {
@@ -230,5 +239,21 @@ public class Bus {
 
     public void setPickupPoints(List<PickupPoint> pickupPoints) {
         this.pickupPoints = pickupPoints;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
     }
 }

@@ -1,6 +1,8 @@
 package com.one.digitalapi.dto;
 
 import java.time.LocalDate;
+import java.util.List;
+
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -44,13 +46,16 @@ public class ReservationDTO {
     @NotBlank(message = "Gender cannot be blank!")
     private String gender;
 
+    private List<PassengerDTO> passengers;
+
+
     public ReservationDTO() {
         super();
     }
 
     public ReservationDTO(
             String source, String destination, Integer noOfSeatsToBook, LocalDate journeyDate,
-            BusDTO busDTO, String userId, String username, String mobileNumber, String email, String gender) {
+            BusDTO busDTO, String userId, String username, String mobileNumber, String email, String gender, List<PassengerDTO> passengers) {
         super();
         this.source = source;
         this.destination = destination;
@@ -62,6 +67,7 @@ public class ReservationDTO {
         this.mobileNumber = mobileNumber;
         this.email = email;
         this.gender = gender;
+        this.passengers = passengers;
     }
 
     // Getters and Setters
@@ -94,4 +100,12 @@ public class ReservationDTO {
 
     public String getGender() { return gender; }
     public void setGender(String gender) { this.gender = gender; }
+
+    public List<PassengerDTO> getPassengers() {
+        return passengers;
+    }
+
+    public void setPassengers(List<PassengerDTO> passengers) {
+        this.passengers = passengers;
+    }
 }

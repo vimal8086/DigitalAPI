@@ -4,6 +4,7 @@ import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -26,6 +27,16 @@ public class PickupPoint {
     @NotNull(message = "Pickup time cannot be null.")
     private LocalTime pickupTime;
 
+    @NotNull(message = "Contact Number cannot be null.")
+    @NotBlank(message = "Contact Number cannot be blank.")
+    private String contactNumber;
+
+    @NotNull(message = "Email cannot be null")
+    @Email(message = "Invalid email format")
+    private String email;
+
+
+
     @ManyToOne
     @JoinColumn(name = "bus_id")
     @JsonBackReference  // 🔥 Prevents infinite recursion
@@ -34,11 +45,13 @@ public class PickupPoint {
     public PickupPoint() {
     }
 
-    public PickupPoint(String location, String address, LocalTime pickupTime, Bus bus) {
+    public PickupPoint(String location, String address, LocalTime pickupTime, Bus bus, String contactNumber, String email) {
         this.location = location;
         this.address = address;
         this.pickupTime = pickupTime;
         this.bus = bus;
+        this.contactNumber = contactNumber;
+        this.email = email;
     }
 
     public Integer getId() {
@@ -79,5 +92,21 @@ public class PickupPoint {
 
     public void setBus(Bus bus) {
         this.bus = bus;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

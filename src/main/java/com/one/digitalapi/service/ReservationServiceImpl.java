@@ -2,6 +2,7 @@ package com.one.digitalapi.service;
 
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.Bus;
+import com.one.digitalapi.entity.Passenger;
 import com.one.digitalapi.entity.Reservations;
 import com.one.digitalapi.entity.User;
 import com.one.digitalapi.exception.LoginException;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -64,6 +66,21 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setMobileNumber(reservationDTO.getMobileNumber());
         reservation.setEmail(reservationDTO.getEmail());
         reservation.setGender(reservationDTO.getGender());
+
+        // Set passengers
+        List<Passenger> passengerList = reservationDTO.getPassengers().stream().map(passengerDTO -> {
+            Passenger passenger = new Passenger();
+            passenger.setName(passengerDTO.getName());
+            passenger.setEmail(passengerDTO.getEmail());
+            passenger.setAge(passengerDTO.getAge());
+            passenger.setGender(passengerDTO.getGender());
+            passenger.setContact(passengerDTO.getContact());
+            passenger.setReservation(reservation);
+            return passenger;
+        }).collect(Collectors.toList());
+
+        reservation.setPassengers(passengerList);
+
 
         // Update bus seat availability
         bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
