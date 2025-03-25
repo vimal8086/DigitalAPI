@@ -7,6 +7,7 @@ import com.one.digitalapi.exception.ReservationException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ReservationService {
 

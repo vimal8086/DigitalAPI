@@ -1,7 +1,6 @@
 package com.one.digitalapi.service;
 
 import com.one.digitalapi.entity.Route;
-import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.exception.RouteException;
 import com.one.digitalapi.repository.RouteRepository;
 import org.springframework.stereotype.Service;
