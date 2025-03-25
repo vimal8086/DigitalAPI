@@ -59,6 +59,12 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setReservationStatus(DigitalAPIConstant.CONFIRMED);
         reservation.setReservationType(DigitalAPIConstant.ONLINE);
 
+        // Set new fields
+        reservation.setUsername(reservationDTO.getUsername());
+        reservation.setMobileNumber(reservationDTO.getMobileNumber());
+        reservation.setEmail(reservationDTO.getEmail());
+        reservation.setGender(reservationDTO.getGender());
+
         // Update bus seat availability
         bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
         busRepository.save(bus);

@@ -1,14 +1,15 @@
 package com.one.digitalapi.entity;
 
-
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 
 @Entity
 public class Bus {
@@ -17,29 +18,29 @@ public class Bus {
     @GeneratedValue(strategy = GenerationType.AUTO )
     private Integer busId;
 
-    @NotNull(message = "Bus Name can not be null..")
-    @NotBlank(message = "Bus Name can not be blank..")
-    @NotEmpty(message = "Bus Name can not be empty..")
+    @NotNull(message = "Bus Name can not be null.")
+    @NotBlank(message = "Bus Name can not be blank.")
+    @NotEmpty(message = "Bus Name can not be empty.")
     private String busName;
 
-    @NotNull(message = "Driver Name can not be null..")
-    @NotBlank(message = "Driver Name can not be blank..")
-    @NotEmpty(message = "Driver Name can not be empty..")
+    @NotNull(message = "Driver Name can not be null.")
+    @NotBlank(message = "Driver Name can not be blank.")
+    @NotEmpty(message = "Driver Name can not be empty.")
     private String driverName;
 
-    @NotNull(message = "Bus Type can not be null..")
-    @NotBlank(message = "Bus Type can not be blank..")
-    @NotEmpty(message = "Bus Type can not be empty..")
+    @NotNull(message = "Bus Type can not be null.")
+    @NotBlank(message = "Bus Type can not be blank.")
+    @NotEmpty(message = "Bus Type can not be empty.")
     private String busType;
 
-    @NotNull(message = "This Field can not be null..")
-    @NotBlank(message = "This Field can not be blank..")
-    @NotEmpty(message = "This Field can not be empty..")
+    @NotNull(message = "Route From can not be null.")
+    @NotBlank(message = "Route From can not be blank.")
+    @NotEmpty(message = "Route From can not be empty.")
     private String routeFrom;
 
-    @NotNull(message = "This Field can not be null..")
-    @NotBlank(message = "This Field can not be blank..")
-    @NotEmpty(message = "This Field can not be empty..")
+    @NotNull(message = "Route To can not be null.")
+    @NotBlank(message = "Route To can not be blank.")
+    @NotEmpty(message = "Route To can not be empty.")
     private String routeTo;
 
     @Schema(description = "Bus arrival time", example = "18:15:00", format = "time")
@@ -50,10 +51,8 @@ public class Bus {
 
     private Integer farePerSeat;
 
-
     @Min(value = 1)
     @Max(value = 60)
-
     private Integer seats;
 
     private Integer availableSeats;
@@ -62,16 +61,31 @@ public class Bus {
     @ManyToOne
     private Route route;
 
+    // ✅ New Fields Added
+    @NotNull(message = "Contact Number cannot be null.")
+    @NotBlank(message = "Contact Number cannot be blank.")
+    private String contactNumber;
 
-    public Bus(Integer busId,
-               @NotNull(message = "Bus Name can not be null..") @NotBlank(message = "Bus Name can not be blank..") @NotEmpty(message = "Bus Name can not be empty..") String busName,
-               @NotNull(message = "Driver Name can not be null..") @NotBlank(message = "Driver Name can not be blank..") @NotEmpty(message = "Driver Name can not be empty..") String driverName,
-               @NotNull(message = "Bus Type can not be null..") @NotBlank(message = "Bus Type can not be blank..") @NotEmpty(message = "Bus Type can not be empty..") String busType,
-               @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String routeFrom,
-               @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String routeTo,
-               LocalTime arrivalTime, LocalTime departureTime, Integer farePerSeat, @Min(1) @Max(60) Integer seats,
-               Integer availableSeats, Route route) {
-        super();
+    @NotNull(message = "Bus Number cannot be null.")
+    @NotBlank(message = "Bus Number cannot be blank.")
+    private String busNumber;
+
+    private String trackingUrl;
+
+
+    @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  // This prevents infinite recursion
+    private List<PickupPoint> pickupPoints = new ArrayList<>();
+
+
+
+    public Bus() {
+        // Default constructor
+    }
+
+    public Bus(Integer busId, String busName, String driverName, String busType, String routeFrom, String routeTo,
+               LocalTime arrivalTime, LocalTime departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
+               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints) {
         this.busId = busId;
         this.busName = busName;
         this.driverName = driverName;
@@ -84,27 +98,23 @@ public class Bus {
         this.seats = seats;
         this.availableSeats = availableSeats;
         this.route = route;
+        this.contactNumber = contactNumber;
+        this.busNumber = busNumber;
+        this.trackingUrl = trackingUrl;
+        this.pickupPoints = pickupPoints;
     }
-
-
 
     public Integer getBusId() {
         return busId;
     }
 
-
-
     public void setBusId(Integer busId) {
         this.busId = busId;
     }
 
-
-
     public String getBusName() {
         return busName;
     }
-
-
 
     public void setBusName(String busName) {
         this.busName = busName;
@@ -170,39 +180,55 @@ public class Bus {
         return seats;
     }
 
-
-
     public void setSeats(Integer seats) {
         this.seats = seats;
     }
-
-
 
     public Integer getAvailableSeats() {
         return availableSeats;
     }
 
-
-
     public void setAvailableSeats(Integer availableSeats) {
         this.availableSeats = availableSeats;
     }
-
-
 
     public Route getRoute() {
         return route;
     }
 
-
-
     public void setRoute(Route route) {
         this.route = route;
     }
 
+    public String getContactNumber() {
+        return contactNumber;
+    }
 
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
 
-    public Bus() {
-        // TODO Auto-generated constructor stub
+    public String getBusNumber() {
+        return busNumber;
+    }
+
+    public void setBusNumber(String busNumber) {
+        this.busNumber = busNumber;
+    }
+
+    public String getTrackingUrl() {
+        return trackingUrl;
+    }
+
+    public void setTrackingUrl(String trackingUrl) {
+        this.trackingUrl = trackingUrl;
+    }
+
+    public List<PickupPoint> getPickupPoints() {
+        return pickupPoints;
+    }
+
+    public void setPickupPoints(List<PickupPoint> pickupPoints) {
+        this.pickupPoints = pickupPoints;
     }
 }
