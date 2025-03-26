@@ -32,7 +32,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"userId\": \"vimalnew\",\n  \"password\": \"vimal123\",\n  \"code\": \"VDER\",\n  \"email\": \"vimal@gmail.com\",\n  \"createdAt\": \"2025-03-17T11:49:24.279Z\",\n  \"updatedAt\": \"2025-03-17T11:49:24.279Z\"\n}",
+              "raw": "{\n  \"userId\": \"vimalnew1112\",\n  \"password\": \"vimal123\",\n  \"code\": \"VDER\",\n  \"email\": \"vimalc1cd2@gmail.com\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -66,7 +66,13 @@
           "name": "Get All Buses",
           "request": {
             "method": "GET",
-            "header": [],
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                "type": "text"
+              }
+            ],
             "url": {
               "raw": "http://localhost:8080/digital/api/buses",
               "protocol": "http",
@@ -86,11 +92,21 @@
         {
           "name": "Create Bus",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"busName\": \"Payall\",\r\n  \"driverName\": \"BFS\",\r\n  \"busType\": \"Volvo\",\r\n  \"routeFrom\": \"Jamnagar\",\r\n  \"routeTo\": \"Ahmedabad\",\r\n  \"arrivalTime\": \"18:15:00\",\r\n  \"departureTime\": \"18:15:00\",\r\n  \"farePerSeat\": 1400,\r\n  \"seats\": 60,\r\n  \"availableSeats\": 60\r\n}",
+              "raw": "{\r\n    \"busName\": \"New Bus\",\r\n    \"driverName\": \"Sagar\",\r\n    \"busType\": \"Volvo\",\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"arrivalTime\": \"18:15:00\",\r\n    \"departureTime\": \"18:15:00\",\r\n    \"farePerSeat\": 200,\r\n    \"seats\": 60,\r\n    \"availableSeats\": 60,\r\n    \"contactNumber\": \"9099216531\",\r\n    \"busNumber\": \"7070\",\r\n    \"trackingUrl\": \"dsdsdsds\",\r\n    \"email\": \"abc@gmail.com\",\r\n    \"address\": \"asssss\",\r\n    \"pickupPoints\": [\r\n        {\r\n            \"location\": \"sat rasta\",\r\n            \"address\": \"sat rasta\",\r\n            \"pickupTime\": \"18:15:00\",\r\n            \"contactNumber\": \"323232\",\r\n            \"email\": \"dsds@gmail.com\"\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -116,11 +132,21 @@
         {
           "name": "Update Bus",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"busId\": 102,\r\n  \"busName\": \"PayallNew\",\r\n  \"driverName\": \"BFS\",\r\n  \"busType\": \"Volvo\",\r\n  \"routeFrom\": \"Jamnagar\",\r\n  \"routeTo\": \"Ahmedabad\",\r\n  \"arrivalTime\": \"18:15:00\",\r\n  \"departureTime\": \"18:15:00\",\r\n  \"farePerSeat\": 1400,\r\n  \"seats\": 60,\r\n  \"availableSeats\": 60\r\n}",
+              "raw": "{\r\n    \"busId\": 452,\r\n    \"busName\": \"New Bus Updated\",\r\n    \"driverName\": \"Sagar\",\r\n    \"busType\": \"Volvo\",\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"arrivalTime\": \"18:15:00\",\r\n    \"departureTime\": \"18:15:00\",\r\n    \"farePerSeat\": 200,\r\n    \"seats\": 60,\r\n    \"availableSeats\": 60,\r\n    \"contactNumber\": \"9099216531\",\r\n    \"busNumber\": \"7070\",\r\n    \"trackingUrl\": \"dsdsdsds\",\r\n    \"email\": \"abc@gmail.com\",\r\n    \"address\": \"asssss\",\r\n    \"pickupPoints\": [\r\n        {\r\n            \"id\": 5,\r\n            \"location\": \"sat rasta 1\",\r\n            \"address\": \"sat rasta\",\r\n            \"pickupTime\": \"18:15:00\",\r\n            \"contactNumber\": \"323232\",\r\n            \"email\": \"dsds@gmail.com\"\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -146,10 +172,20 @@
         {
           "name": "Get Bus by Bustype",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/digital/api/buses/type/Volvo",
+              "raw": "http://localhost:8080/digital/api/buses/type/Volvo1",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -160,7 +196,7 @@
                 "api",
                 "buses",
                 "type",
-                "Volvo"
+                "Volvo1"
               ]
             }
           },
@@ -169,6 +205,16 @@
         {
           "name": "Get Bus with Bus ID",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
@@ -192,10 +238,20 @@
         {
           "name": "Delete bus",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/digital/api/buses/delete/102",
+              "raw": "http://localhost:8080/digital/api/buses/delete/452",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -206,7 +262,7 @@
                 "api",
                 "buses",
                 "delete",
-                "102"
+                "452"
               ]
             }
           },
@@ -234,10 +290,20 @@
             }
           ],
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MjgwNDQyOSwiZXhwIjoxNzQyODA4MDI5fQ.ZBX-BtNufNx6j01dc6M5QZEfqvN7fA4NduxAfGFVTHQ",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/digital/api/auth/check-user/vimal",
+              "raw": "http://localhost:8080/digital/api/auth/check-user/vimalww",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -248,7 +314,7 @@
                 "api",
                 "auth",
                 "check-user",
-                "vimal"
+                "vimalww"
               ]
             },
             "description": "This is a GET request and it is used to \"get\" data from an endpoint. There is no request body for a GET request, but you can use query parameters to help specify the resource you want data on (e.g., in this request, we have `id=1`).\n\nA successful GET response will have a `200 OK` status, and should include some kind of response body - for example, HTML web content or JSON data."
@@ -263,14 +329,24 @@
             },
             "method": "POST",
             "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"userId\": \"admin\",\r\n    \"password\": \"admin\"\r\n}\r\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
             "url": {
-              "raw": "http://localhost:8080/api/auth/login",
+              "raw": "http://localhost:8080/digital/api/auth/login",
               "protocol": "http",
               "host": [
                 "localhost"
               ],
               "port": "8080",
               "path": [
+                "digital",
                 "api",
                 "auth",
                 "login"
@@ -292,7 +368,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -323,7 +399,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -332,7 +408,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"routeFrom\": \"New York\",\r\n  \"routeTo\": \"San Francisco\",\r\n  \"distance\": 600.0\r\n}",
+              "raw": "{\r\n  \"routeFrom\": \"DDD\",\r\n  \"routeTo\": \"EEE\",\r\n  \"distance\": 600.0\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -363,7 +439,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -372,7 +448,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n    \"routeID\": 1,\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"distance\": 600.0\r\n}",
+              "raw": "{\r\n    \"routeID\": 11,\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"distance\": 600.0\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -403,7 +479,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -411,7 +487,7 @@
             "method": "DELETE",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/digital/api/routes/1",
+              "raw": "http://localhost:8080/digital/api/routes/11",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -421,7 +497,7 @@
                 "digital",
                 "api",
                 "routes",
-                "1"
+                "11"
               ]
             }
           },
@@ -435,7 +511,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3NTcyNCwiZXhwIjoxNzQxMTc5MzI0fQ.T05KD3c1cWwRRuzpORcb6HYqVf7GUO9tix6ZKTZkfdI",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -443,7 +519,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "http://localhost:8080/digital/api/routes/2",
+              "raw": "http://localhost:8080/digital/api/routes/3",
               "protocol": "http",
               "host": [
                 "localhost"
@@ -453,7 +529,7 @@
                 "digital",
                 "api",
                 "routes",
-                "2"
+                "3"
               ]
             }
           },
@@ -467,11 +543,21 @@
         {
           "name": "Add Reservation",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "POST",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"source\": \"Jamnagar\",\r\n  \"destination\": \"Ahmedabad\",\r\n  \"noOfSeatsToBook\": 2,\r\n  \"journeyDate\": \"2025-03-17\",\r\n  \"busDTO\": {\r\n    \"busId\": 1,\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"busJourneyDate\": \"2025-03-17\"\r\n  },\r\n  \"userId\": \"admin\"\r\n}",
+              "raw": "{\r\n    \"source\": \"Jamnagar\",\r\n    \"destination\": \"Ahmedabad\",\r\n    \"noOfSeatsToBook\": 1,\r\n    \"fare\": 200,\r\n    \"journeyDate\": \"2025-03-27 14:30:00\",\r\n    \"busDTO\": {\r\n        \"busId\": 1,\r\n        \"routeFrom\": \"\",\r\n        \"routeTo\": \"Ahmedabad\"\r\n    },\r\n    \"userId\": \"admin\",\r\n    \"username\": \"Vimal\",\r\n    \"mobileNumber\": \"2447258988\",\r\n    \"email\": \"abc@gmail.com\",\r\n    \"gender\": \"Male\",\r\n    \"passengers\": [\r\n        {\r\n            \"name\": \"VDF\",\r\n            \"email\": \"vimal@gmail.com\",\r\n            \"age\": 24,\r\n            \"gender\": \"Male\",\r\n            \"contact\": \"9090909090\"\r\n        },\r\n        {\r\n            \"name\": \"Vishal\",\r\n            \"email\": \"vimal@gmail.com\",\r\n            \"age\": 24,\r\n            \"gender\": \"Male\",\r\n            \"contact\": \"9090909090\"\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -498,11 +584,21 @@
         {
           "name": "Update Reservation",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "PUT",
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"reservationId\": 352,\r\n  \"reservationStatus\": \"CONFIRMED\",\r\n  \"reservationType\": \"ONLINE\",\r\n  \"reservationDate\": \"2025-03-18\",\r\n  \"journeyDate\": \"2025-03-18\",\r\n  \"reservationTime\": \"17:46:04.1736873\",\r\n  \"source\": \"Jamnagar\",\r\n  \"destination\": \"Ahmedabad\",\r\n  \"noOfSeatsBooked\": 2,\r\n  \"fare\": 800,\r\n  \"cancellationReason\": null,\r\n  \"refundAmount\": null,\r\n  \"bus\": {\r\n    \"busId\": 1,\r\n    \"busName\": \"SAMAY\",\r\n    \"driverName\": \"Nathu\",\r\n    \"busType\": \"Volvo\",\r\n    \"routeFrom\": \"Jamnagar\",\r\n    \"routeTo\": \"Ahmedabad\",\r\n    \"arrivalTime\": null,\r\n    \"departureTime\": null,\r\n    \"farePerSeat\": 400,\r\n    \"seats\": 60,\r\n    \"availableSeats\": 11\r\n  },\r\n  \"user\": {\r\n    \"id\": 3,\r\n    \"userId\": \"admin\",\r\n    \"password\": \"$2a$10$lp5GzAmVKngNzoVAzdmGwONf2BhOF9EC5CFQoT8wIUonMTF3kZ0Pq\",\r\n    \"code\": \"aas\",\r\n    \"email\": \"admin@example.com\",\r\n    \"status\": \"ACTIVE\",\r\n    \"lastLogin\": null,\r\n    \"createdAt\": \"2025-03-05T12:32:54\",\r\n    \"updatedAt\": \"2025-03-05T12:32:54\"\r\n  }\r\n}",
+              "raw": "{\r\n    \"reservationId\": 1252,\r\n    \"reservationStatus\": \"CONFIRMED\",\r\n    \"reservationType\": \"ONLINE\",\r\n    \"reservationDate\": \"2025-03-27 15:00:34\",\r\n    \"journeyDate\": \"2025-03-27 14:30:00\",\r\n    \"source\": \"Surat\",\r\n    \"destination\": \"Ahmedabad\",\r\n    \"noOfSeatsBooked\": 1,\r\n    \"fare\": 400,\r\n    \"cancellationReason\": null,\r\n    \"refundAmount\": null,\r\n    \"username\": \"Vimal\",\r\n    \"mobileNumber\": \"2447258988\",\r\n    \"email\": \"abc@gmail.com\",\r\n    \"gender\": \"Male\",\r\n    \"bus\": {\r\n        \"busId\": 1,\r\n        \"busName\": \"SAMAY\",\r\n        \"driverName\": \"Nathu\",\r\n        \"busType\": \"Volvo\",\r\n        \"routeFrom\": \"Jamnagar\",\r\n        \"routeTo\": \"Ahmedabad\",\r\n        \"arrivalTime\": null,\r\n        \"departureTime\": null,\r\n        \"farePerSeat\": 400,\r\n        \"seats\": 60,\r\n        \"availableSeats\": 2,\r\n        \"contactNumber\": \"7676767676\",\r\n        \"busNumber\": \"6767\",\r\n        \"trackingUrl\": \"fdfdfd\",\r\n        \"email\": \"\",\r\n        \"address\": \"\",\r\n        \"pickupPoints\": [\r\n            {\r\n                \"id\": 1,\r\n                \"location\": \"sat rasta\",\r\n                \"address\": \"sat rasta\",\r\n                \"pickupTime\": \"18:30:00\",\r\n                \"contactNumber\": \"2121212\",\r\n                \"email\": \"avc@gmail.com\"\r\n            }\r\n        ]\r\n    },\r\n    \"user\": {\r\n        \"id\": 3,\r\n        \"userId\": \"admin\",\r\n        \"password\": \"$2a$10$lp5GzAmVKngNzoVAzdmGwONf2BhOF9EC5CFQoT8wIUonMTF3kZ0Pq\",\r\n        \"code\": \"aas\",\r\n        \"email\": \"admin@example.com\",\r\n        \"status\": \"ACTIVE\",\r\n        \"lastLogin\": null,\r\n        \"createdAt\": \"2025-03-05T12:32:54\",\r\n        \"updatedAt\": \"2025-03-05T12:32:54\"\r\n    },\r\n    \"passengers\": [\r\n        {\r\n            \"id\": 6,\r\n            \"name\": \"VDF\",\r\n            \"email\": \"vimal@gmail.com\",\r\n            \"age\": 24,\r\n            \"gender\": \"Male\",\r\n            \"contact\": \"9090909090\"\r\n        },\r\n        {\r\n            \"id\": 7,\r\n            \"name\": \"Vishal\",\r\n            \"email\": \"vimal@gmail.com\",\r\n            \"age\": 24,\r\n            \"gender\": \"Male\",\r\n            \"contact\": \"9090909090\"\r\n        }\r\n    ]\r\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -529,16 +625,65 @@
         {
           "name": "Get Reservation with id",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/reservations/view/3522",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "reservations",
+                "view",
+                "3522"
+              ]
+            }
           },
           "response": []
         },
         {
           "name": "Get All Reservation",
           "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
+                  "type": "string"
+                }
+              ]
+            },
             "method": "GET",
-            "header": []
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/digital/api/reservations/all",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "digital",
+                "api",
+                "reservations",
+                "all"
+              ]
+            }
           },
           "response": []
         },
@@ -584,7 +729,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3MzQ2NiwiZXhwIjoxNzQxMTc3MDY2fQ.oTSvNP649vXOyRHXVZIG741LOr96f5AMPSFtt3VS8Cs",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -615,7 +760,7 @@
               "bearer": [
                 {
                   "key": "token",
-                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0MTE3MzQ2NiwiZXhwIjoxNzQxMTc3MDY2fQ.oTSvNP649vXOyRHXVZIG741LOr96f5AMPSFtt3VS8Cs",
+                  "value": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc0Mjk4MDk2NCwiZXhwIjoxNzQyOTg0NTY0fQ.rpote4F1yyomsQ1pToG6n2eTNWtN4NgXPzWkqAjEWy8",
                   "type": "string"
                 }
               ]
@@ -624,7 +769,7 @@
             "header": [],
             "body": {
               "mode": "raw",
-              "raw": "{\r\n  \"destination\": \"Paris\"\r\n}\r\n",
+              "raw": "{\r\n  \"destination\": \"DDFF\"\r\n}\r\n",
               "options": {
                 "raw": {
                   "language": "json"

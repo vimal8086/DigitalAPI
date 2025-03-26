@@ -41,7 +41,7 @@ public class User {
     @Column(nullable = false)
     private String status = "ACTIVE";  // Default status
 
-    private String lastLogin;
+    private LocalDateTime lastLogin;
 
     @CreationTimestamp  // Automatically sets the creation timestamp
     @Column(updatable = false)

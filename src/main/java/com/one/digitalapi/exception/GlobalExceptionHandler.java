@@ -76,6 +76,14 @@ public class GlobalExceptionHandler {
         }
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntimeException(RuntimeException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage()); // Return the message in JSON format
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
+
     public static ResponseEntity<Map<String, Object>> getMapResponseEntity(String message, Exception ex) {
         Map<String, Object> errorResponse = new HashMap<>();
 

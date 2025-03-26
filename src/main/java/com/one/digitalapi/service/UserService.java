@@ -4,6 +4,8 @@ import com.one.digitalapi.exception.UserException;
 import com.one.digitalapi.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -29,6 +31,12 @@ public class UserService {
         if (existingUser.isPresent()) {
             throw new UserException("User ID already exists!");
         }
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new RuntimeException("Email is already taken");
+        }
+
+        user.setLastLogin(LocalDateTime.now());
 
         // 🔹 Hash the password before saving
         user.setPassword(passwordEncoder.encode(user.getPassword()));

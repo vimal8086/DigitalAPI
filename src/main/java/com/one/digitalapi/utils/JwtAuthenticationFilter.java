@@ -1,6 +1,10 @@
 package com.one.digitalapi.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.MalformedJwtException;
+import io.jsonwebtoken.UnsupportedJwtException;
+import io.jsonwebtoken.security.SignatureException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -52,36 +56,45 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        String authHeader = request.getHeader("Authorization");
 
-            String authHeader = request.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            handleUnauthorizedError(response, request, "Token not provided or invalid token.");
+            return;
+        }
 
-            if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-                handleUnauthorizedError(response, request, "Token not provided or invalid token.");
-                return;
-            }
+        String token = authHeader.substring(7); // Remove "Bearer " prefix
+        String username = null;
 
-            String token = authHeader.substring(7); // Remove "Bearer " prefix
-            String username = jwtUtil.extractUsername(token);
+        try {
+            username = jwtUtil.extractUsername(token);
+        } catch (ExpiredJwtException e) {
+            handleUnauthorizedError(response, request, "Token has expired. Please log in again.");
+            return;
+        } catch (MalformedJwtException | SignatureException | UnsupportedJwtException | IllegalArgumentException e) {
+            handleUnauthorizedError(response, request, "Invalid token.");
+            return;
+        }
 
-            if (username == null || SecurityContextHolder.getContext().getAuthentication() != null) {
-                filterChain.doFilter(request, response);
-                return;
-            }
-
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
-            if (!jwtUtil.isTokenValid(token, userDetails.getUsername())) {
-                handleUnauthorizedError(response, request, "Invalid token.");
-                return;
-            }
-
-            UsernamePasswordAuthenticationToken authenticationToken =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-
-            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
-            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        if (username == null || SecurityContextHolder.getContext().getAuthentication() != null) {
             filterChain.doFilter(request, response);
+            return;
+        }
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        if (!jwtUtil.isTokenValid(token, userDetails.getUsername())) {
+            handleUnauthorizedError(response, request, "Invalid token.");
+            return;
+        }
+
+        UsernamePasswordAuthenticationToken authenticationToken =
+                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+        authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+
+        SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+        filterChain.doFilter(request, response);
     }
 
 
