@@ -14,8 +14,7 @@ import com.one.digitalapi.utils.DigitalAPIConstant;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -53,8 +52,7 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setDestination(reservationDTO.getDestination());
         reservation.setNoOfSeatsBooked(reservationDTO.getNoOfSeatsToBook());
         reservation.setJourneyDate(reservationDTO.getJourneyDate());
-        reservation.setReservationDate(LocalDate.now());
-        reservation.setReservationTime(LocalTime.now());
+        reservation.setReservationDate(LocalDateTime.now().plusSeconds(2));
         reservation.setBus(bus);
         reservation.setUser(user);
         reservation.setFare(bus.getFarePerSeat() * reservationDTO.getNoOfSeatsToBook());
@@ -80,7 +78,6 @@ public class ReservationServiceImpl implements ReservationService {
         }).collect(Collectors.toList());
 
         reservation.setPassengers(passengerList);
-
 
         // Update bus seat availability
         bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
@@ -149,21 +146,17 @@ public class ReservationServiceImpl implements ReservationService {
      * Refund calculation based on cancellation timing
      */
     private Integer calculateRefund(Reservations reservation) {
-        LocalDate today = LocalDate.now();
-        LocalTime now = LocalTime.now();
-
-        LocalDate journeyDate = reservation.getJourneyDate();
-        LocalTime journeyTime = reservation.getReservationTime(); // Assuming this is the journey time
-
+        LocalDateTime now = LocalDateTime.now(); // Get current date and time
+        LocalDateTime journeyDateTime = reservation.getJourneyDate(); // Get journey date & time
         Integer fare = reservation.getFare();
 
-        // Case 1: If the journey date is in the future, check the 1-hour rule
-        if (journeyDate.isAfter(today)) {
+        // Case 1: If the journey is in the future, full refund
+        if (journeyDateTime.isAfter(now)) {
             return fare;  // Full refund for future journeys
         }
 
-        // Case 2: If canceling on the same day, check if it's at least 1 hour before journey time
-        if (journeyDate.isEqual(today) && now.isBefore(journeyTime.minusHours(1))) {
+        // Case 2: If canceling at least 1 hour before journey time, full refund
+        if (journeyDateTime.minusHours(1).isAfter(now)) {
             return fare;  // Full refund
         }
 

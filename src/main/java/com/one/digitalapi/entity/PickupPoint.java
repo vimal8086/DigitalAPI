@@ -3,11 +3,10 @@ package com.one.digitalapi.entity;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 
 @Entity
 public class PickupPoint {
@@ -22,19 +21,27 @@ public class PickupPoint {
     private String location;
 
     @NotNull(message = "Pickup address cannot be null.")
+    @NotBlank(message = "Pickup address cannot be blank.")
+    @NotEmpty(message = "Pickup address cannot be empty.")
     private String address;
 
     @NotNull(message = "Pickup time cannot be null.")
-    private LocalTime pickupTime;
+    @NotBlank(message = "Pickup time cannot be blank.")
+    @NotEmpty(message = "Pickup time cannot be empty.")
+    @Schema(description = "Pickup time", example = "18:15:00", format = "time")
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    private String pickupTime;
 
     @NotNull(message = "Contact Number cannot be null.")
     @NotBlank(message = "Contact Number cannot be blank.")
+    @NotEmpty(message = "Contact Number cannot be empty.")
     private String contactNumber;
 
     @NotNull(message = "Email cannot be null")
     @Email(message = "Invalid email format")
+    @NotEmpty(message = "Contact Number cannot be empty.")
     private String email;
-
 
 
     @ManyToOne
@@ -45,7 +52,7 @@ public class PickupPoint {
     public PickupPoint() {
     }
 
-    public PickupPoint(String location, String address, LocalTime pickupTime, Bus bus, String contactNumber, String email) {
+    public PickupPoint(String location, String address, String pickupTime, Bus bus, String contactNumber, String email) {
         this.location = location;
         this.address = address;
         this.pickupTime = pickupTime;
@@ -78,11 +85,11 @@ public class PickupPoint {
         this.address = address;
     }
 
-    public LocalTime getPickupTime() {
+    public String getPickupTime() {
         return pickupTime;
     }
 
-    public void setPickupTime(LocalTime pickupTime) {
+    public void setPickupTime(String pickupTime) {
         this.pickupTime = pickupTime;
     }
 

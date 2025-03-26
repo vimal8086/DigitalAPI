@@ -1,12 +1,15 @@
 package com.one.digitalapi.entity;
 
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.one.digitalapi.validation.DefaultValidation;
+import com.one.digitalapi.validation.FullValidation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,37 +21,51 @@ public class Bus {
     @GeneratedValue(strategy = GenerationType.AUTO )
     private Integer busId;
 
-    @NotNull(message = "Bus Name can not be null.")
-    @NotBlank(message = "Bus Name can not be blank.")
-    @NotEmpty(message = "Bus Name can not be empty.")
+    @NotNull(message = "Bus Name can not be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "Bus Name can not be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "Bus Name can not be empty.", groups = DefaultValidation.class)
     private String busName;
 
-    @NotNull(message = "Driver Name can not be null.")
-    @NotBlank(message = "Driver Name can not be blank.")
-    @NotEmpty(message = "Driver Name can not be empty.")
+    @NotNull(message = "Driver Name can not be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "Driver Name can not be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "Driver Name can not be empty.", groups = DefaultValidation.class)
     private String driverName;
 
-    @NotNull(message = "Bus Type can not be null.")
-    @NotBlank(message = "Bus Type can not be blank.")
-    @NotEmpty(message = "Bus Type can not be empty.")
+    @NotNull(message = "Bus Type can not be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "Bus Type can not be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "Bus Type can not be empty.", groups = DefaultValidation.class)
     private String busType;
 
-    @NotNull(message = "Route From can not be null.")
-    @NotBlank(message = "Route From can not be blank.")
-    @NotEmpty(message = "Route From can not be empty.")
+    @NotNull(message = "Route From can not be null.", groups = FullValidation.class)
+    @NotBlank(message = "Route From can not be blank.", groups = FullValidation.class)
+    @NotEmpty(message = "Route From can not be empty.", groups = FullValidation.class)
     private String routeFrom;
 
-    @NotNull(message = "Route To can not be null.")
-    @NotBlank(message = "Route To can not be blank.")
-    @NotEmpty(message = "Route To can not be empty.")
+    @NotNull(message = "Route To can not be null.", groups = FullValidation.class)
+    @NotBlank(message = "Route To can not be blank.", groups = FullValidation.class)
+    @NotEmpty(message = "Route To can not be empty.", groups = FullValidation.class)
     private String routeTo;
 
+
     @Schema(description = "Bus arrival time", example = "18:15:00", format = "time")
-    private LocalTime arrivalTime;
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    @NotNull(message = "arrival time can not be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "arrival time can not be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "arrival time can not be empty.", groups = DefaultValidation.class)
+    private String arrivalTime; // Use String to enforce validation
 
     @Schema(description = "Bus departure time", example = "18:15:00", format = "time")
-    private LocalTime departureTime;
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    @NotNull(message = "departure time can not be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "departure time can not be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "departure time can not be empty.", groups = DefaultValidation.class)
+    private String departureTime;
 
+    @NotNull(message = "Fare per seat cannot be null.", groups = DefaultValidation.class) // Ensures value is provided
+    @Positive(message = "Fare per seat must be greater than zero.", groups = DefaultValidation.class) // Must be greater than 0
+    @PositiveOrZero(message = "Fare per seat must be zero or positive.", groups = DefaultValidation.class) // Allows 0
     private Integer farePerSeat;
 
     @Min(value = 1)
@@ -59,29 +76,37 @@ public class Bus {
 
     @JsonIgnore
     @ManyToOne
+    @Valid
     private Route route;
 
     // New Fields Added
-    @NotNull(message = "Contact Number cannot be null.")
-    @NotBlank(message = "Contact Number cannot be blank.")
+    @NotNull(message = "Contact Number cannot be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "Contact Number cannot be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "Contact Number cannot be Empty", groups = DefaultValidation.class)
     private String contactNumber;
 
-    @NotNull(message = "Bus Number cannot be null.")
-    @NotBlank(message = "Bus Number cannot be blank.")
+    @NotNull(message = "Bus Number cannot be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "Bus Number cannot be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "Bus Number cannot be Empty", groups = DefaultValidation.class)
     private String busNumber;
 
     private String trackingUrl;
 
-    @NotNull(message = "Email cannot be null")
-    @Email(message = "Invalid email format")
+    @NotNull(message = "Email cannot be null", groups = DefaultValidation.class)
+    @Email(message = "Invalid email format", groups = DefaultValidation.class)
+    @NotEmpty(message = "Email cannot be Empty", groups = DefaultValidation.class)
+    @Email(message = "Invalid email format", groups = DefaultValidation.class)
     private String email;
 
-    @NotNull(message = "Pickup address cannot be null.")
+    @NotNull(message = "Pickup address cannot be null.", groups = DefaultValidation.class)
+    @NotBlank(message = "Pickup address can not be blank.", groups = DefaultValidation.class)
+    @NotEmpty(message = "Pickup address can not be empty.", groups = DefaultValidation.class)
     private String address;
 
 
     @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference  // This prevents infinite recursion
+    @Valid
     private List<PickupPoint> pickupPoints = new ArrayList<>();
 
 
@@ -91,7 +116,7 @@ public class Bus {
     }
 
     public Bus(Integer busId, String busName, String driverName, String busType, String routeFrom, String routeTo,
-               LocalTime arrivalTime, LocalTime departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
+               String arrivalTime, String departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
                String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, String email,String address) {
         this.busId = busId;
         this.busName = busName;
@@ -161,19 +186,19 @@ public class Bus {
         this.routeTo = routeTo;
     }
 
-    public LocalTime getArrivalTime() {
+    public String getArrivalTime() {
         return arrivalTime;
     }
 
-    public void setArrivalTime(LocalTime arrivalTime) {
+    public void setArrivalTime(String arrivalTime) {
         this.arrivalTime = arrivalTime;
     }
 
-    public LocalTime getDepartureTime() {
+    public String getDepartureTime() {
         return departureTime;
     }
 
-    public void setDepartureTime(LocalTime departureTime) {
+    public void setDepartureTime(String departureTime) {
         this.departureTime = departureTime;
     }
 

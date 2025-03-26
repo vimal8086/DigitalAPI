@@ -1,12 +1,9 @@
 package com.one.digitalapi.dto;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -23,10 +20,11 @@ public class ReservationDTO {
     @NotNull
     private Integer noOfSeatsToBook;
 
-    @NotNull
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
-    private LocalDate journeyDate;
+    @NotNull(message = "Journey date cannot be null")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @FutureOrPresent(message = "Journey date must be today or in the future")
+    private LocalDateTime journeyDate;
 
     private BusDTO busDTO;
     private String userId;
@@ -54,7 +52,7 @@ public class ReservationDTO {
     }
 
     public ReservationDTO(
-            String source, String destination, Integer noOfSeatsToBook, LocalDate journeyDate,
+            String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate,
             BusDTO busDTO, String userId, String username, String mobileNumber, String email, String gender, List<PassengerDTO> passengers) {
         super();
         this.source = source;
@@ -83,8 +81,8 @@ public class ReservationDTO {
     public Integer getNoOfSeatsToBook() { return noOfSeatsToBook; }
     public void setNoOfSeatsToBook(Integer noOfSeatsToBook) { this.noOfSeatsToBook = noOfSeatsToBook; }
 
-    public LocalDate getJourneyDate() { return journeyDate; }
-    public void setJourneyDate(LocalDate journeyDate) { this.journeyDate = journeyDate; }
+    public LocalDateTime getJourneyDate() { return journeyDate; }
+    public void setJourneyDate(LocalDateTime journeyDate) { this.journeyDate = journeyDate; }
 
     public BusDTO getBusDTO() { return busDTO; }
     public void setBusDTO(BusDTO busDTO) { this.busDTO = busDTO; }

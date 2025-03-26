@@ -1,14 +1,13 @@
 package com.one.digitalapi.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
-import java.time.LocalDate;
-import java.time.LocalTime;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -23,9 +22,18 @@ public class Reservations {
     @NotNull(message = "This Field can not be null..")
     private String reservationType;
 
-    private LocalDate reservationDate;
-    private LocalDate journeyDate;
-    private LocalTime reservationTime;
+    @NotNull(message = "reservation date cannot be null")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @FutureOrPresent(message = "reservation date must be today or in the future")
+    private LocalDateTime reservationDate;
+
+    @NotNull(message = "Journey date cannot be null")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @FutureOrPresent(message = "Journey date must be today or in the future")
+    private LocalDateTime journeyDate;
+
 
     @NotNull(message = "Reservation source can not be null..")
     @NotBlank(message = "Reservation source can not be blank..")
@@ -37,10 +45,17 @@ public class Reservations {
     @NotEmpty(message = "Reservation destination can not be empty..")
     private String destination;
 
+    @NotNull(message = "Number of seats booked cannot be null")
+    @Min(value = 1, message = "At least 1 seat must be booked")
+    @Positive(message = "No of seat must be greater than zero.") // Must be greater than 0
     private Integer noOfSeatsBooked;
+
+    @PositiveOrZero(message = "Fare must be zero or positive.") // Allows 0
+    @NotNull(message = "fare cannot be null")
     private Integer fare;
 
     private String cancellationReason;
+
     private Integer refundAmount;
 
     // New Fields
@@ -60,13 +75,13 @@ public class Reservations {
     @Pattern(regexp = "Male|Female|Other", message = "Gender must be Male, Female, or Other")
     private String gender;
 
-    @ManyToOne
+    @ManyToOne(optional = true)
+    @Valid
     @JoinColumn(name = "bus_id", referencedColumnName = "busId")
     private Bus bus;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "userId")
-
     private User user;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -106,29 +121,22 @@ public class Reservations {
         this.reservationType = reservationType;
     }
 
-    public LocalDate getReservationDate() {
+    public LocalDateTime getReservationDate() {
         return reservationDate;
     }
 
-    public void setReservationDate(LocalDate reservationDate) {
+    public void setReservationDate(LocalDateTime reservationDate) {
         this.reservationDate = reservationDate;
     }
 
-    public LocalDate getJourneyDate() {
+    public LocalDateTime getJourneyDate() {
         return journeyDate;
     }
 
-    public void setJourneyDate(LocalDate journeyDate) {
+    public void setJourneyDate(LocalDateTime journeyDate) {
         this.journeyDate = journeyDate;
     }
 
-    public LocalTime getReservationTime() {
-        return reservationTime;
-    }
-
-    public void setReservationTime(LocalTime reservationTime) {
-        this.reservationTime = reservationTime;
-    }
 
     public String getSource() {
         return source;
@@ -229,7 +237,7 @@ public class Reservations {
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
-                        LocalDate reservationDate, LocalDate journeyDate, LocalTime reservationTime,
+                        LocalDateTime reservationDate, LocalDateTime journeyDate,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String source,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
@@ -240,7 +248,6 @@ public class Reservations {
         this.reservationType = reservationType;
         this.reservationDate = reservationDate;
         this.journeyDate = journeyDate;
-        this.reservationTime = reservationTime;
         this.source = source;
         this.destination = destination;
         this.noOfSeatsBooked = noOfSeatsBooked;

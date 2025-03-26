@@ -8,6 +8,7 @@ import com.one.digitalapi.service.UserService;
 import com.one.digitalapi.utils.JwtUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -62,7 +63,7 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Generate a token using the user ID", description = "You can generate a token using userID and Password")
-    public ResponseEntity<Map<String, Object>> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<Map<String, Object>> login(@Valid @RequestBody LoginRequest request) {
 
         String strMethodName = "login";
         LOGGER.infoLog(CLASSNAME, strMethodName, "Received login request for user: {} " + request.getUserId());

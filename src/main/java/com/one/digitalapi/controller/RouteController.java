@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -62,13 +63,21 @@ public class RouteController {
             @ApiResponse(responseCode = "200", description = "Route deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
-    public ResponseEntity<String> deleteRoute(@PathVariable int routeId) {
+    public ResponseEntity<Map<String, String>> deleteRoute(@PathVariable int routeId) {
         String methodName = "deleteRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to delete route with ID: " + routeId);
+
         routeService.deleteRoute(routeId);
+
         LOGGER.infoLog(CLASSNAME, methodName, "Route with ID " + routeId + " deleted successfully");
-        return ResponseEntity.ok("Route deleted successfully");
+
+        // JSON response
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Route deleted successfully");
+
+        return ResponseEntity.ok(response);
     }
+
 
     @GetMapping("/{routeId}")
     @Operation(summary = "Get a route with route id", description = "Get a route with route id")

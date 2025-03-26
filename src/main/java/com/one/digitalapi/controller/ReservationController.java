@@ -2,7 +2,6 @@ package com.one.digitalapi.controller;
 
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.Reservations;
-import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.logger.DefaultLogger;
@@ -16,7 +15,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
