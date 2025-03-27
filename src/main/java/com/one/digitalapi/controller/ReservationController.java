@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -44,16 +45,6 @@ public class ReservationController {
         return ResponseEntity.ok(reservation);
     }
 
-    @PutMapping("/update")
-    @Operation(summary = "Update a reservation", description = "Update a reservation")
-    public ResponseEntity<Reservations> updateReservation(@Valid @RequestBody Reservations reservation) throws ReservationException, LoginException {
-        String methodName = "updateReservation";
-        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update reservation: " + reservation);
-        Reservations updatedReservation = reservationService.updateReservation(reservation);
-        LOGGER.infoLog(CLASSNAME, methodName, "Reservation updated successfully: " + updatedReservation);
-        return ResponseEntity.ok(updatedReservation);
-    }
-
     @GetMapping("/view/{id}")
     @Operation(summary = "Get a reservation with reservation id", description = "Get a reservation with reservation id")
     @ApiResponses({
@@ -81,14 +72,31 @@ public class ReservationController {
 
     @DeleteMapping("/cancel/{id}")
     @Operation(summary = "Cancel a reservation", description = "Cancel a reservation and calculate refund")
-    public ResponseEntity<Reservations> cancelReservation(
+    public ResponseEntity<Map<String, Object>> cancelReservation(
             @PathVariable Integer id,
-            @RequestParam String cancellationReason) throws ReservationException, LoginException {
+            @RequestParam String cancellationReason) throws ReservationException {
+
         String methodName = "cancelReservation";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to cancel reservation with ID: " + id + " for reason: " + cancellationReason);
-        Reservations canceledReservation = reservationService.deleteReservation(id, cancellationReason);
-        LOGGER.infoLog(CLASSNAME, methodName, "Reservation canceled successfully: " + canceledReservation);
-        return ResponseEntity.ok(canceledReservation);
+
+        try {
+            Reservations canceledReservation = reservationService.deleteReservation(id, cancellationReason);
+            LOGGER.infoLog(CLASSNAME, methodName, "Reservation canceled successfully: " + canceledReservation);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Reservation cancelled successfully");
+            response.put("refund amount", canceledReservation.getRefundAmount());
+            response.put("status", canceledReservation.getReservationStatus());
+
+            return ResponseEntity.ok(response);
+        } catch (ReservationException e) {
+            // Handle already cancelled reservation case
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (LoginException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     // Global Exception Handling for ReservationException and LoginException

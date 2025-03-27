@@ -30,7 +30,7 @@ public class Passenger {
     private String contact;
 
     @ManyToOne
-    @JoinColumn(name = "reservation_id", referencedColumnName = "reservationId")
+    @JoinColumn(name = "reservation_id")
     @JsonBackReference
     private Reservations reservation;
 

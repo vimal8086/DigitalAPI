@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
+import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@DynamicUpdate
 public class Reservations {
 
     @Id
@@ -85,7 +87,7 @@ public class Reservations {
     private User user;
 
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonManagedReference
+    @JsonManagedReference  // This prevents infinite recursion
     private List<Passenger> passengers;
 
     public List<Passenger> getPassengers() {

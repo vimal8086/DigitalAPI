@@ -11,6 +11,7 @@ import com.one.digitalapi.repository.BusRepository;
 import com.one.digitalapi.repository.ReservationRepository;
 import com.one.digitalapi.repository.UserRepository;
 import com.one.digitalapi.utils.DigitalAPIConstant;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -87,44 +88,33 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Reservations updateReservation(Reservations reservation) throws ReservationException, LoginException {
-        Reservations existingReservation = reservationRepository.findById(reservation.getReservationId())
-                .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservation.getReservationId()));
-
-        existingReservation.setSource(reservation.getSource());
-        existingReservation.setDestination(reservation.getDestination());
-        existingReservation.setJourneyDate(reservation.getJourneyDate());
-        existingReservation.setNoOfSeatsBooked(reservation.getNoOfSeatsBooked());
-        existingReservation.setReservationStatus(reservation.getReservationStatus());
-
-        return reservationRepository.save(existingReservation);
-    }
-
-
-    @Override
+    @Transactional
     public Reservations deleteReservation(Integer reservationId, String cancellationReason) throws ReservationException {
         Reservations existingReservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
 
+        // Check if reservation is already cancelled
+        if (DigitalAPIConstant.CANCELLED.equals(existingReservation.getReservationStatus())) {
+            throw new ReservationException("Reservation Already CANCELLED");
+        }
+
         // Calculate refund based on the cancellation time
         Integer refundAmount = calculateRefund(existingReservation);
-
-        // Update Cancellation Details
-        existingReservation.setReservationStatus(DigitalAPIConstant.CANCELLED);
-        existingReservation.setCancellationReason(cancellationReason);
-        existingReservation.setRefundAmount(refundAmount);
 
         // Update bus seat availability
         Bus bus = existingReservation.getBus();
         bus.setAvailableSeats(bus.getAvailableSeats() + existingReservation.getNoOfSeatsBooked());
         busRepository.save(bus);
 
-        reservationRepository.save(existingReservation);
+        // Update Reservation Status Directly in DB
+        reservationRepository.updateReservationStatus(reservationId, DigitalAPIConstant.CANCELLED, cancellationReason, refundAmount);
 
-        // ✅ Set custom message inside an unused field (e.g., `cancellationReason`)
-        existingReservation.setCancellationReason("Reservation cancelled successfully. Refund Amount: " + refundAmount);
+        // Manually set refundAmount and status before returning
+        existingReservation.setRefundAmount(refundAmount);
+        existingReservation.setReservationStatus(DigitalAPIConstant.CANCELLED);
+        existingReservation.setCancellationReason(cancellationReason);
 
-        return existingReservation;
+        return existingReservation;  // Returns updated object with manually set fields
     }
 
     @Override
