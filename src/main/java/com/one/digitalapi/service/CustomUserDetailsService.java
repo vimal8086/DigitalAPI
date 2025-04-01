@@ -11,10 +11,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        // Dummy user (Replace with actual DB logic)
-        if (!"admin".equals(username)) {
-            throw new UsernameNotFoundException("User not found: " + username);
-        }
 
         return User.withUsername(username)
                 .password("{noop}password") // No password encoding (for testing)
