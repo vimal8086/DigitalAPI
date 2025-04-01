@@ -1,12 +1,13 @@
 package com.one.digitalapi.dto;
 
-public class BookedSeatDTO {
+import java.util.List;
 
+public class BookedSeatDTO {
     private Integer busId;
-    private String seatName;
+    private List<String> seatName;
 
     // Constructor
-    public BookedSeatDTO(Integer busId, String seatName) {
+    public BookedSeatDTO(Integer busId, List<String> seatName) {
         this.busId = busId;
         this.seatName = seatName;
     }
@@ -20,11 +21,11 @@ public class BookedSeatDTO {
         this.busId = busId;
     }
 
-    public String getSeatName() {
+    public List<String> getSeatName() {
         return seatName;
     }
 
-    public void setSeatName(String seatName) {
+    public void setSeatName(List<String> seatName) {
         this.seatName = seatName;
     }
 }

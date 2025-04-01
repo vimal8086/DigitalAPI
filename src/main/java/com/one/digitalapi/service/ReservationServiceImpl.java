@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -142,8 +143,12 @@ public class ReservationServiceImpl implements ReservationService {
         Bus bus = busRepository.findById(busId)
                 .orElseThrow(() -> new ReservationException("Bus not found for ID: " + busId));
 
-        // Fetch all confirmed reservations for this bus
-        List<Reservations> reservations = reservationRepository.findByBus_BusIdAndReservationStatus(bus.getBusId(), "CONFIRMED");
+        // Get the current date
+        LocalDateTime now = LocalDateTime.now();
+
+        // Fetch all confirmed reservations for this bus with a journeyDate >= today
+        List<Reservations> reservations = reservationRepository
+                .findByBus_BusIdAndReservationStatusAndJourneyDateAfter(bus.getBusId(), "CONFIRMED", now);
 
         // If no confirmed reservations are found, throw an exception or return an empty list
         if (reservations.isEmpty()) {
@@ -159,10 +164,19 @@ public class ReservationServiceImpl implements ReservationService {
         return bookedSeats;
     }
 
+
     @Override
     public List<BookedSeatDTO> getAllBookedSeats() throws ReservationException {
-        // Fetch all confirmed reservations
-        List<Reservations> reservations = reservationRepository.findByReservationStatus("CONFIRMED");
+        // Get the current date and time
+        LocalDateTime now = LocalDateTime.now();
+
+        // Fetch all confirmed reservations with a journeyDate >= today
+        List<Reservations> reservations = reservationRepository.findByReservationStatusAndJourneyDateAfter("CONFIRMED", now);
+
+        // If no reservations are found, throw an exception or return an empty list
+        if (reservations.isEmpty()) {
+            return new ArrayList<>(); // Return an empty list if no reservations are found
+        }
 
         // Collect all booked seats with busId and seatName
         Map<Integer, List<String>> groupedSeats = reservations.stream()
@@ -174,13 +188,11 @@ public class ReservationServiceImpl implements ReservationService {
 
         // Convert the grouped data into the required BookedSeatDTO format
         List<BookedSeatDTO> bookedSeatDTOList = groupedSeats.entrySet().stream()
-                .map(entry -> new BookedSeatDTO(entry.getKey(), entry.getValue().toString())) // Map to BookedSeatDTO
+                .map(entry -> new BookedSeatDTO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
 
         return bookedSeatDTOList;
     }
-
-
 
     /**
      * Refund calculation based on cancellation timing
