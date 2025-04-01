@@ -29,6 +29,10 @@ public class Passenger {
     @Pattern(regexp = "\\d{10}", message = "Contact must be 10 digits")
     private String contact;
 
+    @NotNull(message = "Seat name cannot be null")
+    @NotBlank(message = "Seat name cannot be blank")
+    private String seatName;
+
     @ManyToOne
     @JoinColumn(name = "reservation_id")
     @JsonBackReference
@@ -89,5 +93,13 @@ public class Passenger {
 
     public void setReservation(Reservations reservation) {
         this.reservation = reservation;
+    }
+
+    public String getSeatName() {
+        return seatName;
+    }
+
+    public void setSeatName(String seatName) {
+        this.seatName = seatName;
     }
 }

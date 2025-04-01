@@ -1,5 +1,6 @@
 package com.one.digitalapi.controller;
 
+import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.Reservations;
 import com.one.digitalapi.exception.LoginException;
@@ -96,6 +97,45 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (LoginException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+
+
+    @Operation(summary = "Get List of Booked Seats for a Bus", description = "Fetches list of seats that are booked for a bus with 'Confirmed' status")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of booked seats"),
+            @ApiResponse(responseCode = "400", description = "Invalid bus ID"),
+            @ApiResponse(responseCode = "404", description = "Bus not found")
+    })
+    @GetMapping("/bus/{busId}/booked-seats")
+    public ResponseEntity<Map<String, Object>> getBookedSeatsForBus(@PathVariable Integer busId) {
+        try {
+            List<String> bookedSeats = reservationService.getBookedSeatsForBus(busId);
+            Map<String, Object> response = new HashMap<>();
+            response.put("busId", busId);
+            response.put("BookedSeat", bookedSeats);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } catch (ReservationException e) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", e.getMessage());
+            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+        }
+    }
+
+
+    @Operation(summary = "Get All Booked Seat", description = "Fetches All Booked buses")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "List of booked seats"),
+            @ApiResponse(responseCode = "404", description = "Booked seat not found")
+    })
+    @GetMapping("/Get-All-booked-seats")
+    public ResponseEntity<List<BookedSeatDTO>> getAllBookedSeats() {
+        try {
+            List<BookedSeatDTO> bookedSeats = reservationService.getAllBookedSeats();
+            return ResponseEntity.ok(bookedSeats);
+        } catch (ReservationException e) {
+            return ResponseEntity.status(500).body(null);  // You can improve error handling as needed
         }
     }
 

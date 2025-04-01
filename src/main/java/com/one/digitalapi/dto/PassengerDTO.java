@@ -6,6 +6,8 @@ public class PassengerDTO {
     private Integer age;
     private String gender;
     private String contact;
+    private String seatName;
+
 
     // Getters and Setters
 
@@ -47,5 +49,13 @@ public class PassengerDTO {
 
     public void setContact(String contact) {
         this.contact = contact;
+    }
+
+    public String getSeatName() {
+        return seatName;
+    }
+
+    public void setSeatName(String seatName) {
+        this.seatName = seatName;
     }
 }

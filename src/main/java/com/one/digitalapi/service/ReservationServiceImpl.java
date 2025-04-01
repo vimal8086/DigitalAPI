@@ -1,5 +1,6 @@
 package com.one.digitalapi.service;
 
+import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.Bus;
 import com.one.digitalapi.entity.Passenger;
@@ -16,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.AbstractMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -74,6 +77,7 @@ public class ReservationServiceImpl implements ReservationService {
             passenger.setAge(passengerDTO.getAge());
             passenger.setGender(passengerDTO.getGender());
             passenger.setContact(passengerDTO.getContact());
+            passenger.setSeatName(passengerDTO.getSeatName());
             passenger.setReservation(reservation);
             return passenger;
         }).collect(Collectors.toList());
@@ -131,6 +135,52 @@ public class ReservationServiceImpl implements ReservationService {
         }
         return reservations;
     }
+
+
+    public List<String> getBookedSeatsForBus(Integer busId) throws ReservationException {
+        // Fetch the bus details using the busId
+        Bus bus = busRepository.findById(busId)
+                .orElseThrow(() -> new ReservationException("Bus not found for ID: " + busId));
+
+        // Fetch all confirmed reservations for this bus
+        List<Reservations> reservations = reservationRepository.findByBus_BusIdAndReservationStatus(bus.getBusId(), "CONFIRMED");
+
+        // If no confirmed reservations are found, throw an exception or return an empty list
+        if (reservations.isEmpty()) {
+            throw new ReservationException("No confirmed reservations found for bus with ID: " + busId);
+        }
+
+        // Collect all the booked seat names from passengers in these reservations
+        List<String> bookedSeats = reservations.stream()
+                .flatMap(reservation -> reservation.getPassengers().stream())
+                .map(Passenger::getSeatName)
+                .collect(Collectors.toList());
+
+        return bookedSeats;
+    }
+
+    @Override
+    public List<BookedSeatDTO> getAllBookedSeats() throws ReservationException {
+        // Fetch all confirmed reservations
+        List<Reservations> reservations = reservationRepository.findByReservationStatus("CONFIRMED");
+
+        // Collect all booked seats with busId and seatName
+        Map<Integer, List<String>> groupedSeats = reservations.stream()
+                .flatMap(reservation -> reservation.getPassengers().stream() // Stream passengers from each reservation
+                        .map(passenger -> new AbstractMap.SimpleEntry<>(reservation.getBus().getBusId(), passenger.getSeatName()))) // Pair busId with seatName
+                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty()) // Filter out empty seat names
+                .collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey, // Group by busId
+                        Collectors.mapping(AbstractMap.SimpleEntry::getValue, Collectors.toList()))); // Collect seat names into a list
+
+        // Convert the grouped data into the required BookedSeatDTO format
+        List<BookedSeatDTO> bookedSeatDTOList = groupedSeats.entrySet().stream()
+                .map(entry -> new BookedSeatDTO(entry.getKey(), entry.getValue().toString())) // Map to BookedSeatDTO
+                .collect(Collectors.toList());
+
+        return bookedSeatDTOList;
+    }
+
+
 
     /**
      * Refund calculation based on cancellation timing

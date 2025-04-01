@@ -21,5 +21,10 @@ public interface ReservationRepository extends JpaRepository<Reservations, Integ
                                  @Param("status") String status,
                                  @Param("cancellationReason") String cancellationReason,
                                  @Param("refundAmount") Integer refundAmount);
+
+    List<Reservations> findByBus_BusIdAndReservationStatus(Integer busId, String reservationStatus);
+
+    List<Reservations> findByReservationStatus(String reservationStatus);
+
 }
 

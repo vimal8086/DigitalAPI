@@ -15,6 +15,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -128,6 +129,12 @@ public class BusController {
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to search buses from " + from + " to " + to + " at " + departureTime);
 
         List<Bus> buses = busService.searchBuses(from, to, departureTime);
+
+        // Return the buses found (or an empty list if none found)
+        if (buses == null || buses.isEmpty()) {
+            LOGGER.infoLog(CLASSNAME, methodName, "No buses found. Returning empty array.");
+            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        }
 
         LOGGER.infoLog(CLASSNAME, methodName, "Buses retrieved successfully: " + buses);
         return new ResponseEntity<>(buses, HttpStatus.OK);

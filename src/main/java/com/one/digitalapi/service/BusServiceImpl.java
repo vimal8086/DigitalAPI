@@ -99,17 +99,12 @@ public class BusServiceImpl implements BusService {
                 LocalTime departureTimeParsed = LocalTime.parse(departureTime);
 
                 // Call the repository method with LocalTime
-                buses = bRepo.findByRouteFromAndRouteToAndDepartureTimeBefore(from, to, String.valueOf(departureTimeParsed));
+                buses = bRepo.findByRouteFromAndRouteToAndDepartureTimeAfter(from, to, String.valueOf(departureTimeParsed));
             } else {
                 buses = bRepo.findByRouteFromAndRouteTo(from, to);
             }
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid departure time format. Expected format is HH:mm:ss");
-        }
-
-        if (buses.isEmpty()) {
-            throw new BusException("No buses available from " + from + " to " + to +
-                    (departureTime != null ? " at " + departureTime : ""));
         }
 
         return buses;
