@@ -1,5 +1,7 @@
 package com.one.digitalapi.service;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 import com.one.digitalapi.entity.Bus;
@@ -84,6 +86,32 @@ public class BusServiceImpl implements BusService {
         if (buses.isEmpty()) {
             throw new BusException("No buses available in the system");
         }
+        return buses;
+    }
+
+    @Override
+    public List<Bus> searchBuses(String from, String to, String departureTime) {
+        List<Bus> buses;
+
+        try {
+            if (departureTime != null && !departureTime.isEmpty()) {
+                // Validate and parse the departure time
+                LocalTime departureTimeParsed = LocalTime.parse(departureTime);
+
+                // Call the repository method with LocalTime
+                buses = bRepo.findByRouteFromAndRouteToAndDepartureTimeBefore(from, to, String.valueOf(departureTimeParsed));
+            } else {
+                buses = bRepo.findByRouteFromAndRouteTo(from, to);
+            }
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("Invalid departure time format. Expected format is HH:mm:ss");
+        }
+
+        if (buses.isEmpty()) {
+            throw new BusException("No buses available from " + from + " to " + to +
+                    (departureTime != null ? " at " + departureTime : ""));
+        }
+
         return buses;
     }
 }

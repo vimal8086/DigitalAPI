@@ -112,6 +112,28 @@ public class BusController {
         return new ResponseEntity<>(buses, HttpStatus.OK);
     }
 
+
+    @GetMapping("/search")
+    @Operation(summary = "Search buses by route and time", description = "Filter buses by 'from', 'to', and 'departureTime'")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Buses found"),
+            @ApiResponse(responseCode = "404", description = "No buses found")
+    })
+    public ResponseEntity<List<Bus>> searchBuses(
+            @RequestParam String from,
+            @RequestParam String to,
+            @RequestParam(required = false) String departureTime) {
+
+        String methodName = "searchBuses";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to search buses from " + from + " to " + to + " at " + departureTime);
+
+        List<Bus> buses = busService.searchBuses(from, to, departureTime);
+
+        LOGGER.infoLog(CLASSNAME, methodName, "Buses retrieved successfully: " + buses);
+        return new ResponseEntity<>(buses, HttpStatus.OK);
+    }
+
+
     // Global Exception Handling for BusException and LoginException
     @ExceptionHandler(BusException.class)
     public ResponseEntity<Map<String, Object>> handleBusException(BusException ex) {
