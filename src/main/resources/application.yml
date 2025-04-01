@@ -35,7 +35,7 @@ spring:
    # username: ${ENV_DB_USERNAME:sa}
    # password: ${ENV_DB_PASSWORD:}
 
-    url: jdbc:mysql://192.168.237.137:3306/digital
+    url: jdbc:mysql://localhost:3306/digital
     username: root
     password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
