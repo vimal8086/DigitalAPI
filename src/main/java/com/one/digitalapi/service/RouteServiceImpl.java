@@ -17,11 +17,30 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public Route addRoute(Route route) {
-        return routeRepository.save(route);
-    }
+        if (routeRepository.existsByRouteFromIgnoreCaseAndRouteToIgnoreCase(route.getRouteFrom(), route.getRouteTo())) {
+            throw new RouteException("This route already exists.");
+        }
+
+        // Prevent same `routeFrom` and `routeTo`
+        if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
+            throw new RouteException("RouteFrom and RouteTo cannot be the same.");
+        }
+
+        return routeRepository.save(route);    }
 
     @Override
     public Route updateRoute(Route route) {
+        // Prevent same 'routeFrom' and 'routeTo'
+        if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
+            throw new RouteException("RouteFrom and RouteTo cannot be the same.");
+        }
+
+        // Prevent updating to an already existing route in the database
+        boolean routeExists = routeRepository.existsByRouteFromIgnoreCaseAndRouteToIgnoreCase(route.getRouteFrom(), route.getRouteTo());
+        if (routeExists) {
+            throw new RouteException("This route already exists in the database.");
+        }
+
         return routeRepository.save(route);
     }
 
@@ -43,5 +62,10 @@ public class RouteServiceImpl implements RouteService {
     @Override
     public List<Route> viewAllRoutes() {
         return routeRepository.findAll();
+    }
+
+    @Override
+    public boolean routeExists(String routeFrom, String routeTo) {
+        return routeRepository.existsByRouteFromIgnoreCaseAndRouteToIgnoreCase(routeFrom, routeTo);
     }
 }

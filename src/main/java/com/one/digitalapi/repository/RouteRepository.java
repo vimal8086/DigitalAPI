@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RouteRepository extends JpaRepository<Route, Integer> {
     public Route findByRouteFromAndRouteTo(String from, String to);
 
+    boolean existsByRouteFromIgnoreCaseAndRouteToIgnoreCase(String routeFrom, String routeTo);
 }

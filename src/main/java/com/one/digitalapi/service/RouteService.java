@@ -9,4 +9,5 @@ public interface RouteService {
     void deleteRoute(int routeId);
     Route viewRoute(int routeId);
     List<Route> viewAllRoutes();
+    boolean routeExists(String routeFrom, String routeTo);
 }

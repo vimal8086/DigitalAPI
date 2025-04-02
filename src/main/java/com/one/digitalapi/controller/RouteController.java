@@ -1,7 +1,6 @@
 package com.one.digitalapi.controller;
 
 import com.one.digitalapi.entity.Route;
-import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.exception.RouteException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.RouteService;
@@ -35,26 +34,64 @@ public class RouteController {
 
     @PostMapping
     @Operation(summary = "Add a new route", description = "Creates a new route if it does not exist")
-    public ResponseEntity<Route> addRoute(@Valid @RequestBody Route route) {
+    public ResponseEntity<Map<String, Object>> addRoute(@Valid @RequestBody Route route) {
         String methodName = "addRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to add a new route: " + route);
+
+        // Prevent adding a route where `routeFrom` and `routeTo` are the same
+        if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "RouteFrom and RouteTo cannot be the same."));
+        }
+
+        // Prevent adding duplicate routes (Check in the database)
+        if (routeService.routeExists(route.getRouteFrom(), route.getRouteTo())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "This route already exists."));
+        }
+
         Route createdRoute = routeService.addRoute(route);
         LOGGER.infoLog(CLASSNAME, methodName, "Route added successfully: " + createdRoute);
-        return ResponseEntity.ok(createdRoute);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Route added successfully",
+                "route", createdRoute
+        ));
     }
 
     @PutMapping
     @Operation(summary = "Update a route", description = "Update a route")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Route updated successfully"),
+            @ApiResponse(responseCode = "400", description = "Invalid request"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
-    public ResponseEntity<Route> updateRoute(@Valid @RequestBody Route route) {
+    public ResponseEntity<Map<String, Object>> updateRoute(@Valid @RequestBody Route route) {
         String methodName = "updateRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route: " + route);
+
+
+        // ✅ Step 1: Check if the route exists
+        Route existingRoute = routeService.viewRoute(route.getRouteID());
+        if (existingRoute == null) {
+        return ResponseEntity.status(404).body(Map.of("message", "Route not found for ID: " + route.getRouteID()));
+        }
+
+        // Prevent same 'routeFrom' and 'routeTo'
+        if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "RouteFrom and RouteTo cannot be the same."));
+        }
+
+        // Prevent duplicate routes
+        if (routeService.routeExists(route.getRouteFrom(), route.getRouteTo())) {
+            return ResponseEntity.badRequest().body(Map.of("message", "This route already exists in the database."));
+        }
+
         Route updatedRoute = routeService.updateRoute(route);
         LOGGER.infoLog(CLASSNAME, methodName, "Route updated successfully: " + updatedRoute);
-        return ResponseEntity.ok(updatedRoute);
+
+        return ResponseEntity.ok(Map.of(
+                "message", "Route updated successfully",
+                "route", updatedRoute
+        ));
     }
 
     @DeleteMapping("/{routeId}")
