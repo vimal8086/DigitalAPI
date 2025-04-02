@@ -137,7 +137,6 @@ public class ReservationServiceImpl implements ReservationService {
         return reservations;
     }
 
-
     public List<String> getBookedSeatsForBus(Integer busId) throws ReservationException {
         // Fetch the bus details using the busId
         Bus bus = busRepository.findById(busId)
@@ -163,7 +162,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         return bookedSeats;
     }
-
 
     @Override
     public List<BookedSeatDTO> getAllBookedSeats() throws ReservationException {
