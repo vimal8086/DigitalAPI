@@ -6,6 +6,7 @@ import com.one.digitalapi.entity.Reservations;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.logger.DefaultLogger;
+import com.one.digitalapi.service.BookingService;
 import com.one.digitalapi.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -16,9 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
@@ -32,8 +31,12 @@ public class ReservationController {
 
     private final ReservationService reservationService;
 
-    public ReservationController(ReservationService reservationService) {
+    private final BookingService bookingService;
+
+
+    public ReservationController(ReservationService reservationService, BookingService bookingService) {
         this.reservationService = reservationService;
+        this.bookingService = bookingService;
     }
 
     @PostMapping("/add")
@@ -102,19 +105,32 @@ public class ReservationController {
 
 
 
-    @Operation(summary = "Get List of Booked Seats for a Bus", description = "Fetches list of seats that are booked for a bus with 'Confirmed' status")
+    @Operation(summary = "Get List of All Seats (Booked + Cached Available) for a Bus",
+            description = "Fetches list of all seats, including booked, cached available, and cached intermediate seats")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "List of booked seats"),
+            @ApiResponse(responseCode = "200", description = "List of all seats"),
             @ApiResponse(responseCode = "400", description = "Invalid bus ID"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
     })
-    @GetMapping("/bus/{busId}/booked-seats")
-    public ResponseEntity<Map<String, Object>> getBookedSeatsForBus(@PathVariable Integer busId) {
+    @GetMapping("/bus/{busId}/all-seats")
+    public ResponseEntity<Map<String, Object>> getAllSeatsForBus(@PathVariable Integer busId) {
         try {
+            // Fetch booked seats from the database
             List<String> bookedSeats = reservationService.getBookedSeatsForBus(busId);
+
+            //  Fetch intermediate (cached) seats from Caffeine Cache
+            List<String> cachedSeats = bookingService.getCachedAvailableSeats(busId);
+
+            // Merge all seats
+            Set<String> allSeats = new LinkedHashSet<>(); // Avoid duplicates, preserve order
+            allSeats.addAll(bookedSeats);
+            allSeats.addAll(cachedSeats);
+
+            // 5️⃣ Prepare Response
             Map<String, Object> response = new HashMap<>();
             response.put("busId", busId);
-            response.put("BookedSeat", bookedSeats);
+            response.put("AllBookedSeats", new ArrayList<>(allSeats));
+
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (ReservationException e) {
             Map<String, Object> errorResponse = new HashMap<>();
@@ -122,7 +138,6 @@ public class ReservationController {
             return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
         }
     }
-
 
     @Operation(summary = "Get All Booked Seat", description = "Fetches All Booked buses")
     @ApiResponses(value = {
@@ -147,7 +162,6 @@ public class ReservationController {
 
         return getMapResponseEntity(ex.getMessage(), ex);
     }
-
 
     @ExceptionHandler(LoginException.class)
     public ResponseEntity<String> handleLoginException(LoginException ex) {
