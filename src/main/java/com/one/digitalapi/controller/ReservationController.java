@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
 import java.util.*;
 
 import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
@@ -114,38 +115,57 @@ public class ReservationController {
             @ApiResponse(responseCode = "400", description = "Invalid bus ID or date"),
             @ApiResponse(responseCode = "404", description = "Bus not found or no reservations found")
     })
-    @GetMapping("/bus/{busId}/all-seats")
+    @GetMapping("/bus/allSeats")
     public ResponseEntity<Map<String, Object>> getAllSeatsForBus(
-            @PathVariable Integer busId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate journeyDate) {
+            @RequestParam Integer busId,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String journeyDate) {
+
+        Map<String, Object> response = new HashMap<>();
 
         try {
-            // Convert LocalDate to LocalDateTime (start of the day)
-            LocalDateTime journeyStart = journeyDate.atStartOfDay();
-            LocalDateTime journeyEnd = journeyDate.atTime(LocalTime.MAX); // 23:59:59
+            // Validate busId
+            if (busId == null || busId <= 0) {
+                response.put("error", "Invalid Bus ID. Must be a positive number.");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
 
-            // Fetch booked seats from the database for the given journey date range
+            // Convert String to LocalDate and validate format
+            LocalDate journeyDateStr;
+            try {
+                journeyDateStr = LocalDate.parse(journeyDate);
+            } catch (DateTimeParseException e) {
+                response.put("error", "Invalid date format. Please use yyyy-MM-dd (e.g., 2024-04-05).");
+                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            }
+
+            // Convert LocalDate to LocalDateTime range
+            LocalDateTime journeyStart = journeyDateStr.atStartOfDay();
+            LocalDateTime journeyEnd = journeyDateStr.atTime(LocalTime.MAX);
+
+            // Fetch booked seats
             List<String> bookedSeats = reservationService.getBookedSeatsForBus(busId, journeyStart, journeyEnd);
 
-            // Fetch cached seats from Caffeine Cache
+            // Fetch cached available seats
             List<String> cachedSeats = bookingService.getCachedAvailableSeats(busId);
 
             // Merge all seats
-            Set<String> allSeats = new LinkedHashSet<>();
-            allSeats.addAll(bookedSeats);
+            Set<String> allSeats = new LinkedHashSet<>(bookedSeats);
             allSeats.addAll(cachedSeats);
 
-            // Prepare Response
-            Map<String, Object> response = new HashMap<>();
+            // Prepare response
             response.put("busId", busId);
-            response.put("journeyDate", journeyDate);
+            response.put("journeyDate", journeyDateStr);
             response.put("AllBookedSeats", new ArrayList<>(allSeats));
 
             return new ResponseEntity<>(response, HttpStatus.OK);
+
         } catch (ReservationException e) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("message", e.getMessage());
-            return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+            response.put("error", e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+
+        } catch (Exception e) {
+            response.put("error", "An unexpected error occurred: " + e.getMessage());
+            return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
