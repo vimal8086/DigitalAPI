@@ -23,9 +23,11 @@ public interface ReservationRepository extends JpaRepository<Reservations, Integ
                                  @Param("cancellationReason") String cancellationReason,
                                  @Param("refundAmount") Integer refundAmount);
 
-    public List<Reservations> findByBus_BusIdAndReservationStatusAndJourneyDateAfter(Integer busId, String reservationStatus, LocalDateTime journeyDate);
 
     public List<Reservations> findByReservationStatusAndJourneyDateAfter(String reservationStatus, LocalDateTime journeyDate);
+
+    List<Reservations> findByBus_BusIdAndReservationStatusAndJourneyDateBetween(
+            Integer busId, String reservationStatus, LocalDateTime journeyStart, LocalDateTime journeyEnd);
 
 }
 

@@ -13,10 +13,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 
 import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
@@ -103,32 +107,38 @@ public class ReservationController {
         }
     }
 
-
-
-    @Operation(summary = "Get List of All Seats (Booked + Cached Available) for a Bus",
-            description = "Fetches list of all seats, including booked, cached available, and cached intermediate seats")
+    @Operation(summary = "Get List of All Seats (Booked + Cached Available) for a Bus on a Specific Date",
+            description = "Fetches list of all seats, including booked, cached available, and cached intermediate seats for a specific journey date")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "List of all seats"),
-            @ApiResponse(responseCode = "400", description = "Invalid bus ID"),
-            @ApiResponse(responseCode = "404", description = "Bus not found")
+            @ApiResponse(responseCode = "400", description = "Invalid bus ID or date"),
+            @ApiResponse(responseCode = "404", description = "Bus not found or no reservations found")
     })
     @GetMapping("/bus/{busId}/all-seats")
-    public ResponseEntity<Map<String, Object>> getAllSeatsForBus(@PathVariable Integer busId) {
-        try {
-            // Fetch booked seats from the database
-            List<String> bookedSeats = reservationService.getBookedSeatsForBus(busId);
+    public ResponseEntity<Map<String, Object>> getAllSeatsForBus(
+            @PathVariable Integer busId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate journeyDate) {
 
-            //  Fetch intermediate (cached) seats from Caffeine Cache
+        try {
+            // Convert LocalDate to LocalDateTime (start of the day)
+            LocalDateTime journeyStart = journeyDate.atStartOfDay();
+            LocalDateTime journeyEnd = journeyDate.atTime(LocalTime.MAX); // 23:59:59
+
+            // Fetch booked seats from the database for the given journey date range
+            List<String> bookedSeats = reservationService.getBookedSeatsForBus(busId, journeyStart, journeyEnd);
+
+            // Fetch cached seats from Caffeine Cache
             List<String> cachedSeats = bookingService.getCachedAvailableSeats(busId);
 
             // Merge all seats
-            Set<String> allSeats = new LinkedHashSet<>(); // Avoid duplicates, preserve order
+            Set<String> allSeats = new LinkedHashSet<>();
             allSeats.addAll(bookedSeats);
             allSeats.addAll(cachedSeats);
 
-            // 5️⃣ Prepare Response
+            // Prepare Response
             Map<String, Object> response = new HashMap<>();
             response.put("busId", busId);
+            response.put("journeyDate", journeyDate);
             response.put("AllBookedSeats", new ArrayList<>(allSeats));
 
             return new ResponseEntity<>(response, HttpStatus.OK);

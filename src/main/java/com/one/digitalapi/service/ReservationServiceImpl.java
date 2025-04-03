@@ -16,11 +16,9 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -137,30 +135,23 @@ public class ReservationServiceImpl implements ReservationService {
         return reservations;
     }
 
-    public List<String> getBookedSeatsForBus(Integer busId) throws ReservationException {
-        // Fetch the bus details using the busId
-        Bus bus = busRepository.findById(busId)
-                .orElseThrow(() -> new ReservationException("Bus not found for ID: " + busId));
+    @Override
+    public List<String> getBookedSeatsForBus(Integer busId, LocalDateTime journeyStart, LocalDateTime journeyEnd)
+            throws ReservationException {
 
-        // Get the current date
-        LocalDateTime now = LocalDateTime.now();
-
-        // Fetch all confirmed reservations for this bus with a journeyDate >= today
+        // Fetch all confirmed reservations within the date range
         List<Reservations> reservations = reservationRepository
-                .findByBus_BusIdAndReservationStatusAndJourneyDateAfter(bus.getBusId(), "CONFIRMED", now);
+                .findByBus_BusIdAndReservationStatusAndJourneyDateBetween(busId, "CONFIRMED", journeyStart, journeyEnd);
 
-        // If no confirmed reservations are found, throw an exception or return an empty list
         if (reservations.isEmpty()) {
-            throw new ReservationException("No confirmed reservations found for bus with ID: " + busId);
+            throw new ReservationException("No confirmed reservations found for bus ID: " + busId + " on " + journeyStart.toLocalDate());
         }
 
-        // Collect all the booked seat names from passengers in these reservations
-        List<String> bookedSeats = reservations.stream()
+        // Collect all booked seat names
+        return reservations.stream()
                 .flatMap(reservation -> reservation.getPassengers().stream())
                 .map(Passenger::getSeatName)
                 .collect(Collectors.toList());
-
-        return bookedSeats;
     }
 
     @Override
