@@ -73,18 +73,6 @@ management:
       exposure:
         include: "*" 
 
-
-payment:
-  stripe:
-    secret-key: dsdsdsdsdsdsds
-  razorpay:
-    api-key: sdsdsdsdsdsds
-    api-secret: 3232323232
-  paypal:
-    client:
-      id: dsdsdsdsdsd
-    secret: dsdsdsdsdsd
-
 feign:
   client:
     config:
