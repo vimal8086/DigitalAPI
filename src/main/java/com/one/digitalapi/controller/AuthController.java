@@ -82,7 +82,9 @@ public class AuthController {
                 response.put("token", token);
                 response.put("expires_at", expirationDate.toString());
                 response.put("time", expiresAtMillis);
-
+                response.put("userId", user.getUserId());
+                response.put("email", user.getEmail());
+                response.put("contactNumber", user.getContactNumber());
 
                 LOGGER.infoLog(CLASSNAME, strMethodName, "Login successful for user: {} " + request.getUserId());
 

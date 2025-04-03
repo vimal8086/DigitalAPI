@@ -3,6 +3,7 @@ package com.one.digitalapi.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -49,4 +50,9 @@ public class User {
 
     @UpdateTimestamp  // Automatically updates when the record is modified
     private LocalDateTime updatedAt;
+
+    @Pattern(regexp = "\\d{10}", message = "Contact Number must be 10 digits")
+    @NotBlank(message = "Contact Number is required")
+    private String contactNumber;
+
 }
