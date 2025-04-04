@@ -110,6 +110,11 @@ public class Bus {
     private List<PickupPoint> pickupPoints = new ArrayList<>();
 
 
+    @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  // This prevents infinite recursion
+    @Valid
+    private List<DropPoint> dropPoints = new ArrayList<>();
+
 
     public Bus() {
         // Default constructor
@@ -117,7 +122,7 @@ public class Bus {
 
     public Bus(Integer busId, String busName, String driverName, String busType, String routeFrom, String routeTo,
                String arrivalTime, String departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
-               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, String email,String address) {
+               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, List<DropPoint> dropPoints, String email,String address) {
         this.busId = busId;
         this.busName = busName;
         this.driverName = driverName;
@@ -134,6 +139,7 @@ public class Bus {
         this.busNumber = busNumber;
         this.trackingUrl = trackingUrl;
         this.pickupPoints = pickupPoints;
+        this.dropPoints = dropPoints;
         this.email = email;
         this.address = address;
     }
@@ -264,6 +270,14 @@ public class Bus {
 
     public void setPickupPoints(List<PickupPoint> pickupPoints) {
         this.pickupPoints = pickupPoints;
+    }
+
+    public List<DropPoint> getDropPoints() {
+        return dropPoints;
+    }
+
+    public void setDropPoints(List<DropPoint> dropPoints) {
+        this.dropPoints = dropPoints;
     }
 
     public String getEmail() {

@@ -1,7 +1,5 @@
 package com.one.digitalapi.entity;
 
-import java.time.LocalTime;
-
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
