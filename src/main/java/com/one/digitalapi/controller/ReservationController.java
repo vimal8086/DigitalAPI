@@ -21,6 +21,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -44,7 +45,6 @@ public class ReservationController {
     private final PdfService pdfService;
 
 
-
     public ReservationController(ReservationService reservationService, BookingService bookingService, PdfService pdfService) {
         this.reservationService = reservationService;
         this.bookingService = bookingService;
@@ -61,9 +61,13 @@ public class ReservationController {
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket_" + reservationId + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
+        } catch (IOException e) {
+        LOGGER.errorLog(CLASSNAME, "generateTicket", "PDF generation failed due to IO error: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
+
     }
 
     @PostMapping("/add")
@@ -205,6 +209,32 @@ public class ReservationController {
             return ResponseEntity.status(500).body(null);  // You can improve error handling as needed
         }
     }
+
+    @Operation(summary = "Get all reservations for a specific user", description = "Fetches all reservations associated with the provided user ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Reservations fetched successfully"),
+            @ApiResponse(responseCode = "404", description = "No reservations found for the given user ID"),
+            @ApiResponse(responseCode = "500", description = "Internal server error")
+    })
+    @GetMapping("/getReservation/{userId}")
+    public ResponseEntity<?> getReservationByUserId(@PathVariable String userId) throws ReservationException {
+        try {
+            List<Reservations> reservations = reservationService.getReservationsByUserId(userId);
+
+            if (reservations == null || reservations.isEmpty()) {
+                throw new ReservationException("No reservations found for userId: " + userId);
+            }
+
+            return ResponseEntity.ok(reservations);
+        } catch (ReservationException ex) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", ex.getMessage()));
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "An error occurred while fetching reservations", "details", ex.getMessage()));
+        }
+    }
+
 
     // Global Exception Handling for ReservationException and LoginException
     @ExceptionHandler(ReservationException.class)

@@ -16,7 +16,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -187,6 +186,12 @@ public class ReservationServiceImpl implements ReservationService {
     public Reservations getReservationById(Integer id) {
         return reservationRepository.findById(id).orElse(null);
     }
+
+    @Override
+    public List<Reservations> getReservationsByUserId(String userId) {
+        return reservationRepository.findByUser_UserIdOrderByReservationDateDesc(userId);
+    }
+
 
     /**
      * Refund calculation based on cancellation timing

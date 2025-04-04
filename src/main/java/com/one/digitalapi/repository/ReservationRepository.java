@@ -8,7 +8,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -28,6 +27,8 @@ public interface ReservationRepository extends JpaRepository<Reservations, Integ
 
     List<Reservations> findByBus_BusIdAndReservationStatusAndJourneyDateBetween(
             Integer busId, String reservationStatus, LocalDateTime journeyStart, LocalDateTime journeyEnd);
+
+    List<Reservations> findByUser_UserIdOrderByReservationDateDesc(String userId);
 
 }
 
