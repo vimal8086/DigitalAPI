@@ -17,7 +17,6 @@ public class Passenger {
     @NotBlank(message = "Name cannot be blank")
     private String name;
 
-    @Email(message = "Invalid email format")
     private String email;
 
     @NotNull(message = "Age cannot be null")
@@ -26,7 +25,6 @@ public class Passenger {
     @Pattern(regexp = "Male|Female|Other", message = "Gender must be Male, Female, or Other")
     private String gender;
 
-    @Pattern(regexp = "\\d{10}", message = "Contact must be 10 digits")
     private String contact;
 
     @NotNull(message = "Seat name cannot be null")
