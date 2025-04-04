@@ -12,10 +12,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RazorpayPaymentService implements PaymentService {
 
-  //  @Value("${razorpay.api.key}")
+    //@Value("${razorpay.api.key}")
     private String razorpayApiKey;
 
-  //  @Value("${razorpay.api.secret}")
+    //@Value("${razorpay.api.secret}")
     private String razorpayApiSecret;
 
     @Override
