@@ -24,6 +24,7 @@ public interface ReservationService {
 
     public List<BookedSeatDTO> getAllBookedSeats() throws ReservationException;
 
+    public Reservations getReservationById(Integer id);
 
 }
 

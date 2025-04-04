@@ -183,6 +183,11 @@ public class ReservationServiceImpl implements ReservationService {
         return bookedSeatDTOList;
     }
 
+    @Override
+    public Reservations getReservationById(Integer id) {
+        return reservationRepository.findById(id).orElse(null);
+    }
+
     /**
      * Refund calculation based on cancellation timing
      */

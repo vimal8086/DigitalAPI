@@ -7,6 +7,7 @@ import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.BookingService;
+import com.one.digitalapi.service.PdfService;
 import com.one.digitalapi.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -14,7 +15,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,10 +41,29 @@ public class ReservationController {
 
     private final BookingService bookingService;
 
+    private final PdfService pdfService;
 
-    public ReservationController(ReservationService reservationService, BookingService bookingService) {
+
+
+    public ReservationController(ReservationService reservationService, BookingService bookingService, PdfService pdfService) {
         this.reservationService = reservationService;
         this.bookingService = bookingService;
+        this.pdfService = pdfService;
+    }
+
+
+    @GetMapping("/generate/{reservationId}")
+    @Operation(summary = "Generate PDF for ticket", description = "Generate PDF for ticket")
+    public ResponseEntity<byte[]> generateTicket(@PathVariable Integer reservationId) {
+        try {
+            byte[] pdfBytes = pdfService.generateFormattedTicket(reservationId);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket_" + reservationId + ".pdf")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(pdfBytes);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
     @PostMapping("/add")
