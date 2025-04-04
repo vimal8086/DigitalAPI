@@ -8,6 +8,7 @@ import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.PageSize;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.Style;
 import com.itextpdf.layout.borders.SolidBorder;
@@ -29,6 +30,10 @@ public class PdfService {
     @Autowired
     private ReservationService reservationService;
 
+    private static final String LOGO_PATH = "src/main/resources/static/images/logo.png";
+    private static final String FONT_BOLD = "Helvetica-Bold";
+    private static final String REFUND_POLICY = "• 100% refund before 24 hrs of journey.\n• 50% refund within 24 hrs.\n• No refund after departure.";
+
     public byte[] generateFormattedTicket(Integer reservationId) throws Exception {
 
         Reservations reservation = reservationService.getReservationById(reservationId);
@@ -40,26 +45,30 @@ public class PdfService {
         Document doc = new Document(pdf, PageSize.A4);
         doc.setMargins(20, 20, 20, 20);
 
-        // Start -----
-        // ADD THIS BLOCK HERE - add your logo as background
-        ImageData imageData = ImageDataFactory.create("src/main/resources/static/images/logo.png"); // or wherever your logo is
-        Image logo = new Image(imageData);
-        logo.scaleToFit(400, 500);     // large size
-        logo.setOpacity(0.5f);         // for watermark effect
 
-        // Center position
+        // Start
+        ImageData imageData = ImageDataFactory.create(LOGO_PATH);
+        Image logo = new Image(imageData);
+
+        // Scale it appropriately
+        logo.scaleToFit(300, 300); // adjust as needed
+        logo.setOpacity(0.20f);    // subtle watermark effect
+
+        // Center the logo
         float centerX = (PageSize.A4.getWidth() - logo.getImageScaledWidth()) / 2;
         float centerY = (PageSize.A4.getHeight() - logo.getImageScaledHeight()) / 2;
 
-        logo.setFixedPosition(centerX, centerY);
-        doc.add(logo);
+        centerY += 100;
 
+        // Set position and rotate for diagonal cross-like watermark
+        logo.setFixedPosition(centerX, centerY);
+        //logo.setRotationAngle(Math.toRadians(45)); // 45 degrees cross tilt
+
+        doc.add(logo);
         // End --------------------------
 
-
-
         // Continue your existing content below
-        PdfFont bold = PdfFontFactory.createFont("Helvetica-Bold");
+        PdfFont bold = PdfFontFactory.createFont(FONT_BOLD);
         PdfFont regular = PdfFontFactory.createFont("Helvetica");
 
 
@@ -67,10 +76,28 @@ public class PdfService {
         Style headerStyle = new Style().setFont(bold).setFontSize(12).setFontColor(ColorConstants.BLACK);
         Style normalStyle = new Style().setFont(regular).setFontSize(10);
 
-        // Header
-        doc.add(new Paragraph("Bus Ticket (Orange Motions)").addStyle(titleStyle).setTextAlignment(TextAlignment.CENTER));
+        // Header Title with Larger Font
+        Paragraph title = new Paragraph("Bus Ticket - Orange Motions")
+                .setFont(bold)
+                .setFontSize(22)
+                .setFontColor(ColorConstants.GRAY)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setBold();
 
-        doc.add(new Paragraph("PNR: " + reservation.getReservationId() + "   |   Status: " + reservation.getReservationStatus()).addStyle(normalStyle));
+        doc.add(title);
+
+        // PNR and Status with Styling
+        Paragraph pnrStatus = new Paragraph("PNR: " + reservation.getReservationId() + "   |   Status: " + reservation.getReservationStatus())
+                .setFont(regular)
+                .setFontSize(12)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setFontColor(ColorConstants.DARK_GRAY);
+
+        doc.add(pnrStatus);
+
+         // Separator Line for Better Structure
+        doc.add(new LineSeparator(new SolidLine()).setMarginTop(5).setMarginBottom(10));
+
 
         // Journey Info Table
         Table journeyTable = new Table(UnitValue.createPercentArray(new float[]{2, 2, 2}));
@@ -143,7 +170,7 @@ public class PdfService {
 
         // Cancellation
         doc.add(new Paragraph("Cancellation Policy:").addStyle(headerStyle));
-        doc.add(new Paragraph("• 100% refund before 24 hrs of journey.\n• 50% refund within 24 hrs.\n• No refund after departure.").addStyle(normalStyle));
+        doc.add(new Paragraph(REFUND_POLICY).addStyle(normalStyle));
 
         doc.add(new Paragraph("\nThank you for booking with us!").addStyle(normalStyle).setTextAlignment(TextAlignment.CENTER));
 
