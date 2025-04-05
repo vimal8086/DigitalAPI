@@ -58,7 +58,7 @@ public class DestinationController {
 
             LOGGER.warnLog(CLASSNAME, strMethodName, "Failed to create destination: Destination name cannot be empty");
 
-            response.put("message", "Destination name cannot be empty");
+            response.put("error", "Destination name cannot be empty");
 
             return ResponseEntity.badRequest().body(response);
         }

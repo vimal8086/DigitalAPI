@@ -143,7 +143,7 @@ public class ReservationServiceImpl implements ReservationService {
                 .findByBus_BusIdAndReservationStatusAndJourneyDateBetween(busId, "CONFIRMED", journeyStart, journeyEnd);
 
         if (reservations.isEmpty()) {
-            throw new ReservationException("No confirmed reservations found for bus ID: " + busId + " on " + journeyStart.toLocalDate());
+            return Collections.emptyList(); // Return empty list instead of throwing exception
         }
 
         // Collect all booked seat names

@@ -36,6 +36,7 @@ import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponse
 public class ReservationController {
 
     private static final String CLASSNAME = "ReservationController";
+
     private static final DefaultLogger LOGGER = new DefaultLogger(ReservationController.class);
 
     private final ReservationService reservationService;
@@ -54,21 +55,31 @@ public class ReservationController {
 
     @GetMapping("/generate/{reservationId}")
     @Operation(summary = "Generate PDF for ticket", description = "Generate PDF for ticket")
-    public ResponseEntity<byte[]> generateTicket(@PathVariable Integer reservationId) {
+    public ResponseEntity<?> generateTicket(@PathVariable Integer reservationId) {
         try {
             byte[] pdfBytes = pdfService.generateFormattedTicket(reservationId);
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket_" + reservationId + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
-        } catch (IOException e) {
-        LOGGER.errorLog(CLASSNAME, "generateTicket", "PDF generation failed due to IO error: " + e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
-        }
 
+        } catch (ReservationException e) {
+            LOGGER.errorLog(CLASSNAME, "generateTicket", "Reservation not found: " + e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (IOException e) {
+            LOGGER.errorLog(CLASSNAME, "generateTicket", "PDF generation failed due to IO error: " + e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        } catch (Exception e) {
+            LOGGER.errorLog(CLASSNAME, "generateTicket", "Unexpected error: " + e.getMessage());
+            Map<String, Object> response = new HashMap<>();
+            response.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);        }
     }
+
 
     @PostMapping("/add")
     @Operation(summary = "Add a new reservation", description = "Creates a new reservation")

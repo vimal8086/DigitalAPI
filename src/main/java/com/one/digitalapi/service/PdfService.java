@@ -18,10 +18,12 @@ import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
 import com.one.digitalapi.entity.Passenger;
 import com.one.digitalapi.entity.Reservations;
+import com.one.digitalapi.exception.ReservationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -38,6 +40,10 @@ public class PdfService {
 
         Reservations reservation = reservationService.getReservationById(reservationId);
 
+        if (reservation == null) {
+            throw new ReservationException("Reservation not found for ID: " + reservationId);
+        }
+
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(baos);
         PdfDocument pdf = new PdfDocument(writer);
@@ -47,7 +53,14 @@ public class PdfService {
 
 
         // Start
-        ImageData imageData = ImageDataFactory.create(LOGO_PATH);
+        InputStream is = getClass().getClassLoader().getResourceAsStream("static/images/logo.png");
+        if (is == null) {
+            throw new RuntimeException("Logo image not found in classpath!");
+        }
+        byte[] imageBytes = is.readAllBytes();
+        ImageData imageData = ImageDataFactory.create(imageBytes);
+
+
         Image logo = new Image(imageData);
 
         // Scale it appropriately
