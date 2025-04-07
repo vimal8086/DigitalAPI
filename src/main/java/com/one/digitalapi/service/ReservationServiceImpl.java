@@ -43,10 +43,13 @@ public class ReservationServiceImpl implements ReservationService {
         Bus bus = busRepository.findById(reservationDTO.getBusDTO().getBusId())
                 .orElseThrow(() -> new ReservationException("Bus not found for ID: " + reservationDTO.getBusDTO().getBusId()));
 
+
+
         // Check seat availability
-        if (bus.getAvailableSeats() < reservationDTO.getNoOfSeatsToBook()) {
+        // Commenting For New Approach -- Will Send Total Booked Seat to UI & total seat
+       /* if (bus.getAvailableSeats() < reservationDTO.getNoOfSeatsToBook()) {
             throw new ReservationException("Not enough seats available for booking!");
-        }
+        }*/
 
         // Create new reservation
         Reservations reservation = new Reservations();
@@ -83,8 +86,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setPassengers(passengerList);
 
         // Update bus seat availability
-        bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
-        busRepository.save(bus);
+        //bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
+        //busRepository.save(bus);
 
         return reservationRepository.save(reservation);
     }

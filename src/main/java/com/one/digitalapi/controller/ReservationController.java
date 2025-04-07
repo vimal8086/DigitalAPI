@@ -2,11 +2,13 @@ package com.one.digitalapi.controller;
 
 import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.ReservationDTO;
+import com.one.digitalapi.entity.Bus;
 import com.one.digitalapi.entity.Reservations;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.BookingService;
+import com.one.digitalapi.service.BusService;
 import com.one.digitalapi.service.PdfService;
 import com.one.digitalapi.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,12 +45,15 @@ public class ReservationController {
 
     private final BookingService bookingService;
 
+    private final BusService busService;
+
     private final PdfService pdfService;
 
 
-    public ReservationController(ReservationService reservationService, BookingService bookingService, PdfService pdfService) {
+    public ReservationController(ReservationService reservationService, BookingService bookingService, BusService busService, PdfService pdfService) {
         this.reservationService = reservationService;
         this.bookingService = bookingService;
+        this.busService = busService;
         this.pdfService = pdfService;
     }
 
@@ -175,6 +180,16 @@ public class ReservationController {
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
 
+
+            // Fetch bus
+            Bus bus = busService.viewBus(busId);
+
+            if (bus == null) {
+                throw new ReservationException("Bus not found for ID: " + busId);
+            }
+
+            int totalSeats = bus.getSeats();
+
             // Convert LocalDate to LocalDateTime range
             LocalDateTime journeyStart = journeyDateStr.atStartOfDay();
             LocalDateTime journeyEnd = journeyDateStr.atTime(LocalTime.MAX);
@@ -189,10 +204,18 @@ public class ReservationController {
             Set<String> allSeats = new LinkedHashSet<>(bookedSeats);
             allSeats.addAll(cachedSeats);
 
+            int totalSeatCount = 0;
+
+            if (!allSeats.isEmpty()) {
+                totalSeatCount = allSeats.size();
+            }
+
             // Prepare response
             response.put("busId", busId);
             response.put("journeyDate", journeyDateStr);
             response.put("AllBookedSeats", new ArrayList<>(allSeats));
+            response.put("TotalSeat", totalSeats);
+            response.put("TotalSeatCount", totalSeatCount);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
 
