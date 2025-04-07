@@ -35,6 +35,11 @@ spring:
    # username: ${ENV_DB_USERNAME:sa}
    # password: ${ENV_DB_PASSWORD:}
 
+
+    #url: ${ENV_DB_URL:}
+    #username: ${ENV_DB_USERNAME:}
+    #password: ${ENV_DB_PASSWORD:}
+
     url: jdbc:mysql://localhost:3306/digital
     username: root
     password: root
