@@ -11,6 +11,7 @@ import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.draw.SolidLine;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.Style;
+import com.itextpdf.layout.borders.Border;
 import com.itextpdf.layout.borders.SolidBorder;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.element.Image;
@@ -32,7 +33,6 @@ public class PdfService {
     @Autowired
     private ReservationService reservationService;
 
-    private static final String LOGO_PATH = "src/main/resources/static/images/logo.png";
     private static final String FONT_BOLD = "Helvetica-Bold";
     private static final String REFUND_POLICY = "• 100% refund before 24 hrs of journey.\n• 50% refund within 24 hrs.\n• No refund after departure.";
 
@@ -70,45 +70,31 @@ public class PdfService {
         // Center the logo
         float centerX = (PageSize.A4.getWidth() - logo.getImageScaledWidth()) / 2;
         float centerY = (PageSize.A4.getHeight() - logo.getImageScaledHeight()) / 2;
-
         centerY += 100;
-
         // Set position and rotate for diagonal cross-like watermark
         logo.setFixedPosition(centerX, centerY);
         //logo.setRotationAngle(Math.toRadians(45)); // 45 degrees cross tilt
-
         doc.add(logo);
         // End --------------------------
 
         // Continue your existing content below
         PdfFont bold = PdfFontFactory.createFont(FONT_BOLD);
         PdfFont regular = PdfFontFactory.createFont("Helvetica");
-
-
-        Style titleStyle = new Style().setFont(bold).setFontSize(18).setFontColor(ColorConstants.BLUE);
+        
         Style headerStyle = new Style().setFont(bold).setFontSize(12).setFontColor(ColorConstants.BLACK);
         Style normalStyle = new Style().setFont(regular).setFontSize(10);
 
         // Header Title with Larger Font
-        Paragraph title = new Paragraph("Bus Ticket - Orange Motions")
-                .setFont(bold)
-                .setFontSize(22)
-                .setFontColor(ColorConstants.GRAY)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setBold();
+        Paragraph title = new Paragraph("Bus Ticket - Orange Motions").setFont(bold).setFontSize(22).setFontColor(ColorConstants.GRAY).setTextAlignment(TextAlignment.CENTER).setBold();
 
         doc.add(title);
 
         // PNR and Status with Styling
-        Paragraph pnrStatus = new Paragraph("PNR: " + reservation.getReservationId() + "   |   Status: " + reservation.getReservationStatus())
-                .setFont(regular)
-                .setFontSize(12)
-                .setTextAlignment(TextAlignment.CENTER)
-                .setFontColor(ColorConstants.DARK_GRAY);
+        Paragraph pnrStatus = new Paragraph("PNR: " + reservation.getReservationId() + "   |   Status: " + reservation.getReservationStatus()).setFont(regular).setFontSize(12).setTextAlignment(TextAlignment.CENTER).setFontColor(ColorConstants.DARK_GRAY);
 
         doc.add(pnrStatus);
 
-         // Separator Line for Better Structure
+        // Separator Line for Better Structure
         doc.add(new LineSeparator(new SolidLine()).setMarginTop(5).setMarginBottom(10));
 
 
@@ -149,20 +135,79 @@ public class PdfService {
 
         doc.add(busTable);
         doc.add(new Paragraph("\n"));
+        
+        
+        // Boarding point and time & dropping point and time
+        Table pointsTable = new Table(UnitValue.createPercentArray(new float[]{1, 1})).useAllAvailableWidth().setMarginBottom(10);
 
-        // Pickup Point
+        // Boarding Point Cell
         if (!reservation.getBus().getPickupPoints().isEmpty()) {
+
             var pickup = reservation.getBus().getPickupPoints().get(0);
-            doc.add(new Paragraph("Boarding Point: " + pickup.getLocation() + " (" + pickup.getPickupTime() + ")")
-                    .addStyle(headerStyle));
+
+            Paragraph boardingTitle = new Paragraph("Boarding Point").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+
+            Paragraph boardingMain = new Paragraph(pickup.getLocation()).setFontSize(10).setBold().setMarginBottom(0);
+
+            Paragraph boardingSub = new Paragraph(pickup.getLocation() + " " + pickup.getAddress()).setFontSize(9).setFontColor(ColorConstants.GRAY);
+
+            Cell boardingCell = new Cell().add(boardingTitle).add(boardingMain).add(boardingSub).setBorder(Border.NO_BORDER);
+            pointsTable.addCell(boardingCell);
         }
 
+        // Dropping Point Cell
+        if (!reservation.getBus().getDropPoints().isEmpty()) {
+
+            var drop = reservation.getBus().getDropPoints().get(0);
+
+            Paragraph dropTitle = new Paragraph("Dropping Point").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+
+            Paragraph dropMain = new Paragraph(drop.getLocation()).setFontSize(10).setBold().setMarginBottom(0);
+
+            Paragraph dropSub = new Paragraph(drop.getLocation() + " " + drop.getAddress()).setFontSize(9).setFontColor(ColorConstants.GRAY);
+
+            Cell dropCell = new Cell().add(dropTitle).add(dropMain).add(dropSub).setBorder(Border.NO_BORDER);
+
+            pointsTable.addCell(dropCell);
+        }
+
+        if (!reservation.getBus().getPickupPoints().isEmpty()) {
+
+            var pickup = reservation.getBus().getPickupPoints().get(0);
+
+            Paragraph boardingTimeTitle = new Paragraph("Boarding Time").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+
+            Paragraph boardingMain = new Paragraph(pickup.getPickupTime()).setFontSize(10).setBold().setMarginBottom(0);
+
+            Cell boardingCell = new Cell().add(boardingTimeTitle).add(boardingMain).setBorder(Border.NO_BORDER);
+
+            pointsTable.addCell(boardingCell);
+        }
+
+        // Dropping Point Cell
+        if (!reservation.getBus().getDropPoints().isEmpty()) {
+            var drop = reservation.getBus().getDropPoints().get(0);
+
+            Paragraph dropTitle = new Paragraph("Dropping Time").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+
+            Paragraph dropTimeMain = new Paragraph(drop.getDropTime()).setFontSize(10).setBold().setMarginBottom(0);
+
+            Cell dropCell = new Cell().add(dropTitle).add(dropTimeMain).setBorder(Border.NO_BORDER);
+            pointsTable.addCell(dropCell);
+        }
+        doc.add(pointsTable);
+        // End Boarding point and time & dropping point and time
+        
         doc.add(new Paragraph("\n"));
 
         // Passenger Info Table
+        Paragraph travellerDetail = new Paragraph("Traveller Details").setFont(regular).setFontSize(12).
+                setTextAlignment(TextAlignment.LEFT).setFontColor(ColorConstants.DARK_GRAY).setBold();
+        doc.add(travellerDetail);
+        
         Table passengerTable = new Table(UnitValue.createPercentArray(new float[]{3, 1, 1, 2}));
         passengerTable.setWidth(UnitValue.createPercentValue(100));
-        passengerTable.addHeaderCell(createCell("Passenger Name", headerStyle));
+        passengerTable.addHeaderCell(createCell("Name", headerStyle));
         passengerTable.addHeaderCell(createCell("Gender", headerStyle));
         passengerTable.addHeaderCell(createCell("Age", headerStyle));
         passengerTable.addHeaderCell(createCell("Seat No.", headerStyle));
@@ -173,7 +218,6 @@ public class PdfService {
             passengerTable.addCell(createCell(String.valueOf(p.getAge()), normalStyle));
             passengerTable.addCell(createCell(p.getSeatName(), normalStyle));
         }
-
         doc.add(passengerTable);
         doc.add(new Paragraph("\n"));
 
