@@ -4,21 +4,25 @@ import com.one.digitalapi.entity.Bus;
 import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.logger.DefaultLogger;
+import com.one.digitalapi.service.BookingService;
 import com.one.digitalapi.service.BusService;
+import com.one.digitalapi.service.ReservationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
@@ -32,6 +36,16 @@ public class BusController {
 
     @Autowired
     private BusService busService;
+
+    private final ReservationService reservationService;
+
+    private final BookingService bookingService;
+
+    public BusController(ReservationService reservationService, BookingService bookingService) {
+        this.reservationService = reservationService;
+        this.bookingService = bookingService;
+    }
+
 
     @PostMapping
     @Operation(summary = "Add a new bus", description = "Creates a new bus if it does not exist")
@@ -113,33 +127,80 @@ public class BusController {
         return new ResponseEntity<>(buses, HttpStatus.OK);
     }
 
-
     @GetMapping("/search")
-    @Operation(summary = "Search buses by route and time", description = "Filter buses by 'from', 'to', and 'departureTime'")
+    @Operation(summary = "Search buses by route, time and journeyDate", description = "Filter buses by 'from', 'to', 'departureTime' and 'journeyDate', It Return All Buses Details With Available and booked seat")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Buses found"),
+            @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "404", description = "No buses found")
     })
-    public ResponseEntity<List<Bus>> searchBuses(
+    public ResponseEntity<?> searchBuses(
             @RequestParam String from,
             @RequestParam String to,
-            @RequestParam(required = false) String departureTime) {
+            @RequestParam(required = false) String departureTime,
+            @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String journeyDate) {
 
         String methodName = "searchBuses";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to search buses from " + from + " to " + to + " at " + departureTime);
 
-        List<Bus> buses = busService.searchBuses(from, to, departureTime);
-
-        // Return the buses found (or an empty list if none found)
-        if (buses == null || buses.isEmpty()) {
-            LOGGER.infoLog(CLASSNAME, methodName, "No buses found. Returning empty array.");
-            return new ResponseEntity<>(new ArrayList<>(), HttpStatus.OK);
+        LocalDate journeyDateParsed;
+        try {
+            journeyDateParsed = LocalDate.parse(journeyDate);
+        } catch (DateTimeParseException e) {
+            Map<String, Object> error = new HashMap<>();
+            error.put("error", "Invalid date format. Please use yyyy-MM-dd (e.g., 2024-04-05).");
+            return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
         }
 
-        LOGGER.infoLog(CLASSNAME, methodName, "Buses retrieved successfully: " + buses);
-        return new ResponseEntity<>(buses, HttpStatus.OK);
-    }
+        List<Bus> buses = busService.searchBuses(from, to, departureTime);
 
+        if (buses == null || buses.isEmpty()) {
+            LOGGER.infoLog(CLASSNAME, methodName, "No buses found. Returning empty array.");
+            return new ResponseEntity<>(Collections.emptyList(), HttpStatus.OK);
+        }
+
+        LocalDateTime journeyStart = journeyDateParsed.atStartOfDay();
+        LocalDateTime journeyEnd = journeyDateParsed.atTime(LocalTime.MAX);
+
+        List<Map<String, Object>> responseList = new ArrayList<>();
+
+        for (Bus bus : buses) {
+            int totalSeats = bus.getSeats();
+            Integer busId = bus.getBusId();
+
+            // Booked seats from reservation service
+            List<String> bookedSeats = reservationService.getBookedSeatsForBus(busId, journeyStart, journeyEnd);
+
+            // Cached available seats (optional logic - use if applicable)
+            List<String> cachedSeats = bookingService.getCachedAvailableSeats(busId);
+
+            Set<String> allBookedSeats = new LinkedHashSet<>();
+            if (bookedSeats != null) allBookedSeats.addAll(bookedSeats);
+            if (cachedSeats != null) allBookedSeats.addAll(cachedSeats);
+
+            // For Available Seat
+            int availableSeats = Math.max(0, totalSeats - allBookedSeats.size());
+
+            Map<String, Object> busInfo = new HashMap<>();
+            busInfo.put("busId", busId);
+            busInfo.put("busName", bus.getBusName());
+            busInfo.put("busNumber", bus.getBusNumber());
+            busInfo.put("farePerSeat", bus.getFarePerSeat());
+            busInfo.put("from", bus.getRouteFrom());
+            busInfo.put("to", bus.getRouteTo());
+            busInfo.put("arrivalTime", bus.getArrivalTime());
+            busInfo.put("departureTime", bus.getDepartureTime());
+            busInfo.put("journeyDate", journeyDateParsed);
+            busInfo.put("totalSeats", totalSeats);
+            busInfo.put("bookedSeats", new ArrayList<>(allBookedSeats));
+            busInfo.put("availableSeat", availableSeats);
+
+            responseList.add(busInfo);
+        }
+
+        LOGGER.infoLog(CLASSNAME, methodName, "Returning " + responseList.size() + " buses with booking info.");
+        return new ResponseEntity<>(responseList, HttpStatus.OK);
+    }
 
     // Global Exception Handling for BusException and LoginException
     @ExceptionHandler(BusException.class)
