@@ -194,6 +194,9 @@ public class BusController {
             busInfo.put("totalSeats", totalSeats);
             busInfo.put("bookedSeats", new ArrayList<>(allBookedSeats));
             busInfo.put("availableSeat", availableSeats);
+            busInfo.put("busType", bus.getBusType());
+            busInfo.put("pickupPoints", bus.getPickupPoints());
+            busInfo.put("dropPoints", bus.getDropPoints());
 
             responseList.add(busInfo);
         }
