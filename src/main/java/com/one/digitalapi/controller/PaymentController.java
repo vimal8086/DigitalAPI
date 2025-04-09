@@ -10,6 +10,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @RestController
 @RequestMapping("/payment")
 @Tag(name = "Payment Management", description = "APIs for managing payment")
@@ -24,7 +27,6 @@ public class PaymentController {
     @Autowired
     private RazorpayClient razorpayClient;
 
-
     @GetMapping("/createOrder")
     @Operation(summary = "Create Order for payment", description = "Create Order for payment")
     public ResponseEntity<?> createOrder(@RequestParam double amount, @RequestParam String currency) {
@@ -32,15 +34,25 @@ public class PaymentController {
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to create order with amount: "
                 + amount + " and currency: " + currency);
         try {
-            String orderId = paymentService.createOrder(amount, currency);
-            LOGGER.infoLog(CLASSNAME, methodName, "Order created successfully: " + orderId);
-            return ResponseEntity.ok(orderId);
+            // PaymentService.createOrder returns order details as a JSON string.
+            String orderResponse = paymentService.createOrder(amount, currency);
+            JSONObject orderJson = new JSONObject(orderResponse);
+            LOGGER.infoLog(CLASSNAME, methodName, "Order created successfully: " + orderJson.getString("id"));
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("order", orderJson.toMap());
+            return ResponseEntity.ok(responseMap);
         } catch (IllegalArgumentException ex) {
             LOGGER.warnLog(CLASSNAME, methodName, "Invalid input provided: " + ex.getMessage());
-            return ResponseEntity.badRequest().body("Invalid input: " + ex.getMessage());
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Invalid input");
+            errorMap.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(errorMap);
         } catch (Exception ex) {
             LOGGER.errorLog(CLASSNAME, methodName, "Error occurred while creating order: " + ex.getMessage());
-            return ResponseEntity.internalServerError().body("Failed to create order.");
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Failed to create order");
+            errorMap.put("message", ex.getMessage());
+            return ResponseEntity.internalServerError().body(errorMap);
         }
     }
 
@@ -53,41 +65,60 @@ public class PaymentController {
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to verify payment for orderId: " + orderId);
         try {
             boolean isValid = paymentService.verifyPayment(orderId, paymentId, razorpaySignature);
+            Map<String, Object> responseMap = new HashMap<>();
             if (isValid) {
                 LOGGER.infoLog(CLASSNAME, methodName, "Payment verified successfully for orderId: " + orderId);
-                return ResponseEntity.ok("Payment verified successfully");
+                responseMap.put("message", "Payment verified successfully");
+                responseMap.put("status", "success");
+                return ResponseEntity.ok(responseMap);
             } else {
                 LOGGER.warnLog(CLASSNAME, methodName, "Payment verification failed for orderId: " + orderId);
-                return ResponseEntity.badRequest().body("Payment verification failed");
+                responseMap.put("message", "Payment verification failed");
+                responseMap.put("status", "failure");
+                return ResponseEntity.badRequest().body(responseMap);
             }
         } catch (IllegalArgumentException ex) {
             LOGGER.warnLog(CLASSNAME, methodName, "Invalid input provided: " + ex.getMessage());
-            return ResponseEntity.badRequest().body("Invalid input: " + ex.getMessage());
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Invalid input");
+            errorMap.put("message", ex.getMessage());
+            return ResponseEntity.badRequest().body(errorMap);
         } catch (Exception ex) {
             LOGGER.errorLog(CLASSNAME, methodName, "Error verifying payment: " + ex.getMessage());
-            return ResponseEntity.internalServerError().body("Error verifying payment.");
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Error verifying payment");
+            errorMap.put("message", ex.getMessage());
+            return ResponseEntity.internalServerError().body(errorMap);
         }
     }
-
 
     @GetMapping("/fetchOrder")
     @Operation(summary = "Fetch Order", description = "Fetch Order Using Order Id")
     public ResponseEntity<?> fetchOrder(@RequestParam String orderId) {
+        final String methodName = "fetchOrder";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to fetch order with orderId: " + orderId);
         try {
             JSONObject orderDetails = razorpayClient.orders.fetch(orderId).toJson();
-            return ResponseEntity.ok(orderDetails.toString());
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("order", orderDetails.toMap());
+            return ResponseEntity.ok(responseMap);
         } catch (Exception ex) {
-            LOGGER.errorLog("PaymentController", "fetchOrder", "Error fetching order: " + ex.getMessage());
-            return ResponseEntity.internalServerError().body("Error fetching order details.");
+            LOGGER.errorLog(CLASSNAME, methodName, "Error fetching order: " + ex.getMessage());
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Error fetching order details");
+            errorMap.put("message", ex.getMessage());
+            return ResponseEntity.internalServerError().body(errorMap);
         }
     }
-
 
     // Global Exception Handler (optional) for unhandled exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handlePaymentException(Exception ex) {
         final String methodName = "handlePaymentException";
         LOGGER.errorLog(CLASSNAME, methodName, "Unhandled exception: " + ex.getMessage());
-        return ResponseEntity.internalServerError().body("An unexpected error occurred in the Payment module.");
+        Map<String, Object> errorMap = new HashMap<>();
+        errorMap.put("error", "An unexpected error occurred in the Payment module");
+        errorMap.put("message", ex.getMessage());
+        return ResponseEntity.internalServerError().body(errorMap);
     }
 }
