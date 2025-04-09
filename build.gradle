@@ -37,7 +37,7 @@ dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-data-redis'
 	implementation 'javax.servlet:javax.servlet-api:3.0.1'
 	//implementation 'org.hibernate:hibernate-spatial'
-	implementation 'org.liquibase:liquibase-core'
+	//implementation 'org.liquibase:liquibase-core'
 	implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
 	implementation 'com.h2database:h2'
 	implementation group: 'ch.qos.logback', name: 'logback-core', version: '1.5.16'
@@ -79,9 +79,7 @@ dependencies {
 
 
 	// Dependency For Payment Module
-	implementation 'com.stripe:stripe-java:22.7.0'
 	implementation 'com.razorpay:razorpay-java:1.4.2'
-	implementation 'com.paypal.sdk:paypal-core:1.7.2'
 
 	// For Caching
 	implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'

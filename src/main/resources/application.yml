@@ -51,16 +51,9 @@ spring:
           ddl-auto: update  # Change as needed: none, validate, create, or create-drop
         show-sql: true
 
-
-
-  liquibase:
-    enabled: false
-    drop-first: false
-    change-log: classpath:db/liquibase-changelog.xml
-    default-schema: public
-
-    autoconfigure:
-      exclude: org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+razorpay:
+  keyId: YOUR_KEY_ID
+  keySecret: YOUR_KEY_SECRET
 
 springdoc:
   swagger-ui:
