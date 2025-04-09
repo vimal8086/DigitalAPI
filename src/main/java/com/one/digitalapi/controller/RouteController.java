@@ -72,17 +72,17 @@ public class RouteController {
         // ✅ Step 1: Check if the route exists
         Route existingRoute = routeService.viewRoute(route.getRouteID());
         if (existingRoute == null) {
-        return ResponseEntity.status(404).body(Map.of("message", "Route not found for ID: " + route.getRouteID()));
+        return ResponseEntity.status(404).body(Map.of("error", "Route not found for ID: " + route.getRouteID()));
         }
 
         // Prevent same 'routeFrom' and 'routeTo'
         if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "RouteFrom and RouteTo cannot be the same."));
+            return ResponseEntity.badRequest().body(Map.of("error", "RouteFrom and RouteTo cannot be the same."));
         }
 
         // Prevent duplicate routes
         if (routeService.routeExists(route.getRouteFrom(), route.getRouteTo())) {
-            return ResponseEntity.badRequest().body(Map.of("message", "This route already exists in the database."));
+            return ResponseEntity.badRequest().body(Map.of("error", "This route already exists in the database."));
         }
 
         Route updatedRoute = routeService.updateRoute(route);

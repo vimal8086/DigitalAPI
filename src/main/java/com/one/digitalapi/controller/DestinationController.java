@@ -68,7 +68,7 @@ public class DestinationController {
         if (existingDestination.isPresent()) {
             LOGGER.warnLog(CLASSNAME, strMethodName, "Failed to create destination: '{}' already exists" + destination.getDestination());
 
-            response.put("message", "Destination Already Available");
+            response.put("error", "Destination Already Available");
 
             return ResponseEntity.badRequest().body(response);
         }
