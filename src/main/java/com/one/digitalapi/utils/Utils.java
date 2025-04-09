@@ -6,6 +6,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 public class Utils {
 
+
     public static boolean verifySignature(String payload, String expectedSignature, String secret) throws Exception {
         String actualSignature = calculateRFC2104HMAC(payload, secret);
         return actualSignature.equals(expectedSignature);
