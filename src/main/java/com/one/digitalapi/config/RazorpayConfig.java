@@ -14,8 +14,12 @@ public class RazorpayConfig {
     private String keySecret;
 
     @Bean
-    public RazorpayClient razorpayClient() throws Exception {
-        return new RazorpayClient(keyId, keySecret);
+    public RazorpayClient razorpayClient() {
+        try {
+            return new RazorpayClient(keyId, keySecret);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create RazorpayClient", e);
+        }
     }
 
     public String getKeyId() {

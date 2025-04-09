@@ -52,8 +52,8 @@ spring:
         show-sql: true
 
 razorpay:
-  keyId: YOUR_KEY_ID
-  keySecret: YOUR_KEY_SECRET
+  keyId: rzp_test_hDoWPxUvpOeof6
+  keySecret: DI97f0Q3qsGB2Rnzosyh2TcN
 
 springdoc:
   swagger-ui:
