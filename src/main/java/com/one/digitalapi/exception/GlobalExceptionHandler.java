@@ -1,6 +1,9 @@
 package com.one.digitalapi.exception;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.one.digitalapi.entity.DiscountType;
 import io.swagger.v3.oas.annotations.Hidden;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -8,15 +11,13 @@ import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
-import java.time.format.DateTimeParseException;
+import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 @ControllerAdvice
@@ -33,6 +34,15 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("Route Exception: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 
+
+    @ExceptionHandler(DiscountException.class)
+    public ResponseEntity<Map<String, Object>> handleDiscountException(DiscountException ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "Discount not found");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         String errorMessage = ex.getBindingResult()
@@ -46,24 +56,45 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleInvalidFormat(HttpMessageNotReadableException ex) {
+    public ResponseEntity<Map<String, String>> handleHttpMessageNotReadable(HttpMessageNotReadableException ex) {
         Throwable cause = ex.getCause();
         Map<String, String> response = new HashMap<>();
 
         if (cause instanceof InvalidFormatException invalidFormatException) {
-            // Extracting the field name
-            String fieldName = "unknown field"; // Default value
-
+            String fieldName = "unknown field";
             if (!invalidFormatException.getPath().isEmpty()) {
                 fieldName = invalidFormatException.getPath().get(0).getFieldName();
             }
 
-            response.put("error", "Invalid date format for field '" + fieldName + "'. Use 'yyyy-MM-dd'T'HH:mm:ss'");
-            return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+            if (invalidFormatException.getTargetType() != null && (invalidFormatException.getTargetType().equals(Date.class) || invalidFormatException.getTargetType().equals(java.time.LocalDateTime.class) || invalidFormatException.getTargetType().equals(java.time.LocalDate.class))) {response.put("error", "Invalid date format for field '" + fieldName + "'. Please use the format 'yyyy-MM-dd'T'HH:mm:ss'.");
+            }
+            else if (invalidFormatException.getTargetType() != null &&
+                    invalidFormatException.getTargetType().equals(DiscountType.class)) {
+                response.put("error", "Invalid value for field '" + fieldName + "'. Accepted values are: PERCENTAGE, FLAT.");
+            }
+            else {
+                response.put("error", "Invalid value for field '" + fieldName + "'. Please provide a value of the correct type.");
+            }
+
+        } else if (cause instanceof JsonParseException) {
+            response.put("error", "Malformed JSON request. Please check the request syntax.");
+        } else if (cause instanceof JsonMappingException) {
+            response.put("error", "JSON mapping error: " + cause.getMessage());
+        } else {
+            response.put("error", "Invalid request body");
         }
 
-        response.put("error", "Invalid request body");
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+
+    // Handle other exceptions
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Map<String, Object>> handleGeneralException(Exception ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "An unexpected error occurred");
+        response.put("message", ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler(ConstraintViolationException.class)

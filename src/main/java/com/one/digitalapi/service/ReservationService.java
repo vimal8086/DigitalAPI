@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface ReservationService {
 
-    public Reservations addReservation(ReservationDTO reservationDTO) throws ReservationException, LoginException;
+    public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) throws ReservationException, LoginException;
 
     public Reservations deleteReservation(Integer reservationId, String cancellationReason) throws ReservationException, LoginException;
 
@@ -26,6 +26,5 @@ public interface ReservationService {
     public Reservations getReservationById(Integer id);
 
     public List<Reservations> getReservationsByUserId(String userId);
-
 }
 

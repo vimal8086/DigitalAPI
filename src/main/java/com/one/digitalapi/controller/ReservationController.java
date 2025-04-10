@@ -62,37 +62,56 @@ public class ReservationController {
     @Operation(summary = "Generate PDF for ticket", description = "Generate PDF for ticket")
     public ResponseEntity<?> generateTicket(@PathVariable Integer reservationId) {
         try {
+
             byte[] pdfBytes = pdfService.generateFormattedTicket(reservationId);
+
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=ticket_" + reservationId + ".pdf")
                     .contentType(MediaType.APPLICATION_PDF)
                     .body(pdfBytes);
 
         } catch (ReservationException e) {
+
             LOGGER.errorLog(CLASSNAME, "generateTicket", "Reservation not found: " + e.getMessage());
+
             Map<String, Object> response = new HashMap<>();
+
             response.put("error", e.getMessage());
+
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IOException e) {
+
             LOGGER.errorLog(CLASSNAME, "generateTicket", "PDF generation failed due to IO error: " + e.getMessage());
+
             Map<String, Object> response = new HashMap<>();
+
             response.put("error", e.getMessage());
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         } catch (Exception e) {
+
             LOGGER.errorLog(CLASSNAME, "generateTicket", "Unexpected error: " + e.getMessage());
+
             Map<String, Object> response = new HashMap<>();
+
             response.put("error", e.getMessage());
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);        }
     }
 
 
     @PostMapping("/add")
     @Operation(summary = "Add a new reservation", description = "Creates a new reservation")
-    public ResponseEntity<Reservations> addReservation(@Valid @RequestBody ReservationDTO reservationDTO) throws ReservationException, LoginException {
+    public ResponseEntity<Reservations> addReservation(@Valid @RequestBody ReservationDTO reservationDTO,
+                                                       @RequestParam(value = "discountCode", required = false) String discountCode) throws ReservationException, LoginException {
         String methodName = "addReservation";
+
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to add reservation: " + reservationDTO);
-        Reservations reservation = reservationService.addReservation(reservationDTO);
+
+        Reservations reservation = reservationService.addReservation(reservationDTO, discountCode);
+
         LOGGER.infoLog(CLASSNAME, methodName, "Reservation added successfully: " + reservation);
+
         return ResponseEntity.ok(reservation);
     }
 
@@ -103,10 +122,15 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "Reservation not found")
     })
     public ResponseEntity<Reservations> viewReservation(@PathVariable Integer id) throws ReservationException, LoginException {
+
         String methodName = "viewReservation";
+
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to view reservation with ID: " + id);
+
         Reservations reservation = reservationService.viewAllReservation(id);
+
         LOGGER.infoLog(CLASSNAME, methodName, "Reservation retrieved successfully: " + reservation);
+
         return ResponseEntity.ok(reservation);
     }
 
@@ -114,10 +138,15 @@ public class ReservationController {
     @Operation(summary = "Get all reservations", description = "Get all reservations")
     @ApiResponse(responseCode = "200", description = "List of reservations retrieved successfully")
     public ResponseEntity<List<Reservations>> getAllReservations() throws ReservationException, LoginException {
+
         String methodName = "getAllReservations";
+
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to retrieve all reservations");
+
         List<Reservations> reservations = reservationService.getReservationDeatials();
+
         LOGGER.infoLog(CLASSNAME, methodName, "Reservations retrieved successfully: " + reservations);
+
         return ResponseEntity.ok(reservations);
     }
 
@@ -128,23 +157,32 @@ public class ReservationController {
             @RequestParam String cancellationReason) throws ReservationException {
 
         String methodName = "cancelReservation";
+
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to cancel reservation with ID: " + id + " for reason: " + cancellationReason);
 
         try {
             Reservations canceledReservation = reservationService.deleteReservation(id, cancellationReason);
+
             LOGGER.infoLog(CLASSNAME, methodName, "Reservation canceled successfully: " + canceledReservation);
 
             Map<String, Object> response = new HashMap<>();
+
             response.put("message", "Reservation cancelled successfully");
+
             response.put("refund amount", canceledReservation.getRefundAmount());
+
             response.put("status", canceledReservation.getReservationStatus());
 
             return ResponseEntity.ok(response);
+
         } catch (ReservationException e) {
             // Handle already cancelled reservation case
             Map<String, Object> response = new HashMap<>();
+
             response.put("error", e.getMessage());
+
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+
         } catch (LoginException e) {
             throw new RuntimeException(e);
         }
@@ -167,16 +205,22 @@ public class ReservationController {
         try {
             // Validate busId
             if (busId == null || busId <= 0) {
+
                 response.put("error", "Invalid Bus ID. Must be a positive number.");
+
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
 
             // Convert String to LocalDate and validate format
             LocalDate journeyDateStr;
             try {
+
                 journeyDateStr = LocalDate.parse(journeyDate);
+
             } catch (DateTimeParseException e) {
+
                 response.put("error", "Invalid date format. Please use yyyy-MM-dd (e.g., 2024-04-05).");
+
                 return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
 
@@ -202,6 +246,7 @@ public class ReservationController {
 
             // Merge all seats
             Set<String> allSeats = new LinkedHashSet<>(bookedSeats);
+
             allSeats.addAll(cachedSeats);
 
             int totalSeatCount = 0;
@@ -212,9 +257,13 @@ public class ReservationController {
 
             // Prepare response
             response.put("busId", busId);
+
             response.put("journeyDate", journeyDateStr);
+
             response.put("AllBookedSeats", new ArrayList<>(allSeats));
+
             response.put("TotalSeat", totalSeats);
+
             response.put("TotalSeatCount", totalSeatCount);
 
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -237,9 +286,13 @@ public class ReservationController {
     @GetMapping("/Get-All-booked-seats")
     public ResponseEntity<List<BookedSeatDTO>> getAllBookedSeats() {
         try {
+
             List<BookedSeatDTO> bookedSeats = reservationService.getAllBookedSeats();
+
             return ResponseEntity.ok(bookedSeats);
+
         } catch (ReservationException e) {
+
             return ResponseEntity.status(500).body(null);  // You can improve error handling as needed
         }
     }
@@ -253,6 +306,7 @@ public class ReservationController {
     @GetMapping("/getReservation/{userId}")
     public ResponseEntity<?> getReservationByUserId(@PathVariable String userId) throws ReservationException {
         try {
+
             List<Reservations> reservations = reservationService.getReservationsByUserId(userId);
 
             if (reservations == null || reservations.isEmpty()) {
@@ -260,10 +314,14 @@ public class ReservationController {
             }
 
             return ResponseEntity.ok(reservations);
+
         } catch (ReservationException ex) {
+
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(Map.of("error", ex.getMessage()));
+
         } catch (Exception ex) {
+
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "An error occurred while fetching reservations", "details", ex.getMessage()));
         }
@@ -273,7 +331,9 @@ public class ReservationController {
     // Global Exception Handling for ReservationException and LoginException
     @ExceptionHandler(ReservationException.class)
     public ResponseEntity<Map<String, Object>> handleReservationException(ReservationException ex) {
+
         String methodName = "handleReservationException";
+
         LOGGER.errorLog(CLASSNAME, methodName, "ReservationException occurred: " + ex.getMessage());
 
         return getMapResponseEntity(ex.getMessage(), ex);

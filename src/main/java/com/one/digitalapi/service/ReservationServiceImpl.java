@@ -2,13 +2,11 @@ package com.one.digitalapi.service;
 
 import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.ReservationDTO;
-import com.one.digitalapi.entity.Bus;
-import com.one.digitalapi.entity.Passenger;
-import com.one.digitalapi.entity.Reservations;
-import com.one.digitalapi.entity.User;
+import com.one.digitalapi.entity.*;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.repository.BusRepository;
+import com.one.digitalapi.repository.DiscountRepository;
 import com.one.digitalapi.repository.ReservationRepository;
 import com.one.digitalapi.repository.UserRepository;
 import com.one.digitalapi.utils.DigitalAPIConstant;
@@ -30,10 +28,13 @@ public class ReservationServiceImpl implements ReservationService {
     private BusRepository busRepository;
 
     @Autowired
+    private DiscountRepository discountRepository;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Override
-    public Reservations addReservation(ReservationDTO reservationDTO) throws ReservationException, LoginException {
+    public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) throws ReservationException, LoginException {
 
         // Fetch User Detail using only userId
         User user = userRepository.findByUserId(reservationDTO.getUserId())
@@ -44,20 +45,12 @@ public class ReservationServiceImpl implements ReservationService {
                 .orElseThrow(() -> new ReservationException("Bus not found for ID: " + reservationDTO.getBusDTO().getBusId()));
 
 
-
-        // Check seat availability
-        // Commenting For New Approach -- Will Send Total Booked Seat to UI & total seat
-       /* if (bus.getAvailableSeats() < reservationDTO.getNoOfSeatsToBook()) {
-            throw new ReservationException("Not enough seats available for booking!");
-        }*/
-
         // Create new reservation
         Reservations reservation = new Reservations();
         reservation.setSource(reservationDTO.getSource());
         reservation.setDestination(reservationDTO.getDestination());
         reservation.setNoOfSeatsBooked(reservationDTO.getNoOfSeatsToBook());
         reservation.setJourneyDate(reservationDTO.getJourneyDate());
-        reservation.setReservationDate(LocalDateTime.now().plusSeconds(2));
         reservation.setBus(bus);
         reservation.setUser(user);
         reservation.setFare(bus.getFarePerSeat() * reservationDTO.getNoOfSeatsToBook());
@@ -85,9 +78,21 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservation.setPassengers(passengerList);
 
-        // Update bus seat availability
-        //bus.setAvailableSeats(bus.getAvailableSeats() - reservationDTO.getNoOfSeatsToBook());
-        //busRepository.save(bus);
+        // For Discount
+        if (discountCode != null && !discountCode.isEmpty()) {
+            Optional<Discount> discountOpt = discountRepository.findByCode(discountCode);
+            if (discountOpt.isPresent()) {
+                Discount discount = discountOpt.get();
+                if (isDiscountValid(discount)) {
+                    reservation.setDiscount(discount);
+                    Integer discountedFare = calculateDiscountedFare(reservation.getFare(), discount);
+                    reservation.setFare(discountedFare);
+                }
+            }
+        }
+
+        // Adding Here For Updated Reservation Date Value
+        reservation.setReservationDate(LocalDateTime.now().plusSeconds(2));
 
         return reservationRepository.save(reservation);
     }
@@ -216,6 +221,23 @@ public class ReservationServiceImpl implements ReservationService {
 
         // Case 3: If canceling within 1 hour of journey time or after the journey date, no refund
         return 0;
+    }
+
+    // For Discount
+    private boolean isDiscountValid(Discount discount) {
+        LocalDateTime now = LocalDateTime.now();
+
+        return (discount.getStartDate().isBefore(now) || discount.getStartDate().isEqual(now)) &&
+                (discount.getEndDate().isAfter(now));
+    }
+
+    private Integer calculateDiscountedFare(Integer originalFare, Discount discount) {
+        if (discount.getType() == DiscountType.PERCENTAGE) {
+            return originalFare - (originalFare * discount.getValue() / 100);
+        } else if (discount.getType() == DiscountType.FLAT) {
+            return originalFare - discount.getValue();
+        }
+        return originalFare;
     }
 
 }

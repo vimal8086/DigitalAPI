@@ -90,6 +90,11 @@ public class Reservations {
     @JsonManagedReference  // This prevents infinite recursion
     private List<Passenger> passengers;
 
+
+    @ManyToOne
+    @JoinColumn(name = "discount_id")
+    private Discount discount;
+
     public List<Passenger> getPassengers() {
         return passengers;
     }
@@ -236,6 +241,14 @@ public class Reservations {
         this.user = user;
     }
 
+    public Discount getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(Discount discount) {
+        this.discount = discount;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
@@ -243,7 +256,7 @@ public class Reservations {
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String source,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
-                        String username, String mobileNumber, String email, String gender) {
+                        String username, String mobileNumber, String email, String gender, Discount discount) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -262,6 +275,7 @@ public class Reservations {
         this.mobileNumber = mobileNumber;
         this.email = email;
         this.gender = gender;
+        this.discount = discount;
     }
 
     public Reservations() {
