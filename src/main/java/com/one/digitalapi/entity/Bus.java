@@ -36,14 +36,14 @@ public class Bus {
     @NotEmpty(message = "Bus Type can not be empty.", groups = DefaultValidation.class)
     private String busType;
 
-    @NotNull(message = "Route From can not be null.", groups = FullValidation.class)
-    @NotBlank(message = "Route From can not be blank.", groups = FullValidation.class)
-    @NotEmpty(message = "Route From can not be empty.", groups = FullValidation.class)
+    @NotNull(message = "Route From can not be null.", groups = {DefaultValidation.class, FullValidation.class})
+    @NotBlank(message = "Route From can not be blank.", groups = {DefaultValidation.class, FullValidation.class})
+    @NotEmpty(message = "Route From can not be empty.", groups = {DefaultValidation.class, FullValidation.class})
     private String routeFrom;
 
-    @NotNull(message = "Route To can not be null.", groups = FullValidation.class)
-    @NotBlank(message = "Route To can not be blank.", groups = FullValidation.class)
-    @NotEmpty(message = "Route To can not be empty.", groups = FullValidation.class)
+    @NotNull(message = "Route To can not be null.", groups = {DefaultValidation.class, FullValidation.class})
+    @NotBlank(message = "Route To can not be blank.", groups = {DefaultValidation.class, FullValidation.class})
+    @NotEmpty(message = "Route To can not be empty.", groups = {DefaultValidation.class, FullValidation.class})
     private String routeTo;
 
 

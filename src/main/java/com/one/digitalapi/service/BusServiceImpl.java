@@ -39,13 +39,6 @@ public class BusServiceImpl implements BusService {
         Bus existingBus = bRepo.findById(bus.getBusId())
                 .orElseThrow(() -> new BusException("Bus with ID " + bus.getBusId() + " not found"));
 
-
-
-        // Commenting For ( Currently we don't have Scheduled bus module )
-       /* if (existingBus.getAvailableSeats() != existingBus.getSeats()) {
-            throw new BusException("Cannot update already scheduled bus!");
-        }*/
-
         Route route = rRepo.findByRouteFromAndRouteTo(bus.getRouteFrom(), bus.getRouteTo());
         if (route == null) {
             throw new BusException("Invalid route!");

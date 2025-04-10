@@ -71,9 +71,9 @@ public class PdfService {
         float centerX = (PageSize.A4.getWidth() - logo.getImageScaledWidth()) / 2;
         float centerY = (PageSize.A4.getHeight() - logo.getImageScaledHeight()) / 2;
         centerY += 100;
+
         // Set position and rotate for diagonal cross-like watermark
         logo.setFixedPosition(centerX, centerY);
-        //logo.setRotationAngle(Math.toRadians(45)); // 45 degrees cross tilt
         doc.add(logo);
         // End --------------------------
 
@@ -141,63 +141,31 @@ public class PdfService {
         Table pointsTable = new Table(UnitValue.createPercentArray(new float[]{1, 1})).useAllAvailableWidth().setMarginBottom(10);
 
         // Boarding Point Cell
-        if (!reservation.getBus().getPickupPoints().isEmpty()) {
+        Paragraph boardingTitle = new Paragraph("Boarding Point").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+        Paragraph boardingMain = new Paragraph(reservation.getPickupAddress()).setFontSize(10).setBold().setMarginBottom(0);
+        Cell boardingCell = new Cell().add(boardingTitle).add(boardingMain).setBorder(Border.NO_BORDER);
+        pointsTable.addCell(boardingCell);
 
-            var pickup = reservation.getBus().getPickupPoints().get(0);
+        Paragraph dropTitle = new Paragraph("Dropping Point").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+        Paragraph dropMain = new Paragraph(reservation.getDropAddress()).setFontSize(10).setBold().setMarginBottom(0);
+        Cell dropCell = new Cell().add(dropTitle).add(dropMain).setBorder(Border.NO_BORDER);
+        pointsTable.addCell(dropCell);
 
-            Paragraph boardingTitle = new Paragraph("Boarding Point").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+        // Dropping Time Cell
+        Paragraph boardingTimeTitle = new Paragraph("Boarding Time").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+        Paragraph boardingTimeMain = new Paragraph(reservation.getPickupTime()).setFontSize(10).setBold().setMarginBottom(0);
+        Cell boardingTimeCell = new Cell().add(boardingTimeTitle).add(boardingTimeMain).setBorder(Border.NO_BORDER);
+        pointsTable.addCell(boardingTimeCell);
 
-            Paragraph boardingMain = new Paragraph(pickup.getLocation()).setFontSize(10).setBold().setMarginBottom(0);
+        Paragraph dropTimeTitle = new Paragraph("Dropping Time").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
+        Paragraph dropTimeMain = new Paragraph(reservation.getDropTime()).setFontSize(10).setBold().setMarginBottom(0);
+        Cell dropTimeCell = new Cell().add(dropTimeTitle).add(dropTimeMain).setBorder(Border.NO_BORDER);
+        pointsTable.addCell(dropTimeCell);
 
-            Paragraph boardingSub = new Paragraph(pickup.getLocation() + " " + pickup.getAddress()).setFontSize(9).setFontColor(ColorConstants.GRAY);
-
-            Cell boardingCell = new Cell().add(boardingTitle).add(boardingMain).add(boardingSub).setBorder(Border.NO_BORDER);
-            pointsTable.addCell(boardingCell);
-        }
-
-        // Dropping Point Cell
-        if (!reservation.getBus().getDropPoints().isEmpty()) {
-
-            var drop = reservation.getBus().getDropPoints().get(0);
-
-            Paragraph dropTitle = new Paragraph("Dropping Point").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
-
-            Paragraph dropMain = new Paragraph(drop.getLocation()).setFontSize(10).setBold().setMarginBottom(0);
-
-            Paragraph dropSub = new Paragraph(drop.getLocation() + " " + drop.getAddress()).setFontSize(9).setFontColor(ColorConstants.GRAY);
-
-            Cell dropCell = new Cell().add(dropTitle).add(dropMain).add(dropSub).setBorder(Border.NO_BORDER);
-
-            pointsTable.addCell(dropCell);
-        }
-
-        if (!reservation.getBus().getPickupPoints().isEmpty()) {
-
-            var pickup = reservation.getBus().getPickupPoints().get(0);
-
-            Paragraph boardingTimeTitle = new Paragraph("Boarding Time").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
-
-            Paragraph boardingMain = new Paragraph(pickup.getPickupTime()).setFontSize(10).setBold().setMarginBottom(0);
-
-            Cell boardingCell = new Cell().add(boardingTimeTitle).add(boardingMain).setBorder(Border.NO_BORDER);
-
-            pointsTable.addCell(boardingCell);
-        }
-
-        // Dropping Point Cell
-        if (!reservation.getBus().getDropPoints().isEmpty()) {
-            var drop = reservation.getBus().getDropPoints().get(0);
-
-            Paragraph dropTitle = new Paragraph("Dropping Time").setFontColor(ColorConstants.GRAY).setFontSize(10).setBold();
-
-            Paragraph dropTimeMain = new Paragraph(drop.getDropTime()).setFontSize(10).setBold().setMarginBottom(0);
-
-            Cell dropCell = new Cell().add(dropTitle).add(dropTimeMain).setBorder(Border.NO_BORDER);
-            pointsTable.addCell(dropCell);
-        }
         doc.add(pointsTable);
         // End Boarding point and time & dropping point and time
-        
+
+
         doc.add(new Paragraph("\n"));
 
         // Passenger Info Table

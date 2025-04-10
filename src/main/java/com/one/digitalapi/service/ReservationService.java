@@ -3,25 +3,23 @@ package com.one.digitalapi.service;
 import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.Reservations;
-import com.one.digitalapi.exception.LoginException;
-import com.one.digitalapi.exception.ReservationException;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ReservationService {
 
-    public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) throws ReservationException, LoginException;
+    public Reservations addReservation(ReservationDTO reservationDTO, String discountCode);
 
-    public Reservations deleteReservation(Integer reservationId, String cancellationReason) throws ReservationException, LoginException;
+    public Reservations deleteReservation(Integer reservationId, String cancellationReason);
 
-    public Reservations viewAllReservation(Integer reservationId) throws LoginException;
+    public Reservations viewAllReservation(Integer reservationId);
 
-    public List<Reservations> getReservationDeatials() throws ReservationException, LoginException;
+    public List<Reservations> getReservationDeatials();
 
-    public List<String> getBookedSeatsForBus(Integer busId,  LocalDateTime journeyStart, LocalDateTime journeyEnd) throws ReservationException;
+    public List<String> getBookedSeatsForBus(Integer busId,  LocalDateTime journeyStart, LocalDateTime journeyEnd);
 
-    public List<BookedSeatDTO> getAllBookedSeats() throws ReservationException;
+    public List<BookedSeatDTO> getAllBookedSeats();
 
     public Reservations getReservationById(Integer id);
 

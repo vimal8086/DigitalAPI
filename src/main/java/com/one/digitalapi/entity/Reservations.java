@@ -2,6 +2,7 @@ package com.one.digitalapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.persistence.*;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
@@ -36,7 +37,6 @@ public class Reservations {
     @FutureOrPresent(message = "Journey date must be today or in the future")
     private LocalDateTime journeyDate;
 
-
     @NotNull(message = "Reservation source can not be null..")
     @NotBlank(message = "Reservation source can not be blank..")
     @NotEmpty(message = "Reservation source can not be empty..")
@@ -59,6 +59,34 @@ public class Reservations {
     private String cancellationReason;
 
     private Integer refundAmount;
+
+    // New Fields
+    @NotNull(message = "Pickup address cannot be null.")
+    @NotBlank(message = "Pickup address cannot be blank.")
+    @NotEmpty(message = "Pickup address cannot be empty.")
+    private String pickupAddress;
+
+    @NotNull(message = "Pickup time cannot be null.")
+    @NotBlank(message = "Pickup time cannot be blank.")
+    @NotEmpty(message = "Pickup time cannot be empty.")
+    @Schema(description = "Pickup time", example = "18:15:00", format = "time")
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    private String pickupTime;
+
+    @NotNull(message = "drop address cannot be null.")
+    @NotBlank(message = "drop address cannot be blank.")
+    @NotEmpty(message = "drop address cannot be empty.")
+    private String dropAddress;
+
+    @NotNull(message = "drop time cannot be null.")
+    @NotBlank(message = "drop time cannot be blank.")
+    @NotEmpty(message = "drop time cannot be empty.")
+    @Schema(description = "drop time", example = "18:15:00", format = "time")
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    private String dropTime;
+
 
     // New Fields
     @NotNull(message = "Username cannot be null")
@@ -249,6 +277,38 @@ public class Reservations {
         this.discount = discount;
     }
 
+    public String getPickupAddress() {
+        return pickupAddress;
+    }
+
+    public void setPickupAddress(String pickupAddress) {
+        this.pickupAddress = pickupAddress;
+    }
+
+    public String getPickupTime() {
+        return pickupTime;
+    }
+
+    public void setPickupTime(String pickupTime) {
+        this.pickupTime = pickupTime;
+    }
+
+    public String getDropAddress() {
+        return dropAddress;
+    }
+
+    public void setDropAddress(String dropAddress) {
+        this.dropAddress = dropAddress;
+    }
+
+    public String getDropTime() {
+        return dropTime;
+    }
+
+    public void setDropTime(String dropTime) {
+        this.dropTime = dropTime;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
@@ -256,7 +316,7 @@ public class Reservations {
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String source,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
-                        String username, String mobileNumber, String email, String gender, Discount discount) {
+                        String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -276,6 +336,10 @@ public class Reservations {
         this.email = email;
         this.gender = gender;
         this.discount = discount;
+        this.pickupAddress = pickupAddress;
+        this.pickupTime = pickupTime;
+        this.dropAddress = dropAddress;
+        this.dropTime = dropTime;
     }
 
     public Reservations() {

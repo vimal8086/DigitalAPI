@@ -103,7 +103,7 @@ public class ReservationController {
     @PostMapping("/add")
     @Operation(summary = "Add a new reservation", description = "Creates a new reservation")
     public ResponseEntity<Reservations> addReservation(@Valid @RequestBody ReservationDTO reservationDTO,
-                                                       @RequestParam(value = "discountCode", required = false) String discountCode) throws ReservationException, LoginException {
+                                                       @RequestParam(value = "discountCode", required = false) String discountCode) {
         String methodName = "addReservation";
 
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to add reservation: " + reservationDTO);

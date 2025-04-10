@@ -3,18 +3,19 @@ package com.one.digitalapi.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class ReservationDTO {
 
-    @NotNull(message = "Start point cannot be null!")
+    @NotNull(message = "source cannot be null!")
     @NotBlank(message = "Start point cannot be blank!")
     private String source;
 
-    @NotNull(message = "Destination point cannot be null!")
-    @NotBlank(message = "Destination point cannot be blank!")
+    @NotNull(message = "Destination cannot be null!")
+    @NotBlank(message = "Destination cannot be blank!")
     private String destination;
 
     @NotNull
@@ -44,6 +45,33 @@ public class ReservationDTO {
     @NotBlank(message = "Gender cannot be blank!")
     private String gender;
 
+    @NotNull(message = "Pickup address cannot be null.")
+    @NotBlank(message = "Pickup address cannot be blank.")
+    @NotEmpty(message = "Pickup address cannot be empty.")
+    private String pickupAddress;
+
+    @NotNull(message = "Pickup time cannot be null.")
+    @NotBlank(message = "Pickup time cannot be blank.")
+    @NotEmpty(message = "Pickup time cannot be empty.")
+    @Schema(description = "Pickup time", example = "18:15:00", format = "time")
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    private String pickupTime;
+
+    @NotNull(message = "drop address cannot be null.")
+    @NotBlank(message = "drop address cannot be blank.")
+    @NotEmpty(message = "drop address cannot be empty.")
+    private String dropAddress;
+
+    @NotNull(message = "drop time cannot be null.")
+    @NotBlank(message = "drop time cannot be blank.")
+    @NotEmpty(message = "drop time cannot be empty.")
+    @Schema(description = "drop time", example = "18:15:00", format = "time")
+    @JsonFormat(pattern = "HH:mm:ss") // Ensures correct format when serializing/deserializing JSON
+    @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
+    private String dropTime;
+
+
     private List<PassengerDTO> passengers;
 
 
@@ -51,10 +79,7 @@ public class ReservationDTO {
         super();
     }
 
-    public ReservationDTO(
-            String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate,
-            BusDTO busDTO, String userId, String username, String mobileNumber, String email, String gender, List<PassengerDTO> passengers) {
-        super();
+    public ReservationDTO(String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String userId, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, List<PassengerDTO> passengers) {
         this.source = source;
         this.destination = destination;
         this.noOfSeatsToBook = noOfSeatsToBook;
@@ -65,6 +90,10 @@ public class ReservationDTO {
         this.mobileNumber = mobileNumber;
         this.email = email;
         this.gender = gender;
+        this.pickupAddress = pickupAddress;
+        this.pickupTime = pickupTime;
+        this.dropAddress = dropAddress;
+        this.dropTime = dropTime;
         this.passengers = passengers;
     }
 
@@ -105,5 +134,37 @@ public class ReservationDTO {
 
     public void setPassengers(List<PassengerDTO> passengers) {
         this.passengers = passengers;
+    }
+
+    public String getPickupAddress() {
+        return pickupAddress;
+    }
+
+    public void setPickupAddress(String pickupAddress) {
+        this.pickupAddress = pickupAddress;
+    }
+
+    public String getPickupTime() {
+        return pickupTime;
+    }
+
+    public void setPickupTime(String pickupTime) {
+        this.pickupTime = pickupTime;
+    }
+
+    public String getDropAddress() {
+        return dropAddress;
+    }
+
+    public void setDropAddress(String dropAddress) {
+        this.dropAddress = dropAddress;
+    }
+
+    public String getDropTime() {
+        return dropTime;
+    }
+
+    public void setDropTime(String dropTime) {
+        this.dropTime = dropTime;
     }
 }

@@ -34,11 +34,12 @@ public class ReservationServiceImpl implements ReservationService {
     private UserRepository userRepository;
 
     @Override
-    public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) throws ReservationException, LoginException {
+    public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) {
 
         // Fetch User Detail using only userId
-        User user = userRepository.findByUserId(reservationDTO.getUserId())
-                .orElseThrow(() -> new LoginException("User Not Found for ID: " + reservationDTO.getUserId()));
+        User user = userRepository.findByUserId(reservationDTO.getUserId()).
+                orElseThrow(() -> new LoginException("User Not Found for ID: " + reservationDTO.getUserId()));
+
 
         // Fetch bus details
         Bus bus = busRepository.findById(reservationDTO.getBusDTO().getBusId())
@@ -62,6 +63,13 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setMobileNumber(reservationDTO.getMobileNumber());
         reservation.setEmail(reservationDTO.getEmail());
         reservation.setGender(reservationDTO.getGender());
+
+        //Pickup and drop fields
+        reservation.setPickupAddress(reservationDTO.getPickupAddress());
+        reservation.setPickupTime(reservationDTO.getPickupTime());
+        reservation.setDropAddress(reservationDTO.getDropAddress());
+        reservation.setDropTime(reservationDTO.getDropTime());
+
 
         // Set passengers
         List<Passenger> passengerList = reservationDTO.getPassengers().stream().map(passengerDTO -> {
@@ -99,7 +107,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public Reservations deleteReservation(Integer reservationId, String cancellationReason) throws ReservationException {
+    public Reservations deleteReservation(Integer reservationId, String cancellationReason) {
         Reservations existingReservation = reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
 
@@ -128,13 +136,13 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Reservations viewAllReservation(Integer reservationId) throws LoginException {
+    public Reservations viewAllReservation(Integer reservationId) {
         return reservationRepository.findById(reservationId)
                 .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
     }
 
     @Override
-    public List<Reservations> getReservationDeatials() throws ReservationException, LoginException {
+    public List<Reservations> getReservationDeatials() {
         List<Reservations> reservations = reservationRepository.findAll();
         if (reservations.isEmpty()) {
             throw new ReservationException("No reservations found!");
@@ -162,7 +170,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<BookedSeatDTO> getAllBookedSeats() throws ReservationException {
+    public List<BookedSeatDTO> getAllBookedSeats() {
         // Get the current date and time
         LocalDateTime now = LocalDateTime.now();
 

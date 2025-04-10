@@ -7,15 +7,16 @@ import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.BookingService;
 import com.one.digitalapi.service.BusService;
 import com.one.digitalapi.service.ReservationService;
+import com.one.digitalapi.validation.DefaultValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -49,7 +50,7 @@ public class BusController {
 
     @PostMapping
     @Operation(summary = "Add a new bus", description = "Creates a new bus if it does not exist")
-    public ResponseEntity<Bus> createBus(@Valid @RequestBody Bus bus) {
+    public ResponseEntity<Bus> createBus(@Validated(DefaultValidation.class) @RequestBody Bus bus) {
         String methodName = "createBus";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to create bus: " + bus);
         Bus createdBus = busService.addBus(bus);
@@ -77,7 +78,7 @@ public class BusController {
             @ApiResponse(responseCode = "200", description = "Bus updated successfully"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
     })
-    public ResponseEntity<Bus> updateBusById(@Valid @RequestBody Bus bus) {
+    public ResponseEntity<Bus> updateBusById(@Validated(DefaultValidation.class) @RequestBody Bus bus) {
         String methodName = "updateBusById";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to update bus: " + bus);
         Bus updatedBus = busService.updateBus(bus);
