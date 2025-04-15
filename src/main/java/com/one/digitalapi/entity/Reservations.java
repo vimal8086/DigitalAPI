@@ -28,7 +28,7 @@ public class Reservations {
     @NotNull(message = "reservation date cannot be null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @FutureOrPresent(message = "reservation date must be today or in the future")
+    //@FutureOrPresent(message = "reservation date must be today or in the future")
     private LocalDateTime reservationDate;
 
     @NotNull(message = "Journey date cannot be null")

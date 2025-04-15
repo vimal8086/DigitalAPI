@@ -16,6 +16,7 @@ import com.one.digitalapi.logger.LogManager;
 @EntityScan("com.one")
 @ComponentScan("com.one")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
+//@EnableAsync    --- For Future enhancement
 public class DigitalApiApplication {
 	private static final String PERFORMANCE = "PERFORMANCE";  // Compliant
 	private static final String ANALYTICSKPI = "ANALYTICSKPI";  // Compliant

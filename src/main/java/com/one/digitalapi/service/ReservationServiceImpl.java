@@ -1,10 +1,13 @@
 package com.one.digitalapi.service;
 
 import com.one.digitalapi.dto.BookedSeatDTO;
+import com.one.digitalapi.dto.BusDTO;
+import com.one.digitalapi.dto.PassengerDTO;
 import com.one.digitalapi.dto.ReservationDTO;
 import com.one.digitalapi.entity.*;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
+import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.repository.BusRepository;
 import com.one.digitalapi.repository.DiscountRepository;
 import com.one.digitalapi.repository.ReservationRepository;
@@ -21,6 +24,10 @@ import java.util.stream.Collectors;
 @Service
 public class ReservationServiceImpl implements ReservationService {
 
+    private static final String CLASSNAME = "ReservationServiceImpl";
+
+    private static final DefaultLogger LOGGER = new DefaultLogger(ReservationServiceImpl.class);
+
     @Autowired
     private ReservationRepository reservationRepository;
 
@@ -33,136 +40,202 @@ public class ReservationServiceImpl implements ReservationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PdfService pdfService;
+
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) {
+        LOGGER.infoLog(CLASSNAME, "addReservation", "Entering addReservation method");
 
-        // Fetch User Detail using only userId
-        User user = userRepository.findByUserId(reservationDTO.getUserId()).
-                orElseThrow(() -> new LoginException("User Not Found for ID: " + reservationDTO.getUserId()));
+        if (reservationDTO == null) {
+            LOGGER.errorLog(CLASSNAME, "addReservation", "ReservationDTO is null");
+            throw new IllegalArgumentException("ReservationDTO cannot be null");
+        }
 
+        String userId = reservationDTO.getUserId();
+        if (userId == null || userId.isBlank()) {
+            LOGGER.errorLog(CLASSNAME, "addReservation", "User ID is missing");
+            throw new LoginException("User ID cannot be null or empty");
+        }
 
-        // Fetch bus details
-        Bus bus = busRepository.findById(reservationDTO.getBusDTO().getBusId())
-                .orElseThrow(() -> new ReservationException("Bus not found for ID: " + reservationDTO.getBusDTO().getBusId()));
+        User user = userRepository.findByUserId(userId)
+                .orElseThrow(() -> {
+                    LOGGER.errorLog(CLASSNAME, "addReservation", "User not found: " + userId);
+                    return new LoginException("User Not Found for ID: " + userId);
+                });
 
+        BusDTO busDTO = reservationDTO.getBusDTO();
+        if (busDTO == null || busDTO.getBusId() == null) {
+            LOGGER.errorLog(CLASSNAME, "addReservation", "Bus information missing");
+            throw new ReservationException("Bus information is missing or incomplete");
+        }
 
-        // Create new reservation
+        Bus bus = busRepository.findById(busDTO.getBusId())
+                .orElseThrow(() -> {
+                    LOGGER.errorLog(CLASSNAME, "addReservation", "Bus not found for ID: " + busDTO.getBusId());
+                    return new ReservationException("Bus not found for ID: " + busDTO.getBusId());
+                });
+
+        int noOfSeats = reservationDTO.getNoOfSeatsToBook() != null ? reservationDTO.getNoOfSeatsToBook() : 0;
+        if (noOfSeats <= 0) {
+            LOGGER.errorLog(CLASSNAME, "addReservation", "Invalid number of seats: " + noOfSeats);
+            throw new ReservationException("Number of seats to book must be greater than 0");
+        }
+
+        LOGGER.debugLog(CLASSNAME, "addReservation", "Creating reservation entity");
+
         Reservations reservation = new Reservations();
         reservation.setSource(reservationDTO.getSource());
         reservation.setDestination(reservationDTO.getDestination());
-        reservation.setNoOfSeatsBooked(reservationDTO.getNoOfSeatsToBook());
+        reservation.setNoOfSeatsBooked(noOfSeats);
         reservation.setJourneyDate(reservationDTO.getJourneyDate());
         reservation.setBus(bus);
         reservation.setUser(user);
-        reservation.setFare(bus.getFarePerSeat() * reservationDTO.getNoOfSeatsToBook());
+        reservation.setFare(bus.getFarePerSeat() * noOfSeats);
         reservation.setReservationStatus(DigitalAPIConstant.CONFIRMED);
         reservation.setReservationType(DigitalAPIConstant.ONLINE);
 
-        // Set new fields
         reservation.setUsername(reservationDTO.getUsername());
         reservation.setMobileNumber(reservationDTO.getMobileNumber());
         reservation.setEmail(reservationDTO.getEmail());
         reservation.setGender(reservationDTO.getGender());
 
-        //Pickup and drop fields
         reservation.setPickupAddress(reservationDTO.getPickupAddress());
         reservation.setPickupTime(reservationDTO.getPickupTime());
         reservation.setDropAddress(reservationDTO.getDropAddress());
         reservation.setDropTime(reservationDTO.getDropTime());
 
+        List<PassengerDTO> passengerDTOs = reservationDTO.getPassengers();
+        if (passengerDTOs == null || passengerDTOs.isEmpty()) {
+            LOGGER.errorLog(CLASSNAME, "addReservation", "Passenger list is empty");
+            throw new ReservationException("At least one passenger must be provided");
+        }
 
-        // Set passengers
-        List<Passenger> passengerList = reservationDTO.getPassengers().stream().map(passengerDTO -> {
-            Passenger passenger = new Passenger();
-            passenger.setName(passengerDTO.getName());
-            passenger.setEmail(passengerDTO.getEmail());
-            passenger.setAge(passengerDTO.getAge());
-            passenger.setGender(passengerDTO.getGender());
-            passenger.setContact(passengerDTO.getContact());
-            passenger.setSeatName(passengerDTO.getSeatName());
-            passenger.setReservation(reservation);
-            return passenger;
-        }).collect(Collectors.toList());
+        List<Passenger> passengerList = passengerDTOs.stream()
+                .filter(Objects::nonNull)
+                .map(passengerDTO -> {
+                    Passenger passenger = new Passenger();
+                    passenger.setName(passengerDTO.getName());
+                    passenger.setEmail(passengerDTO.getEmail());
+                    passenger.setAge(passengerDTO.getAge());
+                    passenger.setGender(passengerDTO.getGender());
+                    passenger.setContact(passengerDTO.getContact());
+                    passenger.setSeatName(passengerDTO.getSeatName());
+                    passenger.setReservation(reservation);
+                    return passenger;
+                }).collect(Collectors.toList());
 
         reservation.setPassengers(passengerList);
 
-        // For Discount
-        if (discountCode != null && !discountCode.isEmpty()) {
-            Optional<Discount> discountOpt = discountRepository.findByCode(discountCode);
-            if (discountOpt.isPresent()) {
-                Discount discount = discountOpt.get();
+        if (discountCode != null && !discountCode.isBlank()) {
+            LOGGER.debugLog(CLASSNAME, "addReservation", "Applying discount code: " + discountCode);
+            discountRepository.findByCode(discountCode).ifPresent(discount -> {
                 if (isDiscountValid(discount)) {
                     reservation.setDiscount(discount);
                     Integer discountedFare = calculateDiscountedFare(reservation.getFare(), discount);
                     reservation.setFare(discountedFare);
+                    LOGGER.infoLog(CLASSNAME, "addReservation", "Discount applied successfully");
+                } else {
+                    LOGGER.warnLog(CLASSNAME, "addReservation", "Discount code is invalid or expired");
                 }
-            }
+            });
         }
 
-        // Adding Here For Updated Reservation Date Value
         reservation.setReservationDate(LocalDateTime.now().plusSeconds(2));
 
-        return reservationRepository.save(reservation);
+        LOGGER.debugLog(CLASSNAME, "addReservation", "Saving reservation");
+        Reservations savedReservation = reservationRepository.save(reservation);
+        LOGGER.infoLog(CLASSNAME, "addReservation", "Reservation saved with ID: " + savedReservation.getReservationId());
+
+        try {
+
+            byte[] pdfBytes = pdfService.generateFormattedTicket(savedReservation.getReservationId());
+
+            String fileName = "Bus_Ticket_" + savedReservation.getReservationId() + ".pdf";
+
+            emailService.sendTicketEmail(savedReservation.getEmail(), pdfBytes, fileName, savedReservation.getSource()
+                    + " to " + savedReservation.getDestination() + " on " + savedReservation.getJourneyDate());
+
+
+        } catch (Exception e) {
+            LOGGER.errorLog(CLASSNAME, "addReservation", "Error sending ticket email: " + e.getMessage());
+        }
+
+        return savedReservation;
     }
+
+
+
 
     @Override
     @Transactional
     public Reservations deleteReservation(Integer reservationId, String cancellationReason) {
-        Reservations existingReservation = reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
+        LOGGER.infoLog(CLASSNAME, "deleteReservation", "Deleting reservation ID: " + reservationId);
 
-        // Check if reservation is already cancelled
+        Reservations existingReservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> {
+                    LOGGER.errorLog(CLASSNAME, "deleteReservation", "Reservation not found: " + reservationId);
+                    return new ReservationException("Reservation not found for ID: " + reservationId);
+                });
+
         if (DigitalAPIConstant.CANCELLED.equals(existingReservation.getReservationStatus())) {
+            LOGGER.warnLog(CLASSNAME, "deleteReservation", "Reservation already cancelled");
             throw new ReservationException("Reservation Already CANCELLED");
         }
 
-        // Calculate refund based on the cancellation time
         Integer refundAmount = calculateRefund(existingReservation);
+        LOGGER.infoLog(CLASSNAME, "deleteReservation", "Calculated refund amount: " + refundAmount);
 
-        // Update bus seat availability
         Bus bus = existingReservation.getBus();
         bus.setAvailableSeats(bus.getAvailableSeats() + existingReservation.getNoOfSeatsBooked());
         busRepository.save(bus);
+        LOGGER.debugLog(CLASSNAME, "deleteReservation", "Updated bus seat availability");
 
-        // Update Reservation Status Directly in DB
         reservationRepository.updateReservationStatus(reservationId, DigitalAPIConstant.CANCELLED, cancellationReason, refundAmount);
+        LOGGER.infoLog(CLASSNAME, "deleteReservation", "Reservation status updated in DB");
 
-        // Manually set refundAmount and status before returning
         existingReservation.setRefundAmount(refundAmount);
         existingReservation.setReservationStatus(DigitalAPIConstant.CANCELLED);
         existingReservation.setCancellationReason(cancellationReason);
 
-        return existingReservation;  // Returns updated object with manually set fields
+        return existingReservation;
     }
 
     @Override
     public Reservations viewAllReservation(Integer reservationId) {
+        LOGGER.infoLog(CLASSNAME, "viewAllReservation", "Fetching reservation ID: " + reservationId);
         return reservationRepository.findById(reservationId)
-                .orElseThrow(() -> new ReservationException("Reservation not found for ID: " + reservationId));
+                .orElseThrow(() -> {
+                    LOGGER.errorLog(CLASSNAME, "viewAllReservation", "Reservation not found: " + reservationId);
+                    return new ReservationException("Reservation not found for ID: " + reservationId);
+                });
     }
 
     @Override
     public List<Reservations> getReservationDeatials() {
+        LOGGER.infoLog(CLASSNAME, "getReservationDeatials", "Fetching all reservations");
         List<Reservations> reservations = reservationRepository.findAll();
         if (reservations.isEmpty()) {
+            LOGGER.warnLog(CLASSNAME, "getReservationDeatials", "No reservations found");
             throw new ReservationException("No reservations found!");
         }
         return reservations;
     }
 
     @Override
-    public List<String> getBookedSeatsForBus(Integer busId, LocalDateTime journeyStart, LocalDateTime journeyEnd)
-            throws ReservationException {
-
-        // Fetch all confirmed reservations within the date range
+    public List<String> getBookedSeatsForBus(Integer busId, LocalDateTime journeyStart, LocalDateTime journeyEnd) {
+        LOGGER.infoLog(CLASSNAME, "getBookedSeatsForBus", "Fetching booked seats for Bus ID: " + busId);
         List<Reservations> reservations = reservationRepository
                 .findByBus_BusIdAndReservationStatusAndJourneyDateBetween(busId, "CONFIRMED", journeyStart, journeyEnd);
 
         if (reservations.isEmpty()) {
-            return Collections.emptyList(); // Return empty list instead of throwing exception
+            LOGGER.warnLog(CLASSNAME, "getBookedSeatsForBus", "No reservations found for bus ID: " + busId);
+            return Collections.emptyList();
         }
 
-        // Collect all booked seat names
         return reservations.stream()
                 .flatMap(reservation -> reservation.getPassengers().stream())
                 .map(Passenger::getSeatName)
@@ -171,81 +244,63 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public List<BookedSeatDTO> getAllBookedSeats() {
-        // Get the current date and time
+        LOGGER.infoLog(CLASSNAME, "getAllBookedSeats", "Fetching all future booked seats");
         LocalDateTime now = LocalDateTime.now();
-
-        // Fetch all confirmed reservations with a journeyDate >= today
         List<Reservations> reservations = reservationRepository.findByReservationStatusAndJourneyDateAfter("CONFIRMED", now);
 
-        // If no reservations are found, throw an exception or return an empty list
         if (reservations.isEmpty()) {
-            return new ArrayList<>(); // Return an empty list if no reservations are found
+            LOGGER.warnLog(CLASSNAME, "getAllBookedSeats", "No booked seats found");
+            return new ArrayList<>();
         }
 
-        // Collect all booked seats with busId and seatName
         Map<Integer, List<String>> groupedSeats = reservations.stream()
-                .flatMap(reservation -> reservation.getPassengers().stream() // Stream passengers from each reservation
-                        .map(passenger -> new AbstractMap.SimpleEntry<>(reservation.getBus().getBusId(), passenger.getSeatName()))) // Pair busId with seatName
-                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty()) // Filter out empty seat names
-                .collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey, // Group by busId
-                        Collectors.mapping(AbstractMap.SimpleEntry::getValue, Collectors.toList()))); // Collect seat names into a list
+                .flatMap(reservation -> reservation.getPassengers().stream()
+                        .map(passenger -> new AbstractMap.SimpleEntry<>(reservation.getBus().getBusId(), passenger.getSeatName())))
+                .filter(entry -> entry.getValue() != null && !entry.getValue().isEmpty())
+                .collect(Collectors.groupingBy(AbstractMap.SimpleEntry::getKey,
+                        Collectors.mapping(AbstractMap.SimpleEntry::getValue, Collectors.toList())));
 
-        // Convert the grouped data into the required BookedSeatDTO format
-        List<BookedSeatDTO> bookedSeatDTOList = groupedSeats.entrySet().stream()
+        return groupedSeats.entrySet().stream()
                 .map(entry -> new BookedSeatDTO(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
-
-        return bookedSeatDTOList;
     }
 
     @Override
     public Reservations getReservationById(Integer id) {
+        LOGGER.infoLog(CLASSNAME, "getReservationById", "Fetching reservation by ID: " + id);
         return reservationRepository.findById(id).orElse(null);
     }
 
     @Override
     public List<Reservations> getReservationsByUserId(String userId) {
+        LOGGER.infoLog(CLASSNAME, "getReservationsByUserId", "Fetching reservations for user: " + userId);
         return reservationRepository.findByUser_UserIdOrderByReservationDateDesc(userId);
     }
 
-
-    /**
-     * Refund calculation based on cancellation timing
-     */
     private Integer calculateRefund(Reservations reservation) {
-        LocalDateTime now = LocalDateTime.now(); // Get current date and time
-        LocalDateTime journeyDateTime = reservation.getJourneyDate(); // Get journey date & time
+        LOGGER.debugLog(CLASSNAME, "calculateRefund", "Calculating refund");
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime journeyDateTime = reservation.getJourneyDate();
         Integer fare = reservation.getFare();
 
-        // Case 1: If the journey is in the future, full refund
-        if (journeyDateTime.isAfter(now)) {
-            return fare;  // Full refund for future journeys
+        if (journeyDateTime.isAfter(now) || journeyDateTime.minusHours(1).isAfter(now)) {
+            return fare;
         }
-
-        // Case 2: If canceling at least 1 hour before journey time, full refund
-        if (journeyDateTime.minusHours(1).isAfter(now)) {
-            return fare;  // Full refund
-        }
-
-        // Case 3: If canceling within 1 hour of journey time or after the journey date, no refund
         return 0;
     }
 
-    // For Discount
     private boolean isDiscountValid(Discount discount) {
         LocalDateTime now = LocalDateTime.now();
-
         return (discount.getStartDate().isBefore(now) || discount.getStartDate().isEqual(now)) &&
-                (discount.getEndDate().isAfter(now));
+                discount.getEndDate().isAfter(now);
     }
 
     private Integer calculateDiscountedFare(Integer originalFare, Discount discount) {
         if (discount.getType() == DiscountType.PERCENTAGE) {
             return originalFare - (originalFare * discount.getValue() / 100);
         } else if (discount.getType() == DiscountType.FLAT) {
-            return originalFare - discount.getValue();
+            return Math.max(0, originalFare - discount.getValue());
         }
         return originalFare;
     }
-
 }

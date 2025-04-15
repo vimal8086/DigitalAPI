@@ -29,6 +29,5 @@ public interface ReservationRepository extends JpaRepository<Reservations, Integ
             Integer busId, String reservationStatus, LocalDateTime journeyStart, LocalDateTime journeyEnd);
 
     List<Reservations> findByUser_UserIdOrderByReservationDateDesc(String userId);
-
 }
 

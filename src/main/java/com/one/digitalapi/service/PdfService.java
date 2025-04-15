@@ -31,14 +31,15 @@ import java.time.format.DateTimeFormatter;
 public class PdfService {
 
     @Autowired
-    private ReservationService reservationService;
+    private ReservationHelperService reservationHelperService;
 
     private static final String FONT_BOLD = "Helvetica-Bold";
     private static final String REFUND_POLICY = "• 100% refund before 24 hrs of journey.\n• 50% refund within 24 hrs.\n• No refund after departure.";
 
+
     public byte[] generateFormattedTicket(Integer reservationId) throws Exception {
 
-        Reservations reservation = reservationService.getReservationById(reservationId);
+        Reservations reservation = reservationHelperService.getReservationWithDetails(reservationId);
 
         if (reservation == null) {
             throw new ReservationException("Reservation not found for ID: " + reservationId);

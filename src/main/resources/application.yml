@@ -51,6 +51,19 @@ spring:
           ddl-auto: update  # Change as needed: none, validate, create, or create-drop
         show-sql: true
 
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: Motionsorange@gmail.com
+    password: hxmg oqmz aegg txlr
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 razorpay:
   keyId: rzp_test_hDoWPxUvpOeof6
   keySecret: DI97f0Q3qsGB2Rnzosyh2TcN

@@ -87,6 +87,9 @@ dependencies {
 	// For PDF
 	implementation 'com.itextpdf:itext7-core:7.1.15'
 
+	// For Mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+
 }
 
 dependencyManagement {
