@@ -211,15 +211,21 @@ public class PdfService {
         doc.add(new Paragraph("\n"));
 
         // Fare
-        doc.add(new Paragraph("Fare Paid: ₹ " + reservation.getFare()).addStyle(headerStyle));
+        Paragraph paymentDetails = new Paragraph("Fare & Payment Details").setFont(regular).setFontSize(14).
+                setTextAlignment(TextAlignment.LEFT).setFontColor(ColorConstants.BLACK).setBold();
+        doc.add(paymentDetails);
+
+        doc.add(new Paragraph("Base Fare  ₹ (" +  reservation.getNoOfSeatsBooked() + " Traveller) : "
+                + reservation.getFare() + " Rs").addStyle(normalStyle));
+        doc.add(new Paragraph("Operator GST : ₹ " + reservation.getGstAmount()+ " Rs").addStyle(normalStyle));
+        doc.add(new Paragraph("Fare Paid : ₹ " + reservation.getTotalAmount()+ " Rs").addStyle(normalStyle));
         doc.add(new Paragraph("\n"));
+
 
         // Cancellation
         doc.add(new Paragraph("Cancellation Policy:").addStyle(headerStyle));
         doc.add(new Paragraph(REFUND_POLICY).addStyle(normalStyle));
-
         doc.add(new Paragraph("\nThank you for booking with us!").addStyle(normalStyle).setTextAlignment(TextAlignment.CENTER));
-
         doc.close();
         return baos.toByteArray();
     }
