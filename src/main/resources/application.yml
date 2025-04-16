@@ -84,6 +84,9 @@ management:
       exposure:
         include: "*" 
 
+reservation:
+  gst-percentage: 5.0
+
 feign:
   client:
     config:

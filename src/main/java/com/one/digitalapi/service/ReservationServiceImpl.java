@@ -1,5 +1,6 @@
 package com.one.digitalapi.service;
 
+import com.one.digitalapi.config.ReservationProperties;
 import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.BusDTO;
 import com.one.digitalapi.dto.PassengerDTO;
@@ -45,6 +46,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private ReservationProperties reservationProperties;
 
     @Override
     public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) {
@@ -94,7 +98,18 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setJourneyDate(reservationDTO.getJourneyDate());
         reservation.setBus(bus);
         reservation.setUser(user);
+
         reservation.setFare(bus.getFarePerSeat() * noOfSeats);
+
+        int baseFare = bus.getFarePerSeat() * noOfSeats;
+        double gstAmount = baseFare * (reservationProperties.getGstPercentage() / 100.0);
+        double totalAmount = baseFare + gstAmount;
+
+        reservation.setFare(baseFare);
+        reservation.setGstAmount(gstAmount);
+        reservation.setTotalAmount(totalAmount);
+        reservation.setOrderId(reservationDTO.getOrderId()); // You can customize this format
+
         reservation.setReservationStatus(DigitalAPIConstant.CONFIRMED);
         reservation.setReservationType(DigitalAPIConstant.ONLINE);
 
@@ -166,7 +181,6 @@ public class ReservationServiceImpl implements ReservationService {
 
         return savedReservation;
     }
-
 
 
 

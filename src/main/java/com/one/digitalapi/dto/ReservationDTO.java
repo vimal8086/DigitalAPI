@@ -71,6 +71,11 @@ public class ReservationDTO {
     @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
     private String dropTime;
 
+    private String orderId;
+
+    private Double gstAmount;
+
+    private Double totalAmount;
 
     private List<PassengerDTO> passengers;
 
@@ -79,13 +84,13 @@ public class ReservationDTO {
         super();
     }
 
-    public ReservationDTO(String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String userId, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, List<PassengerDTO> passengers) {
+    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount, List<PassengerDTO> passengers) {
+        this.userId = userId;
         this.source = source;
         this.destination = destination;
         this.noOfSeatsToBook = noOfSeatsToBook;
         this.journeyDate = journeyDate;
         this.busDTO = busDTO;
-        this.userId = userId;
         this.username = username;
         this.mobileNumber = mobileNumber;
         this.email = email;
@@ -94,6 +99,9 @@ public class ReservationDTO {
         this.pickupTime = pickupTime;
         this.dropAddress = dropAddress;
         this.dropTime = dropTime;
+        this.orderId = orderId;
+        this.gstAmount = gstAmount;
+        this.totalAmount = totalAmount;
         this.passengers = passengers;
     }
 
@@ -166,5 +174,29 @@ public class ReservationDTO {
 
     public void setDropTime(String dropTime) {
         this.dropTime = dropTime;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public Double getGstAmount() {
+        return gstAmount;
+    }
+
+    public void setGstAmount(Double gstAmount) {
+        this.gstAmount = gstAmount;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
     }
 }

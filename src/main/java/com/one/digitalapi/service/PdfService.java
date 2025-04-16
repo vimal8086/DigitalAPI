@@ -91,9 +91,29 @@ public class PdfService {
         doc.add(title);
 
         // PNR and Status with Styling
-        Paragraph pnrStatus = new Paragraph("PNR: " + reservation.getReservationId() + "   |   Status: " + reservation.getReservationStatus()).setFont(regular).setFontSize(12).setTextAlignment(TextAlignment.CENTER).setFontColor(ColorConstants.DARK_GRAY);
+        Table pnrTable = new Table(UnitValue.createPercentArray(new float[]{1, 1, 1}))
+                .useAllAvailableWidth();
 
-        doc.add(pnrStatus);
+        pnrTable.addCell(new Cell()
+                .add(new Paragraph("PNR").setFont(bold).setFontSize(10))
+                .add(new Paragraph(String.valueOf(reservation.getReservationId())).setFont(regular).setFontSize(12))
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.LEFT));
+
+        pnrTable.addCell(new Cell()
+                .add(new Paragraph("Status").setFont(bold).setFontSize(10))
+                .add(new Paragraph(reservation.getReservationStatus()).setFont(regular).setFontSize(12))
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.CENTER));
+
+        pnrTable.addCell(new Cell()
+                .add(new Paragraph("Order ID").setFont(bold).setFontSize(10))
+                .add(new Paragraph(String.valueOf(reservation.getOrderId())).setFont(regular).setFontSize(12))
+                .setBorder(Border.NO_BORDER)
+                .setTextAlignment(TextAlignment.RIGHT));
+
+
+        doc.add(pnrTable);
 
         // Separator Line for Better Structure
         doc.add(new LineSeparator(new SolidLine()).setMarginTop(5).setMarginBottom(10));

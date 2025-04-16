@@ -28,7 +28,6 @@ public class Reservations {
     @NotNull(message = "reservation date cannot be null")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    //@FutureOrPresent(message = "reservation date must be today or in the future")
     private LocalDateTime reservationDate;
 
     @NotNull(message = "Journey date cannot be null")
@@ -60,7 +59,6 @@ public class Reservations {
 
     private Integer refundAmount;
 
-    // New Fields
     @NotNull(message = "Pickup address cannot be null.")
     @NotBlank(message = "Pickup address cannot be blank.")
     @NotEmpty(message = "Pickup address cannot be empty.")
@@ -87,8 +85,6 @@ public class Reservations {
     @Pattern(regexp = "^([01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d$", message = "Invalid time format. Expected HH:mm:ss")
     private String dropTime;
 
-
-    // New Fields
     @NotNull(message = "Username cannot be null")
     @NotBlank(message = "Username cannot be blank")
     private String username;
@@ -105,6 +101,12 @@ public class Reservations {
     @Pattern(regexp = "Male|Female|Other", message = "Gender must be Male, Female, or Other")
     private String gender;
 
+    private String orderId;
+
+    private Double gstAmount;
+
+    private Double totalAmount;
+
     @ManyToOne(optional = true)
     @Valid
     @JoinColumn(name = "bus_id", referencedColumnName = "busId")
@@ -117,7 +119,6 @@ public class Reservations {
     @OneToMany(mappedBy = "reservation", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference  // This prevents infinite recursion
     private List<Passenger> passengers;
-
 
     @ManyToOne
     @JoinColumn(name = "discount_id")
@@ -309,6 +310,30 @@ public class Reservations {
         this.dropTime = dropTime;
     }
 
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
+    }
+
+    public Double getGstAmount() {
+        return gstAmount;
+    }
+
+    public void setGstAmount(Double gstAmount) {
+        this.gstAmount = gstAmount;
+    }
+
+    public Double getTotalAmount() {
+        return totalAmount;
+    }
+
+    public void setTotalAmount(Double totalAmount) {
+        this.totalAmount = totalAmount;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
@@ -316,7 +341,8 @@ public class Reservations {
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String source,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
-                        String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime) {
+                        String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime,
+                        String orderId, Double gstAmount, Double totalAmount) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -340,6 +366,9 @@ public class Reservations {
         this.pickupTime = pickupTime;
         this.dropAddress = dropAddress;
         this.dropTime = dropTime;
+        this.orderId = orderId;
+        this.gstAmount = gstAmount;
+        this.totalAmount = totalAmount;
     }
 
     public Reservations() {
