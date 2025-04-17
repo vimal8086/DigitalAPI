@@ -20,7 +20,7 @@ import java.util.Map;
 import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
 @RestController
-@RequestMapping("/api/passengers")
+@RequestMapping("/passengers")
 @Tag(name = "Passenger Management", description = "APIs for managing passenger")
 public class PassengerController {
 
@@ -30,7 +30,7 @@ public class PassengerController {
     @Autowired
     private PassengerService passengerService;
 
-    @PostMapping(value = "/user/save/{userId}/", consumes = {"application/json", "application/json;charset=UTF-8"})
+    @PostMapping(value = "/user/save/{userId}", consumes = {"application/json", "application/json;charset=UTF-8"})
     @Operation(summary = "Save Passenger for reservation", description = "Save passenger for reservation")
     public ResponseEntity<PassengerRef> savePassenger(@Valid @PathVariable String userId, @RequestBody PassengerRef passenger) {
         String methodName = "savePassenger";

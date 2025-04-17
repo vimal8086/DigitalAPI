@@ -31,11 +31,6 @@ public class PassengerRef {
     @Pattern(regexp = "\\d{10}", message = "contact number must be 10 digits")
     private String contact;
 
-    @NotNull(message = "Seat name cannot be null")
-    @NotBlank(message = "Seat name cannot be blank")
-    @NotEmpty(message = "Seat cannot be Empty")
-    private String seatName;
-
     private String userId; // <-- Add this line
 
 
@@ -86,14 +81,6 @@ public class PassengerRef {
 
     public void setContact(String contact) {
         this.contact = contact;
-    }
-
-    public String getSeatName() {
-        return seatName;
-    }
-
-    public void setSeatName(String seatName) {
-        this.seatName = seatName;
     }
 
     public String getUserId() {

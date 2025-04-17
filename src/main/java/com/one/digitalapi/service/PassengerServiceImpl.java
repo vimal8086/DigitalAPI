@@ -54,7 +54,6 @@ public class PassengerServiceImpl implements PassengerService {
         existing.setAge(passenger.getAge());
         existing.setGender(passenger.getGender());
         existing.setContact(passenger.getContact());
-        existing.setSeatName(passenger.getSeatName());
 
         PassengerRef updatedPassenger = passengerRepository.save(existing);
         LOGGER.infoLog(CLASSNAME, methodName, "Passenger updated successfully: " + updatedPassenger);

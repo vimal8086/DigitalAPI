@@ -310,7 +310,7 @@ public class ReservationController {
             List<Reservations> reservations = reservationService.getReservationsByUserId(userId);
 
             if (reservations == null || reservations.isEmpty()) {
-                throw new ReservationException("No reservations found for userId: " + userId);
+                return ResponseEntity.ok(Collections.emptyList());
             }
 
             return ResponseEntity.ok(reservations);
