@@ -1,5 +1,6 @@
 package com.one.digitalapi.entity;
 
+import com.one.digitalapi.utils.UserStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -39,8 +40,9 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status = "ACTIVE";  // Default status
+    private UserStatus status = UserStatus.ACTIVE;
 
     private LocalDateTime lastLogin;
 
@@ -55,4 +57,7 @@ public class User {
     @NotBlank(message = "Contact Number is required")
     private String contactNumber;
 
+    private String gender;
+
+    private String name;
 }

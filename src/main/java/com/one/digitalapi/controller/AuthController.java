@@ -6,6 +6,7 @@ import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.repository.UserRepository;
 import com.one.digitalapi.service.UserService;
 import com.one.digitalapi.utils.JwtUtil;
+import com.one.digitalapi.utils.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
@@ -14,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -73,6 +73,13 @@ public class AuthController {
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
+
+            // Check if user is ACTIVE
+            if (user.getStatus() != UserStatus.ACTIVE) {
+                LOGGER.warnLog(CLASSNAME, strMethodName, "Login denied - User status is not ACTIVE: {} " + user.getStatus());
+                return ResponseEntity.status(403).body(Map.of("error", "Account is " + user.getStatus() + ". Please contact support."));
+            }
+
             if (passwordEncoder.matches(request.getPassword(), user.getPassword())) {
                 String token = jwtUtil.generateToken(user.getUserId());
                 Date expirationDate = jwtUtil.extractExpiration(token);

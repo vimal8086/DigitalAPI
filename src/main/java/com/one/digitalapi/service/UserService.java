@@ -44,4 +44,38 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public User updateUser(User updatedUserData) {
+
+        User existingUser = userRepository.findById(updatedUserData.getId())
+                .orElseThrow(() -> new UserException("User not found"));
+
+        // Optional: avoid overwriting sensitive data unless explicitly allowed
+        if (updatedUserData.getEmail() != null) {
+            if (!existingUser.getEmail().equals(updatedUserData.getEmail())
+                    && userRepository.existsByEmail(updatedUserData.getEmail())) {
+                throw new UserException("Email already in use");
+            }
+            existingUser.setEmail(updatedUserData.getEmail());
+        }
+
+        if (updatedUserData.getPassword() != null && updatedUserData.getPassword().length() >= 8) {
+            existingUser.setPassword(passwordEncoder.encode(updatedUserData.getPassword()));
+
+            if (!existingUser.getContactNumber().equals(updatedUserData.getContactNumber())
+                    && userRepository.existsByContactNumber(updatedUserData.getContactNumber())) {
+                throw new UserException("Contact already in use");
+            }
+            existingUser.setContactNumber(updatedUserData.getContactNumber());
+        }
+
+        if (updatedUserData.getName() != null) {
+            existingUser.setName(updatedUserData.getName());
+        }
+
+        if (updatedUserData.getGender() != null) {
+            existingUser.setGender(updatedUserData.getGender());
+        }
+
+        return userRepository.save(existingUser);
+    }
 }
