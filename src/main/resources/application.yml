@@ -3,6 +3,11 @@ server:
   servlet:
     context-path: ${ENV_CONTEXT_PATH:/digital/api}
 
+  error:
+    whitelabel:
+      enabled: false
+    path: /error-413
+
 logging:
   print:
     payload: ${ENV_PRINT_PAYLOAD:true}
