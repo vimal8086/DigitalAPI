@@ -1,17 +1,23 @@
 package com.one.digitalapi.controller;
 
 import com.one.digitalapi.entity.Discount;
+import com.one.digitalapi.entity.DiscountImage;
 import com.one.digitalapi.exception.DiscountException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.repository.DiscountRepository;
+import com.one.digitalapi.service.DiscountImageService;
 import com.one.digitalapi.service.DiscountService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.HashMap;
 import java.util.List;
@@ -35,24 +41,36 @@ public class DiscountController {
     @Autowired
     private DiscountRepository discountRepository;
 
-    @PostMapping
-    @Operation(summary = "Add a new discount", description = "Creates a new discount")
-    public ResponseEntity<Discount> addDiscount(@Valid @RequestBody Discount discount) {
+    @Autowired
+    private DiscountImageService discountImageService;
 
-        String methodName = "addDiscount";
 
-        if (discountRepository.existsByCode(discount.getCode())) {
-            throw new DiscountException("Discount code '" + discount.getCode() + "' already exists.");
+    @PostMapping(value = "", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(
+            summary = "Add a new discount",
+            description = "Creates a new discount",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "Created"),
+                    @ApiResponse(responseCode = "413", description = "Image size exceeds 10MB")
+            }
+    )
+    public ResponseEntity<Discount> addDiscount(
+            @Valid @ModelAttribute Discount discountRequest,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
+
+        Discount discount = new Discount();
+        BeanUtils.copyProperties(discountRequest, discount);
+
+        if (imageFile != null && !imageFile.isEmpty()) {
+            DiscountImage savedImage = discountImageService.saveImage(imageFile);
+            discount.setImage(savedImage);  // Set relation
         }
 
-        LOGGER.infoLog(CLASSNAME, methodName, "Received request to add discount: {}" + discount);
-
         Discount createdDiscount = discountService.createDiscount(discount);
-
-        LOGGER.infoLog(CLASSNAME, methodName,"Discount created successfully with ID: {}", createdDiscount.getId());
-
         return new ResponseEntity<>(createdDiscount, HttpStatus.CREATED);
     }
+
 
     @GetMapping("/{id}")
     @Operation(summary = "Get a discount by ID", description = "Retrieves a discount by its ID")
@@ -68,16 +86,6 @@ public class DiscountController {
         LOGGER.infoLog(CLASSNAME, methodName, "Discount retrieved successfully: {}" + discount);
 
         return ResponseEntity.ok(discount);
-    }
-
-    @ExceptionHandler(DiscountException.class)
-    public ResponseEntity<Map<String, Object>> handleDiscountException(DiscountException ex) {
-
-        String methodName = "handleDiscountException";
-
-        LOGGER.errorLog(CLASSNAME, methodName, "DiscountException occurred: " + ex.getMessage());
-
-        return getMapResponseEntity(ex.getMessage(), ex);
     }
 
     @PutMapping("/{id}")
@@ -147,5 +155,20 @@ public class DiscountController {
         LOGGER.infoLog(CLASSNAME, methodName, "Discount Retrieves successfully: {}");
 
         return ResponseEntity.ok(discounts);
+    }
+
+    @GetMapping("/image/{id}")
+    public ResponseEntity<byte[]> getImage(@PathVariable Long id) {
+        byte[] image = discountImageService.getImage(id);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(image);
+    }
+
+    @ExceptionHandler(DiscountException.class)
+    public ResponseEntity<Map<String, Object>> handleDiscountException(DiscountException ex) {
+        String methodName = "handleDiscountException";
+        LOGGER.errorLog(CLASSNAME, methodName, "DiscountException occurred: " + ex.getMessage());
+        return getMapResponseEntity(ex.getMessage(), ex);
     }
 }

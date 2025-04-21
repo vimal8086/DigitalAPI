@@ -6,6 +6,7 @@ import com.one.digitalapi.repository.DiscountRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -31,6 +32,7 @@ public class DiscountServiceImpl implements DiscountService {
 
     @Override
     public List<Discount> getAllDiscounts() {
-        return discountRepository.findAll();
+        LocalDateTime now = LocalDateTime.now();
+        return discountRepository.findByEndDateAfter(now);
     }
 }

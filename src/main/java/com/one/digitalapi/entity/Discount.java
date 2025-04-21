@@ -43,6 +43,11 @@ public class Discount {
 
     private Integer usageLimit;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "image_id", referencedColumnName = "id")
+    private DiscountImage image;
+
+
     // Getters and setters
     public Integer getId() {
         return id;
@@ -106,5 +111,13 @@ public class Discount {
 
     public void setUsageLimit(Integer usageLimit) {
         this.usageLimit = usageLimit;
+    }
+
+    public DiscountImage getImage() {
+        return image;
+    }
+
+    public void setImage(DiscountImage image) {
+        this.image = image;
     }
 }

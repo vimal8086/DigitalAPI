@@ -18,11 +18,10 @@ public class InfoController {
 
     public InfoController() {
         pageMap.put("privacy-policy", new InfoPage("privacy-policy", "Privacy Policy", getPrivacyPolicyContent()));
-        pageMap.put("faqs", new InfoPage("faqs", "FAQS", getFAQContent()));
+        pageMap.put("faqs", new InfoPage("faqs", "FAQs", getFAQContent()));
         pageMap.put("terms-orange-motion", new InfoPage("terms-orange-motion", "Terms & Conditions: Orange Motion", getTermsAndConditionsContent()));
         pageMap.put("cancellation-orange-motion", new InfoPage("cancellation-orange-motion", "Cancellation Policy: Orange Motion", getCancellationPolicyContent()));
         pageMap.put("why-travel-orange-motion", new InfoPage("why-travel-orange-motion", "Why Travel with Orange Motion?", getWhyTravelWithOrangeMotionContent()));
-        pageMap.put("terms-prashant-corner", new InfoPage("terms-prashant-corner", "Terms and Conditions: Prashant Corner", getTermsAndConditionsPrashantCornerContent()));
     }
 
     @GetMapping("/{key}")
@@ -315,44 +314,6 @@ public class InfoController {
         </ol>
 
         <p><strong>Ready for a Smooth Ride?</strong></p>
-        """;
-    }
-
-    private String getTermsAndConditionsPrashantCornerContent() {
-        return """
-        <h2>Terms and Conditions for Prashant Corner</h2>
-        <p><strong>Last Updated:</strong> September 16, 2023</p>
-
-        <h3>1. Introduction</h3>
-        <p>This website (<a href="http://www.prashantcorner.com" target="_blank">www.prashantcorner.com</a>) is solely intended to showcase our mithai and products for informational purposes. Please read these terms and conditions carefully before using our website. By accessing or using this website, you agree to comply with and be bound by the following terms and conditions. If you do not agree with these terms and conditions, please refrain from using this website.</p>
-
-        <h3>2. Use of the Website</h3>
-        <ul>
-            <li><strong>Non-Commercial Purpose:</strong> Prashant Corner operates this website solely for the purpose of showcasing our mithai and products. This website does not facilitate online sales at this time.</li>
-            <li><strong>Accuracy of Information:</strong> We make every effort to ensure that the information presented on this website is accurate and up-to-date. However, we do not guarantee the accuracy, completeness, or reliability of any content or product descriptions.</li>
-            <li><strong>Restrictions:</strong> You may not use this website for any unlawful or prohibited purpose. You are also prohibited from attempting to gain unauthorized access to the website, its server, or any connected networks.</li>
-        </ul>
-
-        <h3>3. Intellectual Property</h3>
-        <ul>
-            <li><strong>Trademarks and Copyrights:</strong> All content, including but not limited to text, graphics, logos, images, audio, and video, is the property of Prashant Corner and is protected by Indian and international copyright and trademark laws.</li>
-            <li><strong>Limited License:</strong> You are granted a limited license to access and use this website for personal, non-commercial purposes. This license does not grant you any rights to use our trademarks, logos, or other proprietary information.</li>
-        </ul>
-
-        <h3>4. Privacy and Data Collection</h3>
-        <p>Please refer to our Privacy Policy to understand how we collect, use, and protect your personal information.</p>
-
-        <h3>5. External Links</h3>
-        <p>Our website may contain links to third-party websites. Prashant Corner is not responsible for the content or practices of these external sites. We recommend that you review the terms and conditions and privacy policies of any third-party websites you visit.</p>
-
-        <h3>6. Changes to Terms and Conditions</h3>
-        <p>Prashant Corner reserves the right to modify these terms and conditions at any time. We will notify users of any changes by posting an updated version of the terms and conditions on this website. Your continued use of this website after such modifications will constitute your acknowledgment of the modified terms and conditions and your agreement to abide by them.</p>
-
-        <h3>7. Governing Law and Jurisdiction</h3>
-        <p>These terms and conditions are governed by and construed in accordance with the laws of India. Any dispute arising from these terms and conditions will be subject to the exclusive jurisdiction of the courts located in India.</p>
-
-        <h3>8. Contact Information</h3>
-        <p>If you have any questions or concerns regarding these terms and conditions, please contact us at the official email address of Prashant Corner.</p>
         """;
     }
 

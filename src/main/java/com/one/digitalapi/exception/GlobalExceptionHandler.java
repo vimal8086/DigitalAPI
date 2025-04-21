@@ -15,6 +15,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.util.Date;
 import java.util.HashMap;
@@ -121,5 +123,13 @@ public class GlobalExceptionHandler {
         errorResponse.put("timestamp", System.currentTimeMillis());
 
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler({MaxUploadSizeExceededException.class, MultipartException.class, IllegalStateException.class})
+    public ResponseEntity<Map<String, Object>> handleFileUploadException(Exception ex) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("error", "Payload Too Large");
+        response.put("message", "Uploaded file exceeds the maximum allowed size of 10MB");
+        return new ResponseEntity<>(response, HttpStatus.PAYLOAD_TOO_LARGE);
     }
 }
