@@ -19,6 +19,7 @@ public class UserService {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
     }
+
     public boolean isUserIdUnique(String userId) {
         return userRepository.findByUserId(userId).isEmpty();
     }

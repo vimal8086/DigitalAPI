@@ -1,18 +1,24 @@
 package com.one.digitalapi.controller;
 import com.one.digitalapi.entity.User;
+import com.one.digitalapi.entity.UserOTP;
 import com.one.digitalapi.exception.UserException;
 import com.one.digitalapi.logger.DefaultLogger;
+import com.one.digitalapi.repository.UserOTPRepository;
 import com.one.digitalapi.repository.UserRepository;
+import com.one.digitalapi.service.OtpService;
 import com.one.digitalapi.service.UserService;
 import com.one.digitalapi.utils.UserStatus;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -25,6 +31,7 @@ import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponse
 public class UserController {
 
     private static final String CLASSNAME = "UserController";
+
     private static final DefaultLogger LOGGER = new DefaultLogger(UserController.class);
 
     @Autowired
@@ -33,10 +40,18 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private OtpService otpService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    public UserController(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
+
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Creates a new user with email and password")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
 
         String methodName = "registerUser";
@@ -65,7 +80,6 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-
     @PutMapping("/users/delete/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteUserAccount(@PathVariable String userId) {
@@ -90,6 +104,53 @@ public class UserController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/change-password/send-otp")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> sendOtp(@RequestParam String email) {
+
+        if (!userRepository.existsByEmail(email)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email not registered."));
+        }
+
+        otpService.sendOtp(email);
+
+        return ResponseEntity.ok(Map.of("message", "OTP sent to registered email"));
+    }
+
+    @PostMapping("/change-password/verify-otp")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+
+        boolean isVerified = otpService.verifyOtp(email, otp);
+
+        if (isVerified) {
+            return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                    Map.of("error", "Invalid or expired OTP.")
+            );
+        }
+    }
+
+
+    @PutMapping("/change-password")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> changePassword(@RequestParam String email,
+                                            @RequestParam String newPassword) {
+        if (!otpService.isOtpVerified(email)) {
+            return ResponseEntity.badRequest().body(Map.of("error","OTP verification required."));
+        }
+
+        Optional<User> userOpt = userRepository.findByEmail(email);
+        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
+
+        User user = userOpt.get();
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password changed successfully."));
     }
 
 
