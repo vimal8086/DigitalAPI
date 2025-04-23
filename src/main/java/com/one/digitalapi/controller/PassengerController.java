@@ -10,12 +10,15 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.one.digitalapi.exception.GlobalExceptionHandler.getMapResponseEntity;
 
@@ -32,6 +35,7 @@ public class PassengerController {
 
     @PostMapping(value = "/user/save/{userId}", consumes = {"application/json", "application/json;charset=UTF-8"})
     @Operation(summary = "Save Passenger for reservation", description = "Save passenger for reservation")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PassengerRef> savePassenger(@Valid @PathVariable String userId, @RequestBody PassengerRef passenger) {
         String methodName = "savePassenger";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to save passenger for userId: " + userId + ", data: " + passenger);
@@ -42,6 +46,7 @@ public class PassengerController {
 
     @GetMapping("/user/all/{userId}")
     @Operation(summary = "Get All Passengers by User ID", description = "Fetch all passengers for the given user ID")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<PassengerRef>> getPassengersByUserId(@PathVariable String userId) {
         String methodName = "getPassengersByUserId";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to fetch all passengers for userId: " + userId);
@@ -52,6 +57,7 @@ public class PassengerController {
 
     @PutMapping("/update/{id}")
     @Operation(summary = "Update Passenger", description = "Update existing passenger details")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<PassengerRef> updatePassenger(@PathVariable Integer id, @RequestBody PassengerRef passenger) {
         String methodName = "updatePassenger";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to update passenger with ID: " + id + ", new data: " + passenger);
@@ -62,6 +68,7 @@ public class PassengerController {
 
     @DeleteMapping("/delete/{id}")
     @Operation(summary = "Delete Passenger", description = "Delete passenger by ID")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> deletePassenger(@PathVariable Integer id) {
         String methodName = "deletePassenger";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to delete passenger with ID: " + id);
@@ -79,13 +86,24 @@ public class PassengerController {
             @ApiResponse(responseCode = "200", description = "Passenger found"),
             @ApiResponse(responseCode = "404", description = "Passenger not found")
     })
-    public ResponseEntity<PassengerRef> viewPassenger(@PathVariable int id) {
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> viewPassenger(@PathVariable int id) {
         String methodName = "viewPassenger";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to view passenger with ID: " + id);
-        PassengerRef passengerRef = passengerService.viewPassenger(id);
+
+        Optional<PassengerRef> passengerRef = passengerService.viewPassenger(id);
+
+        if (passengerRef.isEmpty()) {
+            LOGGER.warnLog(CLASSNAME, methodName, "Passenger not found with ID: " + id);
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Passenger not found with id: " + id);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+
         LOGGER.infoLog(CLASSNAME, methodName, "Passenger retrieved successfully: " + passengerRef);
         return ResponseEntity.ok(passengerRef);
     }
+
 
     @ExceptionHandler(PassengerException.class)
     public ResponseEntity<Map<String, Object>> handlePassengerException(PassengerException ex) {

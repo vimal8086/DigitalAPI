@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -34,6 +35,7 @@ public class RouteController {
 
     @PostMapping
     @Operation(summary = "Add a new route", description = "Creates a new route if it does not exist")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> addRoute(@Valid @RequestBody Route route) {
         String methodName = "addRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to add a new route: " + route);
@@ -64,12 +66,13 @@ public class RouteController {
             @ApiResponse(responseCode = "400", description = "Invalid request"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateRoute(@Valid @RequestBody Route route) {
         String methodName = "updateRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route: " + route);
 
 
-        // ✅ Step 1: Check if the route exists
+        // Step 1: Check if the route exists
         Route existingRoute = routeService.viewRoute(route.getRouteID());
         if (existingRoute == null) {
         return ResponseEntity.status(404).body(Map.of("error", "Route not found for ID: " + route.getRouteID()));
@@ -100,6 +103,7 @@ public class RouteController {
             @ApiResponse(responseCode = "200", description = "Route deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, String>> deleteRoute(@PathVariable int routeId) {
         String methodName = "deleteRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to delete route with ID: " + routeId);
@@ -122,6 +126,7 @@ public class RouteController {
             @ApiResponse(responseCode = "200", description = "Route found"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Route> viewRoute(@PathVariable int routeId) {
         String methodName = "viewRoute";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to view route with ID: " + routeId);
@@ -133,6 +138,7 @@ public class RouteController {
     @GetMapping
     @Operation(summary = "Get all routes", description = "Get all routes")
     @ApiResponse(responseCode = "200", description = "List of routes retrieved successfully")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Route>> viewAllRoutes() {
         String methodName = "viewAllRoutes";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to view all routes");

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
@@ -35,6 +36,7 @@ public class UserController {
 
     @PostMapping("/register")
     @Operation(summary = "Register a new user", description = "Creates a new user with email and password")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> registerUser(@Valid @RequestBody User user) {
 
         String methodName = "registerUser";
@@ -50,6 +52,7 @@ public class UserController {
 
     @PatchMapping("/update")
     @Operation(summary = "Update user profile", description = "Allows a user to partially update profile information")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> updateUserProfile(@RequestBody User updatedFields) {
         String methodName = "updateUserProfile";
 
@@ -64,6 +67,7 @@ public class UserController {
 
 
     @PutMapping("/users/delete/{userId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteUserAccount(@PathVariable String userId) {
 
         Optional<User> optionalUser = userRepository.findByUserId(userId);

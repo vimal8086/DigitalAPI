@@ -21,6 +21,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -59,6 +62,7 @@ public class ReservationController {
 
 
     @GetMapping("/generate/{reservationId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Generate PDF for ticket", description = "Generate PDF for ticket")
     public ResponseEntity<?> generateTicket(@PathVariable Integer reservationId) {
         try {
@@ -101,6 +105,7 @@ public class ReservationController {
 
 
     @PostMapping("/add")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Add a new reservation", description = "Creates a new reservation")
     public ResponseEntity<Reservations> addReservation(@Valid @RequestBody ReservationDTO reservationDTO,
                                                        @RequestParam(value = "discountCode", required = false) String discountCode) {
@@ -116,6 +121,7 @@ public class ReservationController {
     }
 
     @GetMapping("/view/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Get a reservation with reservation id", description = "Get a reservation with reservation id")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Reservation found"),
@@ -135,9 +141,14 @@ public class ReservationController {
     }
 
     @GetMapping("/all")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Get all reservations", description = "Get all reservations")
     @ApiResponse(responseCode = "200", description = "List of reservations retrieved successfully")
     public ResponseEntity<List<Reservations>> getAllReservations() throws ReservationException, LoginException {
+
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        System.out.println("Logged in as: " + auth.getName());
+        System.out.println("Authorities: " + auth.getAuthorities());
 
         String methodName = "getAllReservations";
 
@@ -151,6 +162,7 @@ public class ReservationController {
     }
 
     @DeleteMapping("/cancel/{id}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     @Operation(summary = "Cancel a reservation", description = "Cancel a reservation and calculate refund")
     public ResponseEntity<Map<String, Object>> cancelReservation(
             @PathVariable Integer id,
@@ -196,6 +208,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "Bus not found or no reservations found")
     })
     @GetMapping("/bus/allSeats")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getAllSeatsForBus(
             @RequestParam Integer busId,
             @RequestParam @DateTimeFormat(pattern = "yyyy-MM-dd") String journeyDate) {
@@ -284,6 +297,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "404", description = "Booked seat not found")
     })
     @GetMapping("/Get-All-booked-seats")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<BookedSeatDTO>> getAllBookedSeats() {
         try {
 
@@ -304,6 +318,7 @@ public class ReservationController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     @GetMapping("/getReservation/{userId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> getReservationByUserId(@PathVariable String userId) throws ReservationException {
         try {
 

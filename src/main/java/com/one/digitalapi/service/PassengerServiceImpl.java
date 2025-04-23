@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PassengerServiceImpl implements PassengerService {
@@ -73,15 +74,8 @@ public class PassengerServiceImpl implements PassengerService {
     }
 
     @Override
-    public PassengerRef viewPassenger(int id) {
-        String methodName = "viewPassenger";
-        LOGGER.infoLog(CLASSNAME, methodName, "Fetching passenger with ID: " + id);
-        PassengerRef passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> {
-                    LOGGER.errorLog(CLASSNAME, methodName, "Route not found for ID: " + id);
-                    return new RouteException("Route not found for ID: " + id);
-                });
-        LOGGER.infoLog(CLASSNAME, methodName, "Passenger found: " + passenger);
-        return passenger;
+    public Optional<PassengerRef> viewPassenger(int id) {
+        return passengerRepository.findById(id);
     }
+
 }

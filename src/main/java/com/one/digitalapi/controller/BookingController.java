@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -32,6 +33,7 @@ public class BookingController {
 
     @PostMapping("/bookings/intermediate-seat")
     @Operation(summary = "Add a new intermediate seat", description = "Creates a new intermediate seat if it does not exist")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> bookIntermediateSeat(@Valid @RequestBody BookingDetails bookingDetails) {
         bookingService.cacheBooking(bookingDetails);  // ✅ Use BookingService to store cache
 
@@ -46,6 +48,7 @@ public class BookingController {
 
     @GetMapping("/get-booking/{busId}/{date}")
     @Operation(summary = "Get booking by busId and date", description = "Fetches booking details for a specific bus and date")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> getBooking(@PathVariable String busId, @PathVariable String date) {
         // Validate date format manually
         if (!isValidDateFormat(date)) {

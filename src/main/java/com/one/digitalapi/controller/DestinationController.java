@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -31,6 +32,7 @@ public class DestinationController {
     // GET API - Fetch all destinations
     @GetMapping
     @Operation(summary = "Fetch all destinations", description = "Retrieves the list of all available destinations")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public List<Destination> getAllDestinations() {
 
         String strMethodName="getAllDestinations";
@@ -46,6 +48,7 @@ public class DestinationController {
 
     @PostMapping
     @Operation(summary = "Add a new destination", description = "Creates a new destination if it does not exist")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> createDestination(@RequestBody Destination destination) {
 
         String strMethodName="getAllDestinations";

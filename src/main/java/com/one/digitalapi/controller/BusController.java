@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +51,7 @@ public class BusController {
 
     @PostMapping
     @Operation(summary = "Add a new bus", description = "Creates a new bus if it does not exist")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Bus> createBus(@Validated(DefaultValidation.class) @RequestBody Bus bus) {
         String methodName = "createBus";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to create bus: " + bus);
@@ -64,6 +66,7 @@ public class BusController {
             @ApiResponse(responseCode = "200", description = "Bus found"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
     })
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Bus> getBusById(@PathVariable int busId) {
         String methodName = "getBusById";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to get bus with ID: " + busId);
@@ -78,6 +81,7 @@ public class BusController {
             @ApiResponse(responseCode = "200", description = "Bus updated successfully"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Bus> updateBusById(@Validated(DefaultValidation.class) @RequestBody Bus bus) {
         String methodName = "updateBusById";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to update bus: " + bus);
@@ -92,6 +96,7 @@ public class BusController {
             @ApiResponse(responseCode = "200", description = "Bus deleted successfully"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> deleteBusById(@PathVariable int busId) {
         String methodName = "deleteBusById";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to delete bus with ID: " + busId);
@@ -109,6 +114,7 @@ public class BusController {
             @ApiResponse(responseCode = "200", description = "Buses found"),
             @ApiResponse(responseCode = "404", description = "No buses found")
     })
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<Bus>> getBusesByType(@PathVariable("busType") String busType) {
         String methodName = "getBusesByType";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to get buses of type: " + busType);
@@ -120,6 +126,7 @@ public class BusController {
     @GetMapping
     @Operation(summary = "Get all buses", description = "Get all buses")
     @ApiResponse(responseCode = "200", description = "List of buses retrieved successfully")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<List<Bus>> getAllBuses() {
         String methodName = "getAllBuses";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to get all buses");
@@ -135,6 +142,7 @@ public class BusController {
             @ApiResponse(responseCode = "400", description = "Invalid input"),
             @ApiResponse(responseCode = "404", description = "No buses found")
     })
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> searchBuses(
             @RequestParam String from,
             @RequestParam String to,

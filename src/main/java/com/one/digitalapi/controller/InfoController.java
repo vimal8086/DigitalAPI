@@ -4,6 +4,7 @@ import com.one.digitalapi.entity.InfoPage;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -30,6 +31,7 @@ public class InfoController {
             description = "Retrieves page content based on the provided key. Available keys: " +
                     "`privacy-policy`, `faqs`, `terms-orange-motion`, `cancellation-orange-motion`, `why-travel-orange-motion`, `terms-prashant-corner`"
     )
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> getInfoPage(@PathVariable String key) {
         InfoPage page = pageMap.get(key);
         if (page != null) {

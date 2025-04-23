@@ -36,6 +36,8 @@ public class UserService {
             throw new RuntimeException("Email is already taken");
         }
 
+        user.setAdmin(false); // Ensure all users are not admins by default
+
         user.setLastLogin(LocalDateTime.now());
 
         // 🔹 Hash the password before saving

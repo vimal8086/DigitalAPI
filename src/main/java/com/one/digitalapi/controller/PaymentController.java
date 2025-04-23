@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -29,6 +30,7 @@ public class PaymentController {
 
     @GetMapping("/createOrder")
     @Operation(summary = "Create Order for payment", description = "Create Order for payment")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> createOrder(@RequestParam double amount, @RequestParam String currency) {
         final String methodName = "createOrder";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to create order with amount: "
@@ -58,6 +60,7 @@ public class PaymentController {
 
     @PostMapping("/verify")
     @Operation(summary = "Verify a Payment", description = "Verify Payment using orderID, paymentId and razorpaySignature")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> verifyPayment(@RequestParam String orderId,
                                            @RequestParam String paymentId,
                                            @RequestParam String razorpaySignature) {
@@ -94,6 +97,7 @@ public class PaymentController {
 
     @GetMapping("/fetchOrder")
     @Operation(summary = "Fetch Order", description = "Fetch Order Using Order Id")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> fetchOrder(@RequestParam String orderId) {
         final String methodName = "fetchOrder";
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to fetch order with orderId: " + orderId);

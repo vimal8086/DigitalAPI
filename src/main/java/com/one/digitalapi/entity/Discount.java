@@ -1,6 +1,7 @@
 package com.one.digitalapi.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -45,8 +46,30 @@ public class Discount {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "image_id", referencedColumnName = "id")
+    @JsonIgnore
     private DiscountImage image;
 
+    @Transient
+    private String discountImage;
+
+    @Transient
+    private Long discountImageId;
+
+    public Long getDiscountImageId() {
+        return discountImageId;
+    }
+
+    public void setDiscountImageId(Long discountImageId) {
+        this.discountImageId = discountImageId;
+    }
+
+    public String getDiscountImage() {
+        return discountImage;
+    }
+
+    public void setDiscountImage(String discountImage) {
+        this.discountImage = discountImage;
+    }
 
     // Getters and setters
     public Integer getId() {

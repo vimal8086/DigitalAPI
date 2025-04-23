@@ -1,6 +1,7 @@
 package com.one.digitalapi.utils;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.one.digitalapi.entity.CustomUserDetails;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
@@ -12,6 +13,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -76,7 +78,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        if (username == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+        Authentication existingAuth = SecurityContextHolder.getContext().getAuthentication();
+        if (username == null || (existingAuth != null && existingAuth.isAuthenticated())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -88,12 +91,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // Cast to CustomUserDetails so we can extract admin flag (if needed)
+        CustomUserDetails customUserDetails = (CustomUserDetails) userDetails;
+
         UsernamePasswordAuthenticationToken authenticationToken =
-                new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                new UsernamePasswordAuthenticationToken(
+                        customUserDetails,
+                        null,
+                        customUserDetails.getAuthorities()
+                );
 
         authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+
         filterChain.doFilter(request, response);
     }
 
