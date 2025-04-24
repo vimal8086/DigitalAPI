@@ -17,6 +17,7 @@ import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.property.TextAlignment;
 import com.itextpdf.layout.property.UnitValue;
+import com.one.digitalapi.config.ReservationProperties;
 import com.one.digitalapi.entity.Passenger;
 import com.one.digitalapi.entity.Reservations;
 import com.one.digitalapi.exception.ReservationException;
@@ -32,6 +33,9 @@ public class PdfService {
 
     @Autowired
     private ReservationHelperService reservationHelperService;
+
+    @Autowired
+    private ReservationProperties reservationProperties;
 
     private static final String FONT_BOLD = "Helvetica-Bold";
     private static final String REFUND_POLICY = "• 100% refund before 24 hrs of journey.\n• 50% refund within 24 hrs.\n• No refund after departure.";
@@ -217,10 +221,18 @@ public class PdfService {
 
         doc.add(new Paragraph("Base Fare  ₹ (" +  reservation.getNoOfSeatsBooked() + " Traveller) : "
                 + reservation.getFare() + " Rs").addStyle(normalStyle));
-        doc.add(new Paragraph("Operator GST : ₹ " + reservation.getGstAmount()+ " Rs").addStyle(normalStyle));
+        double subTotal = reservation.getFare();
+        if (reservation.getDiscount() != null && reservation.getDiscountAmount() != null && reservation.getDiscountAmount() > 0) {
+            doc.add(new Paragraph("Discount (" + reservation.getDiscount().getCode() + "): -₹ "
+                    + reservation.getDiscountAmount() + " Rs").addStyle(normalStyle));
+            subTotal -= reservation.getDiscountAmount(); // Subtotal after discount
+
+        }
+        doc.add(new Paragraph("Sub Total : ₹ " + String.format("%.2f", subTotal) + " Rs").addStyle(normalStyle));
+        doc.add(new Paragraph("GST (" + reservationProperties.getGstPercentage() + "%) : ₹ "
+                + String.format("%.2f", reservation.getGstAmount()) + " Rs").addStyle(normalStyle));
         doc.add(new Paragraph("Fare Paid : ₹ " + reservation.getTotalAmount()+ " Rs").addStyle(normalStyle));
         doc.add(new Paragraph("\n"));
-
 
         // Cancellation
         doc.add(new Paragraph("Cancellation Policy:").addStyle(headerStyle));

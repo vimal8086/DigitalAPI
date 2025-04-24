@@ -99,17 +99,34 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setBus(bus);
         reservation.setUser(user);
 
-        reservation.setFare(bus.getFarePerSeat() * noOfSeats);
-
         int baseFare = bus.getFarePerSeat() * noOfSeats;
-        double gstAmount = baseFare * (reservationProperties.getGstPercentage() / 100.0);
-        double totalAmount = baseFare + gstAmount;
+        double discountAmount = 0.0;
 
-        reservation.setFare(baseFare);
+        if (discountCode != null && !discountCode.isBlank()) {
+            LOGGER.debugLog(CLASSNAME, "addReservation", "Applying discount code: " + discountCode);
+            discountRepository.findByCode(discountCode).ifPresent(discount -> {
+                if (isDiscountValid(discount)) {
+                    reservation.setDiscount(discount);
+                    double discounted = calculateDiscountAmount((double) baseFare, discount);
+                    reservation.setDiscountAmount(discounted); // Actual amount reduced
+                } else {
+                    LOGGER.warnLog(CLASSNAME, "addReservation", "Discount code is invalid or expired");
+                }
+            });
+        }
+
+        discountAmount = reservation.getDiscountAmount() != null ? reservation.getDiscountAmount() : 0.0;
+        double discountedFare = baseFare - discountAmount;
+
+        double gstAmount = discountedFare * (reservationProperties.getGstPercentage() / 100.0);
+        double totalAmount = discountedFare + gstAmount;
+
+        // Set updated values in reservation
+        reservation.setFare(baseFare); // original fare
         reservation.setGstAmount(gstAmount);
         reservation.setTotalAmount(totalAmount);
-        reservation.setOrderId(reservationDTO.getOrderId()); // You can customize this format
 
+        reservation.setOrderId(reservationDTO.getOrderId()); // You can customize this format
         reservation.setReservationStatus(DigitalAPIConstant.CONFIRMED);
         reservation.setReservationType(DigitalAPIConstant.ONLINE);
 
@@ -144,20 +161,6 @@ public class ReservationServiceImpl implements ReservationService {
                 }).collect(Collectors.toList());
 
         reservation.setPassengers(passengerList);
-
-        if (discountCode != null && !discountCode.isBlank()) {
-            LOGGER.debugLog(CLASSNAME, "addReservation", "Applying discount code: " + discountCode);
-            discountRepository.findByCode(discountCode).ifPresent(discount -> {
-                if (isDiscountValid(discount)) {
-                    reservation.setDiscount(discount);
-                    Integer discountedFare = calculateDiscountedFare(reservation.getFare(), discount);
-                    reservation.setFare(discountedFare);
-                    LOGGER.infoLog(CLASSNAME, "addReservation", "Discount applied successfully");
-                } else {
-                    LOGGER.warnLog(CLASSNAME, "addReservation", "Discount code is invalid or expired");
-                }
-            });
-        }
 
         reservation.setReservationDate(LocalDateTime.now().plusSeconds(2));
 
@@ -309,12 +312,13 @@ public class ReservationServiceImpl implements ReservationService {
                 discount.getEndDate().isAfter(now);
     }
 
-    private Integer calculateDiscountedFare(Integer originalFare, Discount discount) {
+    private Double calculateDiscountAmount(Double originalFare, Discount discount) {
         if (discount.getType() == DiscountType.PERCENTAGE) {
-            return originalFare - (originalFare * discount.getValue() / 100);
+            return (originalFare * discount.getValue() / 100);
         } else if (discount.getType() == DiscountType.FLAT) {
-            return Math.max(0, originalFare - discount.getValue());
+            return Math.min(originalFare, discount.getValue()); // avoid negative fare
         }
-        return originalFare;
+        return 0.0;
     }
+
 }

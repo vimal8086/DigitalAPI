@@ -107,6 +107,8 @@ public class Reservations {
 
     private Double totalAmount;
 
+    private Double discountAmount;
+
     @ManyToOne(optional = true)
     @Valid
     @JoinColumn(name = "bus_id", referencedColumnName = "busId")
@@ -334,6 +336,14 @@ public class Reservations {
         this.totalAmount = totalAmount;
     }
 
+    public Double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(Double discountAmount) {
+        this.discountAmount = discountAmount;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
@@ -342,7 +352,7 @@ public class Reservations {
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
                         String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime,
-                        String orderId, Double gstAmount, Double totalAmount) {
+                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -369,6 +379,7 @@ public class Reservations {
         this.orderId = orderId;
         this.gstAmount = gstAmount;
         this.totalAmount = totalAmount;
+        this.discountAmount = discountAmount;
     }
 
     public Reservations() {

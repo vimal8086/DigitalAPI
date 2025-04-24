@@ -77,6 +77,9 @@ public class ReservationDTO {
 
     private Double totalAmount;
 
+    private Double discountAmount;
+
+
     private List<PassengerDTO> passengers;
 
 
@@ -84,7 +87,7 @@ public class ReservationDTO {
         super();
     }
 
-    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount, List<PassengerDTO> passengers) {
+    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount, List<PassengerDTO> passengers, Double discountAmount) {
         this.userId = userId;
         this.source = source;
         this.destination = destination;
@@ -103,6 +106,7 @@ public class ReservationDTO {
         this.gstAmount = gstAmount;
         this.totalAmount = totalAmount;
         this.passengers = passengers;
+        this.discountAmount = discountAmount;
     }
 
     // Getters and Setters
@@ -198,5 +202,13 @@ public class ReservationDTO {
 
     public void setTotalAmount(Double totalAmount) {
         this.totalAmount = totalAmount;
+    }
+
+    public Double getDiscountAmount() {
+        return discountAmount;
+    }
+
+    public void setDiscountAmount(Double discountAmount) {
+        this.discountAmount = discountAmount;
     }
 }
