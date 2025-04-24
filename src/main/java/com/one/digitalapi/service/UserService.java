@@ -61,15 +61,11 @@ public class UserService {
             existingUser.setEmail(updatedUserData.getEmail());
         }
 
-        if (updatedUserData.getPassword() != null && updatedUserData.getPassword().length() >= 8) {
-            existingUser.setPassword(passwordEncoder.encode(updatedUserData.getPassword()));
-
-            if (!existingUser.getContactNumber().equals(updatedUserData.getContactNumber())
-                    && userRepository.existsByContactNumber(updatedUserData.getContactNumber())) {
-                throw new UserException("Contact already in use");
-            }
-            existingUser.setContactNumber(updatedUserData.getContactNumber());
+        if (!existingUser.getContactNumber().equals(updatedUserData.getContactNumber())
+                && userRepository.existsByContactNumber(updatedUserData.getContactNumber())) {
+            throw new UserException("Contact already in use");
         }
+        existingUser.setContactNumber(updatedUserData.getContactNumber());
 
         if (updatedUserData.getName() != null) {
             existingUser.setName(updatedUserData.getName());

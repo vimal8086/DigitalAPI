@@ -80,7 +80,7 @@ public class UserController {
         return ResponseEntity.ok(updatedUser);
     }
 
-    @PutMapping("/users/delete/{userId}")
+    @PutMapping("/delete/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<String> deleteUserAccount(@PathVariable String userId) {
 
