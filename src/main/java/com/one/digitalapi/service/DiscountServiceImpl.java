@@ -33,6 +33,6 @@ public class DiscountServiceImpl implements DiscountService {
     @Override
     public List<Discount> getAllDiscounts() {
         LocalDateTime now = LocalDateTime.now();
-        return discountRepository.findByEndDateAfter(now);
+        return discountRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqual(now, now);
     }
 }

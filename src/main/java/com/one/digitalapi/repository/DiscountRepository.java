@@ -15,5 +15,6 @@ public interface DiscountRepository extends JpaRepository<Discount, Long> {
 
     boolean existsByCode(String code);
 
-    List<Discount> findByEndDateAfter(LocalDateTime date);
+    List<Discount> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDateTime start, LocalDateTime end);
+
 }

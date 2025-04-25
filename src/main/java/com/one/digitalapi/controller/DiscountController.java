@@ -69,7 +69,6 @@ public class DiscountController {
         return new ResponseEntity<>(createdDiscount, HttpStatus.CREATED);
     }
 
-
     @GetMapping("/{id}")
     @Operation(summary = "Get a discount by ID", description = "Retrieves a discount by its ID")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
@@ -87,10 +86,14 @@ public class DiscountController {
         return ResponseEntity.ok(discount);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Update an existing discount", description = "Updates the details of an existing discount by its ID")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Discount> updateDiscount(@PathVariable Long id, @Valid @RequestBody Discount discountDetails) {
+    public ResponseEntity<Discount> updateDiscount(
+            @PathVariable Long id,
+            @Valid @ModelAttribute Discount discountDetails,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile
+    ) {
 
         String methodName = "updateDiscount";
 
@@ -105,6 +108,7 @@ public class DiscountController {
             throw new DiscountException("Discount code '" + discountDetails.getCode() + "' already exists.");
         }
 
+        // Update discount fields
         existingDiscount.setCode(discountDetails.getCode());
         existingDiscount.setDescription(discountDetails.getDescription());
         existingDiscount.setStartDate(discountDetails.getStartDate());
@@ -112,6 +116,12 @@ public class DiscountController {
         existingDiscount.setType(discountDetails.getType());
         existingDiscount.setUsageLimit(discountDetails.getUsageLimit());
         existingDiscount.setValue(discountDetails.getValue());
+
+        // Handle image update (if new image is provided)
+        if (imageFile != null && !imageFile.isEmpty()) {
+            DiscountImage newImage = discountImageService.saveImage(imageFile);
+            existingDiscount.setImage(newImage);  // Replace or set the new image
+        }
 
         Discount updatedDiscount = discountService.updateDiscount(existingDiscount);
 
