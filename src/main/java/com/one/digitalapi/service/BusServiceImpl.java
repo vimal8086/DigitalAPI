@@ -2,13 +2,17 @@ package com.one.digitalapi.service;
 
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.one.digitalapi.entity.Amenity;
 import com.one.digitalapi.entity.Bus;
+import com.one.digitalapi.entity.CancellationRule;
 import com.one.digitalapi.entity.Route;
 import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.repository.BusRepository;
 import com.one.digitalapi.repository.RouteRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,6 +26,7 @@ public class BusServiceImpl implements BusService {
     private BusRepository bRepo;
 
     @Override
+    @Transactional
     public Bus addBus(Bus bus) {
         Route route = rRepo.findByRouteFromAndRouteTo(bus.getRouteFrom(), bus.getRouteTo());
 
@@ -29,10 +34,31 @@ public class BusServiceImpl implements BusService {
             throw new BusException("Route not found from " + bus.getRouteFrom() + " to " + bus.getRouteTo());
         }
 
-        route.getBus().add(bus);
         bus.setRoute(route);
+
+        // Handle amenities
+        List<Amenity> finalAmenities = new ArrayList<>();
+        if (bus.getAmenities() != null) {
+            for (Amenity amenity : bus.getAmenities()) {
+                amenity.setBus(bus);
+                finalAmenities.add(amenity);
+            }
+        }
+        bus.setAmenities(finalAmenities); // avoid assigning pre-attached list
+
+        // Handle cancellation rules
+        List<CancellationRule> finalRules = new ArrayList<>();
+        if (bus.getCancellationRules() != null) {
+            for (CancellationRule rule : bus.getCancellationRules()) {
+                rule.setBus(bus);
+                finalRules.add(rule);
+            }
+        }
+        bus.setCancellationRules(finalRules);
+
         return bRepo.save(bus);
     }
+
 
     @Override
     public Bus updateBus(Bus bus) {
@@ -45,6 +71,26 @@ public class BusServiceImpl implements BusService {
         }
 
         bus.setRoute(route);
+
+        // Handle amenities
+        List<Amenity> finalAmenities = new ArrayList<>();
+        if (bus.getAmenities() != null) {
+            for (Amenity amenity : bus.getAmenities()) {
+                amenity.setBus(bus);
+                finalAmenities.add(amenity);
+            }
+        }
+        bus.setAmenities(finalAmenities); // avoid assigning pre-attached list
+
+        // Handle cancellation rules
+        List<CancellationRule> finalRules = new ArrayList<>();
+        if (bus.getCancellationRules() != null) {
+            for (CancellationRule rule : bus.getCancellationRules()) {
+                rule.setBus(bus);
+                finalRules.add(rule);
+            }
+        }
+        bus.setCancellationRules(finalRules);
         return bRepo.save(bus);
     }
 

@@ -115,6 +115,13 @@ public class Bus {
     @Valid
     private List<DropPoint> dropPoints = new ArrayList<>();
 
+    @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  // This prevents infinite recursion
+    private List<Amenity> amenities = new ArrayList<>();
+
+    @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference  // This prevents infinite recursion
+    private List<CancellationRule> cancellationRules = new ArrayList<>();  // Proper initialization
 
     public Bus() {
         // Default constructor
@@ -122,7 +129,8 @@ public class Bus {
 
     public Bus(Integer busId, String busName, String driverName, String busType, String routeFrom, String routeTo,
                String arrivalTime, String departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
-               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, List<DropPoint> dropPoints, String email,String address) {
+               String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, List<DropPoint> dropPoints,
+               String email,String address, List<Amenity> amenities, List<CancellationRule> cancellationRules) {
         this.busId = busId;
         this.busName = busName;
         this.driverName = driverName;
@@ -142,6 +150,8 @@ public class Bus {
         this.dropPoints = dropPoints;
         this.email = email;
         this.address = address;
+        this.amenities = amenities;
+        this.cancellationRules = cancellationRules;
     }
 
     public Integer getBusId() {
@@ -294,5 +304,21 @@ public class Bus {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public List<Amenity> getAmenities() {
+        return amenities;
+    }
+
+    public void setAmenities(List<Amenity> amenities) {
+        this.amenities = amenities;
+    }
+
+    public List<CancellationRule> getCancellationRules() {
+        return cancellationRules;
+    }
+
+    public void setCancellationRules(List<CancellationRule> cancellationRules) {
+        this.cancellationRules = cancellationRules;
     }
 }
