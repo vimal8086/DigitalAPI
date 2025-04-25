@@ -1,9 +1,7 @@
 package com.one.digitalapi.controller;
 import com.one.digitalapi.entity.User;
-import com.one.digitalapi.entity.UserOTP;
 import com.one.digitalapi.exception.UserException;
 import com.one.digitalapi.logger.DefaultLogger;
-import com.one.digitalapi.repository.UserOTPRepository;
 import com.one.digitalapi.repository.UserRepository;
 import com.one.digitalapi.service.OtpService;
 import com.one.digitalapi.service.UserService;
@@ -18,7 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -82,27 +80,49 @@ public class UserController {
 
     @PutMapping("/delete/{userId}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public ResponseEntity<String> deleteUserAccount(@PathVariable String userId) {
+    public ResponseEntity<Map<String, String>> deleteUserAccount(@PathVariable String userId) {
 
         Optional<User> optionalUser = userRepository.findByUserId(userId);
+
+        Map<String, String> response = new HashMap<>();
 
         if (optionalUser.isPresent()) {
 
             User user = optionalUser.get();
 
             if (user.getStatus() == UserStatus.ACTIVE) {
-
                 user.setStatus(UserStatus.DELETE);
-
                 userRepository.save(user);
 
-                return ResponseEntity.ok("User account marked as DELETED.");
-
+                response.put("message", "User account marked as DELETED.");
+                return ResponseEntity.ok(response);
             } else {
-                return ResponseEntity.badRequest().body("User is not ACTIVE.");
+                response.put("error", "User is not ACTIVE.");
+                return ResponseEntity.badRequest().body(response);
             }
+
         } else {
-            return ResponseEntity.notFound().build();
+            response.put("error", "User not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+    }
+
+    @GetMapping("/{userId}")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    @Operation(summary = "Get user details", description = "Returns user profile based on userId")
+    public ResponseEntity<?> getUserById(@PathVariable String userId) {
+        String methodName = "getUserById";
+        LOGGER.infoLog(CLASSNAME, methodName, "Fetching user with ID: " + userId);
+
+        Optional<User> userOpt = userRepository.findByUserId(userId);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+            return ResponseEntity.ok(user);
+        } else {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "User not found.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
     }
 
