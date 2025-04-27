@@ -127,7 +127,6 @@ public class UserController {
     }
 
     @PostMapping("/change-password/send-otp")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> sendOtp(@RequestParam String email) {
 
         if (!userRepository.existsByEmail(email)) {
@@ -140,7 +139,6 @@ public class UserController {
     }
 
     @PostMapping("/change-password/verify-otp")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
 
         boolean isVerified = otpService.verifyOtp(email, otp);
@@ -156,7 +154,6 @@ public class UserController {
 
 
     @PutMapping("/change-password")
-    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<?> changePassword(@RequestParam String email,
                                             @RequestParam String newPassword) {
         if (!otpService.isOtpVerified(email)) {

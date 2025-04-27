@@ -51,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/digital/api/v3/api-docs") ||
                 requestURI.startsWith("/digital/api/swagger-ui/index.html") ||
                 requestURI.startsWith("/digital/api/auth/check-user/") ||
+                requestURI.startsWith("/digital/api/users/change-password") ||
                 requestURI.equals("/digital/api/error") ||
                 requestURI.equals("/digital/api/auth/login") ||
                 requestURI.equals("/digital/api/users/register")) {
