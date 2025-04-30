@@ -1,12 +1,14 @@
 package com.one.digitalapi.controller;
 
 import com.one.digitalapi.entity.Bus;
+import com.one.digitalapi.entity.Review;
 import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.service.BookingService;
 import com.one.digitalapi.service.BusService;
 import com.one.digitalapi.service.ReservationService;
+import com.one.digitalapi.service.ReviewService;
 import com.one.digitalapi.validation.DefaultValidation;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -43,11 +45,13 @@ public class BusController {
 
     private final BookingService bookingService;
 
-    public BusController(ReservationService reservationService, BookingService bookingService) {
+    private final ReviewService reviewService;
+
+    public BusController(ReservationService reservationService, BookingService bookingService, ReviewService reviewService) {
         this.reservationService = reservationService;
         this.bookingService = bookingService;
+        this.reviewService = reviewService;
     }
-
 
     @PostMapping
     @Operation(summary = "Add a new bus", description = "Creates a new bus if it does not exist")
@@ -174,7 +178,9 @@ public class BusController {
         List<Map<String, Object>> responseList = new ArrayList<>();
 
         for (Bus bus : buses) {
+
             int totalSeats = bus.getSeats();
+
             Integer busId = bus.getBusId();
 
             // Booked seats from reservation service
@@ -189,6 +195,13 @@ public class BusController {
 
             // For Available Seat
             int availableSeats = Math.max(0, totalSeats - allBookedSeats.size());
+
+            // Average Rating
+            Double averageRating = reviewService.getAverageRatingForBus(busId.longValue());
+
+            // Total Reviews
+            List<Review> totalReviews = reviewService.getReviewsByBusId(busId.longValue());
+            int totalReviewCount = (totalReviews != null) ? totalReviews.size() : 0;
 
             Map<String, Object> busInfo = new HashMap<>();
             busInfo.put("busId", busId);
@@ -206,6 +219,8 @@ public class BusController {
             busInfo.put("busType", bus.getBusType());
             busInfo.put("pickupPoints", bus.getPickupPoints());
             busInfo.put("dropPoints", bus.getDropPoints());
+            busInfo.put("averageRating", averageRating);
+            busInfo.put("totalRating", totalReviewCount);
 
             responseList.add(busInfo);
         }
