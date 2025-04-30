@@ -1,6 +1,7 @@
 package com.one.digitalapi.config;
 
 import com.one.digitalapi.utils.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,6 +25,9 @@ import java.util.List;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+
+    @Value("${cors.allowed-origins}")
+    private String corsAllowedOrigins; // Comma-separated string
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final UserDetailsService userDetailsService;
@@ -61,7 +65,9 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         // Only allow trusted origins (you can replace "*" with specific domains)
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        //configuration.setAllowedOrigins(List.of("http://localhost:3000"));
+        List<String> origins = List.of(corsAllowedOrigins.split(","));
+        configuration.setAllowedOrigins(origins);
 
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept"));
