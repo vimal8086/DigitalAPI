@@ -51,13 +51,13 @@ spring:
     #username: ${ENV_DB_USERNAME:}
     #password: ${ENV_DB_PASSWORD:}
 
-    url: jdbc:mysql://localhost:3306/digital
-    username: root
-    password: root
+    #url: jdbc:mysql://localhost:3306/digital
+    #username: root
+    #password: root
 
-    #url: ${ENV_DB_URL:jdbc:mysql://13.203.86.197:3306/digital}
-    #username: ${ENV_DB_USERNAME:digital}
-    #password: ${ENV_DB_PASSWORD:password}
+    url: ${ENV_DB_URL:jdbc:mysql://13.203.86.197:3306/digital}
+    username: ${ENV_DB_USERNAME:digital}
+    password: ${ENV_DB_PASSWORD:password}
     driver-class-name: com.mysql.cj.jdbc.Driver
 
     jpa:

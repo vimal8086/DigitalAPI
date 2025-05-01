@@ -115,6 +115,28 @@ public class PaymentController {
         }
     }
 
+
+
+    @PostMapping("/refund")
+    @Operation(summary = "Refund a Payment", description = "Initiates refund for a given payment ID")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<?> refundPayment(@RequestParam String paymentId, @RequestParam double amount) {
+        final String methodName = "refundPayment";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to refund payment: " + paymentId);
+        try {
+            JSONObject refund = paymentService.refundPayment(paymentId, amount);
+            Map<String, Object> responseMap = new HashMap<>();
+            responseMap.put("refund", refund.toMap());
+            return ResponseEntity.ok(responseMap);
+        } catch (Exception ex) {
+            LOGGER.errorLog(CLASSNAME, methodName, "Error processing refund: " + ex.getMessage());
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Refund failed");
+            errorMap.put("message", ex.getMessage());
+            return ResponseEntity.internalServerError().body(errorMap);
+        }
+    }
+
     // Global Exception Handler (optional) for unhandled exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handlePaymentException(Exception ex) {
