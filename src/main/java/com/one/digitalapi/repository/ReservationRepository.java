@@ -16,11 +16,19 @@ public interface ReservationRepository extends JpaRepository<Reservations, Integ
 
     @Modifying
     @Transactional
-    @Query("UPDATE Reservations r SET r.reservationStatus = :status, r.cancellationReason = :cancellationReason, r.refundAmount = :refundAmount WHERE r.reservationId = :reservationId")
+    @Query("UPDATE Reservations r SET " +
+            "r.reservationStatus = :status, " +
+            "r.cancellationReason = :cancellationReason, " +
+            "r.refundAmount = :refundAmount, " +
+            "r.refundStatus = :refundStatus, " +
+            "r.refundTime = :refundTime " +
+            "WHERE r.reservationId = :reservationId")
     void updateReservationStatus(@Param("reservationId") Integer reservationId,
                                  @Param("status") String status,
                                  @Param("cancellationReason") String cancellationReason,
-                                 @Param("refundAmount") Integer refundAmount);
+                                 @Param("refundAmount") Integer refundAmount,
+                                 @Param("refundStatus") String refundStatus,
+                                 @Param("refundTime") LocalDateTime refundTime);
 
 
     public List<Reservations> findByReservationStatusAndJourneyDateAfter(String reservationStatus, LocalDateTime journeyDate);

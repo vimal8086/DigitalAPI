@@ -1,5 +1,6 @@
 package com.one.digitalapi.service;
 
+import com.one.digitalapi.config.RazorpayConfig;
 import com.one.digitalapi.config.ReservationProperties;
 import com.one.digitalapi.dto.BookedSeatDTO;
 import com.one.digitalapi.dto.BusDTO;
@@ -14,7 +15,11 @@ import com.one.digitalapi.repository.DiscountRepository;
 import com.one.digitalapi.repository.ReservationRepository;
 import com.one.digitalapi.repository.UserRepository;
 import com.one.digitalapi.utils.DigitalAPIConstant;
+import com.razorpay.RazorpayClient;
+import com.razorpay.RazorpayException;
+import com.razorpay.Refund;
 import jakarta.transaction.Transactional;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -45,13 +50,21 @@ public class ReservationServiceImpl implements ReservationService {
     private PdfService pdfService;
 
     @Autowired
-    private EmailService emailService;
+    private AsyncService asyncService;
 
     @Autowired
     private ReservationProperties reservationProperties;
 
+    private final RazorpayConfig razorpayConfig;
+
+    public ReservationServiceImpl(RazorpayConfig razorpayConfig) {
+        this.razorpayConfig = razorpayConfig;
+    }
+
+
     @Override
     public Reservations addReservation(ReservationDTO reservationDTO, String discountCode) {
+
         LOGGER.infoLog(CLASSNAME, "addReservation", "Entering addReservation method");
 
         if (reservationDTO == null) {
@@ -72,6 +85,7 @@ public class ReservationServiceImpl implements ReservationService {
                 });
 
         BusDTO busDTO = reservationDTO.getBusDTO();
+
         if (busDTO == null || busDTO.getBusId() == null) {
             LOGGER.errorLog(CLASSNAME, "addReservation", "Bus information missing");
             throw new ReservationException("Bus information is missing or incomplete");
@@ -169,17 +183,11 @@ public class ReservationServiceImpl implements ReservationService {
         LOGGER.infoLog(CLASSNAME, "addReservation", "Reservation saved with ID: " + savedReservation.getReservationId());
 
         try {
-
             byte[] pdfBytes = pdfService.generateFormattedTicket(savedReservation.getReservationId());
-
             String fileName = "Bus_Ticket_" + savedReservation.getReservationId() + ".pdf";
-
-            emailService.sendTicketEmail(savedReservation.getEmail(), pdfBytes, fileName, savedReservation.getSource()
-                    + " to " + savedReservation.getDestination() + " on " + savedReservation.getJourneyDate());
-
-
+            asyncService.sendTicketAsync(savedReservation, pdfBytes, fileName);
         } catch (Exception e) {
-            LOGGER.errorLog(CLASSNAME, "addReservation", "Error sending ticket email: " + e.getMessage());
+            LOGGER.errorLog(CLASSNAME, "addReservation", "Error preparing email content: " + e.getMessage());
         }
 
         return savedReservation;
@@ -211,12 +219,39 @@ public class ReservationServiceImpl implements ReservationService {
         busRepository.save(bus);
         LOGGER.debugLog(CLASSNAME, "deleteReservation", "Updated bus seat availability");
 
-        reservationRepository.updateReservationStatus(reservationId, DigitalAPIConstant.CANCELLED, cancellationReason, refundAmount);
+
+        // Attempt refund via Razorpay
+        String refundStatus = DigitalAPIConstant.NOT_APPLICABLE;
+
+        LocalDateTime refundTime = null;
+
+        if (refundAmount > 0) {
+            try {
+                String refundId = refundPayment(existingReservation.getPaymentId(), refundAmount);
+
+                refundStatus = DigitalAPIConstant.SUCCESS;
+
+                refundTime = LocalDateTime.now();
+
+                LOGGER.infoLog(CLASSNAME, "deleteReservation", "Refund successful. Refund ID: " + refundId);
+
+            } catch (ReservationException | RazorpayException e) {
+                LOGGER.errorLog(CLASSNAME, "deleteReservation", "Refund failed: " + e.getMessage());
+                refundStatus = DigitalAPIConstant.FAILED;
+            }
+        }
+
+        //reservationRepository.updateReservationStatus(reservationId, DigitalAPIConstant.CANCELLED, cancellationReason, refundAmount);
+        // Update Reservation Status in DB
+        reservationRepository.updateReservationStatus(reservationId,
+                DigitalAPIConstant.CANCELLED, cancellationReason, refundAmount, refundStatus, refundTime);
         LOGGER.infoLog(CLASSNAME, "deleteReservation", "Reservation status updated in DB");
 
         existingReservation.setRefundAmount(refundAmount);
         existingReservation.setReservationStatus(DigitalAPIConstant.CANCELLED);
         existingReservation.setCancellationReason(cancellationReason);
+        existingReservation.setRefundStatus(refundStatus);
+        existingReservation.setRefundTime(refundTime);
 
         return existingReservation;
     }
@@ -294,10 +329,16 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationRepository.findByUser_UserIdOrderByReservationDateDesc(userId);
     }
 
+
+    // Only Refund Applicable if user cancel booking in one hour
     private Integer calculateRefund(Reservations reservation) {
+
         LOGGER.debugLog(CLASSNAME, "calculateRefund", "Calculating refund");
+
         LocalDateTime now = LocalDateTime.now();
+
         LocalDateTime journeyDateTime = reservation.getJourneyDate();
+
         Integer fare = reservation.getFare();
 
         if (journeyDateTime.isAfter(now) || journeyDateTime.minusHours(1).isAfter(now)) {
@@ -306,12 +347,15 @@ public class ReservationServiceImpl implements ReservationService {
         return 0;
     }
 
+
+    // Checking Discount is Valid or Not
     private boolean isDiscountValid(Discount discount) {
         LocalDateTime now = LocalDateTime.now();
         return (discount.getStartDate().isBefore(now) || discount.getStartDate().isEqual(now)) &&
                 discount.getEndDate().isAfter(now);
     }
 
+    // Currently we have two types of discount (1.Percentage, 2.Flat)
     private Double calculateDiscountAmount(Double originalFare, Discount discount) {
         if (discount.getType() == DiscountType.PERCENTAGE) {
             return (originalFare * discount.getValue() / 100);
@@ -320,5 +364,26 @@ public class ReservationServiceImpl implements ReservationService {
         }
         return 0.0;
     }
+
+    private String refundPayment(String paymentId, Integer refundAmount) throws RazorpayException {
+
+        if (paymentId == null || paymentId.trim().isEmpty()) {
+            throw new IllegalArgumentException("Payment ID is required for refund.");
+        }
+
+        if (refundAmount == null || refundAmount <= 0) {
+            throw new IllegalArgumentException("Refund amount must be a positive value.");
+        }
+
+        RazorpayClient razorpay = new RazorpayClient(razorpayConfig.getKeySecret(), razorpayConfig.getKeyId());
+
+        JSONObject refundRequest = new JSONObject();
+        refundRequest.put("payment_id", paymentId);
+        refundRequest.put("amount", refundAmount * 100); // Convert to paise
+
+        Refund refund = razorpay.payments.refund(refundRequest);
+        return refund.get("id"); // Log this for tracking if needed
+    }
+
 
 }

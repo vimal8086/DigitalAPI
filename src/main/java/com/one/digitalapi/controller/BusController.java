@@ -221,6 +221,8 @@ public class BusController {
             busInfo.put("dropPoints", bus.getDropPoints());
             busInfo.put("averageRating", averageRating);
             busInfo.put("totalRating", totalReviewCount);
+            busInfo.put("amenities", bus.getAmenities());
+            busInfo.put("cancellationRules", bus.getCancellationRules());
 
             responseList.add(busInfo);
         }

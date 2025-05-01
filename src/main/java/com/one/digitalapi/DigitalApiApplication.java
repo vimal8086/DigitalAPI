@@ -6,6 +6,7 @@ import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.AdviceMode;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import com.one.digitalapi.logger.DefaultLogger;
@@ -16,7 +17,7 @@ import com.one.digitalapi.logger.LogManager;
 @EntityScan("com.one")
 @ComponentScan("com.one")
 @EnableTransactionManagement(mode = AdviceMode.ASPECTJ)
-//@EnableAsync    --- For Future enhancement
+@EnableAsync
 public class DigitalApiApplication {
 	private static final String PERFORMANCE = "PERFORMANCE";  // Compliant
 	private static final String ANALYTICSKPI = "ANALYTICSKPI";  // Compliant

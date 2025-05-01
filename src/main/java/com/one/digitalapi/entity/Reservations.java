@@ -109,6 +109,15 @@ public class Reservations {
 
     private Double discountAmount;
 
+    private String paymentId;
+
+    private String refundStatus;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    private LocalDateTime refundTime;
+
+
     @ManyToOne(optional = true)
     @Valid
     @JoinColumn(name = "bus_id", referencedColumnName = "busId")
@@ -344,6 +353,30 @@ public class Reservations {
         this.discountAmount = discountAmount;
     }
 
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public String getRefundStatus() {
+        return refundStatus;
+    }
+
+    public void setRefundStatus(String refundStatus) {
+        this.refundStatus = refundStatus;
+    }
+
+    public LocalDateTime getRefundTime() {
+        return refundTime;
+    }
+
+    public void setRefundTime(LocalDateTime refundTime) {
+        this.refundTime = refundTime;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
@@ -352,7 +385,7 @@ public class Reservations {
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
                         String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime,
-                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount) {
+                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount, String paymentId, String refundStatus, LocalDateTime refundTime) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -380,6 +413,9 @@ public class Reservations {
         this.gstAmount = gstAmount;
         this.totalAmount = totalAmount;
         this.discountAmount = discountAmount;
+        this.paymentId = paymentId;
+        this.refundStatus = refundStatus;
+        this.refundTime = refundTime;
     }
 
     public Reservations() {
