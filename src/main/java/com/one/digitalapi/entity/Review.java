@@ -22,7 +22,7 @@ public class Review {
 
     @DecimalMin(value = "1.0", inclusive = true, message = "Rating must be at least 1.0")
     @DecimalMax(value = "5.0", inclusive = true, message = "Rating must be at most 5.0")
-    private double rating;
+    private Double rating;
 
     @Size(max = 500, message = "Review can't exceed 500 characters")
     private String review;
@@ -32,7 +32,30 @@ public class Review {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime rideDate;
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
+
+    // New Fields
+    @NotBlank(message = "Name is required")
+    @Size(max = 100, message = "Name can't exceed 100 characters")
+    private String name;
+
+    @NotBlank(message = "Gender is required")
+    @Pattern(regexp = "Male|Female|Other", message = "Gender must be Male, Female, or Other")
+    private String gender;
+
+    @Min(value = 0, message = "Age must be non-negative")
+    @Max(value = 120, message = "Age seems unrealistic")
+    private Integer age;
+
+    @NotBlank(message = "Traveller type is required")
+    @Pattern(regexp = "Solo|Group", message = "Traveller type must be either Solo or Group")
+    private String travellerType;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public Long getId() {
         return id;
@@ -58,11 +81,11 @@ public class Review {
         this.busId = busId;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
@@ -88,5 +111,37 @@ public class Review {
 
     public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public String getTravellerType() {
+        return travellerType;
+    }
+
+    public void setTravellerType(String travellerType) {
+        this.travellerType = travellerType;
     }
 }

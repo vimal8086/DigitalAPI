@@ -146,7 +146,7 @@ public class UserController {
         if (isVerified) {
             return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
         } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
                     Map.of("error", "Invalid or expired OTP.")
             );
         }
