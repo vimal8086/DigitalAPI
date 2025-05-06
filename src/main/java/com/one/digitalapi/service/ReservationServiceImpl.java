@@ -10,10 +10,7 @@ import com.one.digitalapi.entity.*;
 import com.one.digitalapi.exception.LoginException;
 import com.one.digitalapi.exception.ReservationException;
 import com.one.digitalapi.logger.DefaultLogger;
-import com.one.digitalapi.repository.BusRepository;
-import com.one.digitalapi.repository.DiscountRepository;
-import com.one.digitalapi.repository.ReservationRepository;
-import com.one.digitalapi.repository.UserRepository;
+import com.one.digitalapi.repository.*;
 import com.one.digitalapi.utils.DigitalAPIConstant;
 import com.razorpay.RazorpayClient;
 import com.razorpay.RazorpayException;
@@ -54,6 +51,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Autowired
     private ReservationProperties reservationProperties;
+
+    @Autowired
+    private ReviewRepository reviewRepository;
 
     private final RazorpayConfig razorpayConfig;
 
@@ -140,7 +140,8 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setGstAmount(gstAmount);
         reservation.setTotalAmount(totalAmount);
 
-        reservation.setOrderId(reservationDTO.getOrderId()); // You can customize this format
+        reservation.setOrderId(reservationDTO.getOrderId()); // Order Id Of Ticket
+        reservation.setPaymentId(reservationDTO.getPaymentId()); // Payment Id
         reservation.setReservationStatus(DigitalAPIConstant.CONFIRMED);
         reservation.setReservationType(DigitalAPIConstant.ONLINE);
 
@@ -267,13 +268,19 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public List<Reservations> getReservationDeatials() {
-        LOGGER.infoLog(CLASSNAME, "getReservationDeatials", "Fetching all reservations");
+    public List<Reservations> getReservationDetails() {
+        LOGGER.infoLog(CLASSNAME, "getReservationDetails", "Fetching all reservations");
         List<Reservations> reservations = reservationRepository.findAll();
         if (reservations.isEmpty()) {
-            LOGGER.warnLog(CLASSNAME, "getReservationDeatials", "No reservations found");
+            LOGGER.warnLog(CLASSNAME, "getReservationDetails", "No reservations found");
             throw new ReservationException("No reservations found!");
         }
+
+        for (Reservations reservation : reservations) {
+            boolean hasReview = reviewRepository.findByOrderId(reservation.getOrderId()).isPresent();
+            reservation.setReviewAdded(hasReview);
+        }
+
         return reservations;
     }
 
@@ -317,16 +324,19 @@ public class ReservationServiceImpl implements ReservationService {
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Reservations getReservationById(Integer id) {
-        LOGGER.infoLog(CLASSNAME, "getReservationById", "Fetching reservation by ID: " + id);
-        return reservationRepository.findById(id).orElse(null);
-    }
 
     @Override
     public List<Reservations> getReservationsByUserId(String userId) {
         LOGGER.infoLog(CLASSNAME, "getReservationsByUserId", "Fetching reservations for user: " + userId);
-        return reservationRepository.findByUser_UserIdOrderByReservationDateDesc(userId);
+
+        List<Reservations> reservations = reservationRepository.findByUser_UserIdOrderByReservationDateDesc(userId);
+
+        for (Reservations reservation : reservations) {
+            boolean hasReview = reviewRepository.findByOrderId(reservation.getOrderId()).isPresent();
+            reservation.setReviewAdded(hasReview);
+        }
+
+        return reservations;
     }
 
 

@@ -1,6 +1,7 @@
 package com.one.digitalapi.service;
 
 import com.one.digitalapi.entity.Review;
+import com.one.digitalapi.exception.ReviewException;
 import com.one.digitalapi.logger.DefaultLogger;
 import com.one.digitalapi.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ReviewServiceImpl implements ReviewService {
@@ -20,10 +22,17 @@ public class ReviewServiceImpl implements ReviewService {
     @Autowired
     private ReviewRepository reviewRepo;
 
+
     @Override
     public Review addReview(Review review) {
         String methodName = "addReview";
         LOGGER.infoLog(CLASSNAME, methodName, "Saving review: " + review);
+
+        // Check for existing review by orderId
+        Optional<Review> existingReview = reviewRepo.findByOrderId(review.getOrderId());
+        if (existingReview.isPresent()) {
+            throw new ReviewException("A review for this booking already exists.");
+        }
 
         review.setCreatedAt(LocalDateTime.now());
         Review savedReview = reviewRepo.save(review);

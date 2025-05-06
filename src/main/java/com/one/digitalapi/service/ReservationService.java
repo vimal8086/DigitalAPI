@@ -15,13 +15,11 @@ public interface ReservationService {
 
     public Reservations viewAllReservation(Integer reservationId);
 
-    public List<Reservations> getReservationDeatials();
+    public List<Reservations> getReservationDetails();
 
     public List<String> getBookedSeatsForBus(Integer busId,  LocalDateTime journeyStart, LocalDateTime journeyEnd);
 
     public List<BookedSeatDTO> getAllBookedSeats();
-
-    public Reservations getReservationById(Integer id);
 
     public List<Reservations> getReservationsByUserId(String userId);
 }

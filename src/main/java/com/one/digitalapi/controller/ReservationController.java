@@ -146,15 +146,11 @@ public class ReservationController {
     @ApiResponse(responseCode = "200", description = "List of reservations retrieved successfully")
     public ResponseEntity<List<Reservations>> getAllReservations() throws ReservationException, LoginException {
 
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        System.out.println("Logged in as: " + auth.getName());
-        System.out.println("Authorities: " + auth.getAuthorities());
-
         String methodName = "getAllReservations";
 
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to retrieve all reservations");
 
-        List<Reservations> reservations = reservationService.getReservationDeatials();
+        List<Reservations> reservations = reservationService.getReservationDetails();
 
         LOGGER.infoLog(CLASSNAME, methodName, "Reservations retrieved successfully: " + reservations);
 

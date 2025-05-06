@@ -117,6 +117,9 @@ public class Reservations {
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime refundTime;
 
+    // Checked User has added review-rating or not
+    @Transient  //  ensures it's not stored in the database
+    private boolean reviewAdded;
 
     @ManyToOne(optional = true)
     @Valid
@@ -377,6 +380,14 @@ public class Reservations {
         this.refundTime = refundTime;
     }
 
+    public boolean isReviewAdded() {
+        return reviewAdded;
+    }
+
+    public void setReviewAdded(boolean reviewAdded) {
+        this.reviewAdded = reviewAdded;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
@@ -385,7 +396,7 @@ public class Reservations {
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
                         Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
                         String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime,
-                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount, String paymentId, String refundStatus, LocalDateTime refundTime) {
+                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount, String paymentId, String refundStatus, LocalDateTime refundTime, boolean reviewAdded) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -416,6 +427,7 @@ public class Reservations {
         this.paymentId = paymentId;
         this.refundStatus = refundStatus;
         this.refundTime = refundTime;
+        this.reviewAdded = reviewAdded;
     }
 
     public Reservations() {

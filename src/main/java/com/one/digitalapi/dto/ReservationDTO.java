@@ -79,15 +79,18 @@ public class ReservationDTO {
 
     private Double discountAmount;
 
+    private String paymentId;
 
     private List<PassengerDTO> passengers;
+
+    private boolean reviewAdded;
 
 
     public ReservationDTO() {
         super();
     }
 
-    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount, List<PassengerDTO> passengers, Double discountAmount) {
+    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount, List<PassengerDTO> passengers, Double discountAmount, String paymentId, boolean reviewAdded) {
         this.userId = userId;
         this.source = source;
         this.destination = destination;
@@ -107,6 +110,8 @@ public class ReservationDTO {
         this.totalAmount = totalAmount;
         this.passengers = passengers;
         this.discountAmount = discountAmount;
+        this.paymentId = paymentId;
+        this.reviewAdded = reviewAdded;
     }
 
     // Getters and Setters
@@ -210,5 +215,21 @@ public class ReservationDTO {
 
     public void setDiscountAmount(Double discountAmount) {
         this.discountAmount = discountAmount;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
+
+    public boolean isReviewAdded() {
+        return reviewAdded;
+    }
+
+    public void setReviewAdded(boolean reviewAdded) {
+        this.reviewAdded = reviewAdded;
     }
 }

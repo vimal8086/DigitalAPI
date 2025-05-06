@@ -52,6 +52,11 @@ public class Review {
     @Pattern(regexp = "Solo|Group", message = "Traveller type must be either Solo or Group")
     private String travellerType;
 
+    @Column(nullable = false, unique = true)
+    @NotBlank(message = "Order ID is required")
+    private String orderId;
+
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
@@ -143,5 +148,13 @@ public class Review {
 
     public void setTravellerType(String travellerType) {
         this.travellerType = travellerType;
+    }
+
+    public String getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 }
