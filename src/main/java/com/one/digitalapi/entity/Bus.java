@@ -103,6 +103,9 @@ public class Bus {
     @NotEmpty(message = "Pickup address can not be empty.", groups = DefaultValidation.class)
     private String address;
 
+    @Column(name = "is_active")
+    private Boolean isActive = true; // default to true
+
 
     @OneToMany(mappedBy = "bus", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference  // This prevents infinite recursion
@@ -130,7 +133,7 @@ public class Bus {
     public Bus(Integer busId, String busName, String driverName, String busType, String routeFrom, String routeTo,
                String arrivalTime, String departureTime, Integer farePerSeat, Integer seats, Integer availableSeats, Route route,
                String contactNumber, String busNumber, String trackingUrl, List<PickupPoint> pickupPoints, List<DropPoint> dropPoints,
-               String email,String address, List<Amenity> amenities, List<CancellationRule> cancellationRules) {
+               String email,String address, List<Amenity> amenities, List<CancellationRule> cancellationRules, Boolean isActive) {
         this.busId = busId;
         this.busName = busName;
         this.driverName = driverName;
@@ -152,6 +155,7 @@ public class Bus {
         this.address = address;
         this.amenities = amenities;
         this.cancellationRules = cancellationRules;
+        this.isActive = isActive;
     }
 
     public Integer getBusId() {
@@ -320,5 +324,13 @@ public class Bus {
 
     public void setCancellationRules(List<CancellationRule> cancellationRules) {
         this.cancellationRules = cancellationRules;
+    }
+
+    public Boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(Boolean active) {
+        isActive = active;
     }
 }

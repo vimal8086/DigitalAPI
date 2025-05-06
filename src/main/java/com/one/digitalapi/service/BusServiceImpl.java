@@ -36,6 +36,9 @@ public class BusServiceImpl implements BusService {
 
         bus.setRoute(route);
 
+        // First time it takes true
+        bus.setActive(true);
+
         // Handle amenities
         List<Amenity> finalAmenities = new ArrayList<>();
         if (bus.getAmenities() != null) {
@@ -71,6 +74,10 @@ public class BusServiceImpl implements BusService {
         }
 
         bus.setRoute(route);
+
+        // User Can Deactivate Bus
+        bus.setActive(bus.isActive());
+
 
         // Handle amenities
         List<Amenity> finalAmenities = new ArrayList<>();
@@ -130,6 +137,7 @@ public class BusServiceImpl implements BusService {
 
     @Override
     public List<Bus> searchBuses(String from, String to, String departureTime) {
+
         List<Bus> buses;
 
         try {
@@ -138,9 +146,9 @@ public class BusServiceImpl implements BusService {
                 LocalTime departureTimeParsed = LocalTime.parse(departureTime);
 
                 // Call the repository method with LocalTime
-                buses = bRepo.findByRouteFromAndRouteToAndDepartureTimeAfter(from, to, String.valueOf(departureTimeParsed));
+                buses = bRepo.findByRouteFromAndRouteToAndDepartureTimeAfterAndIsActiveTrue(from, to, String.valueOf(departureTimeParsed));
             } else {
-                buses = bRepo.findByRouteFromAndRouteTo(from, to);
+                buses = bRepo.findByRouteFromAndRouteToAndIsActiveTrue(from, to);
             }
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("Invalid departure time format. Expected format is HH:mm:ss");
