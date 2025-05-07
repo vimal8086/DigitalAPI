@@ -103,6 +103,18 @@ public class ReservationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);        }
     }
 
+    @PostMapping("/resend-ticket")
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public ResponseEntity<Map<String, String>> resendTicket(@RequestParam Integer reservationId) {
+        try {
+            Map<String, String> response = reservationService.resendTicket(reservationId);
+            return ResponseEntity.ok(response); // This will return the JSON response
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", "Error resending the ticket: " + e.getMessage()));
+        }
+    }
+
 
     @PostMapping("/add")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")

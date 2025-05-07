@@ -195,7 +195,6 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
 
-
     @Override
     @Transactional
     public Reservations deleteReservation(Integer reservationId, String cancellationReason) {
@@ -337,6 +336,37 @@ public class ReservationServiceImpl implements ReservationService {
         }
 
         return reservations;
+    }
+
+
+    @Override
+    public Map<String, String> resendTicket(Integer reservationId) {
+        LOGGER.infoLog(CLASSNAME, "resendTicket", "Entering resendTicket method");
+
+        // Retrieve the reservation
+        Reservations reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> {
+                    LOGGER.errorLog(CLASSNAME, "resendTicket", "Reservation not found for ID: " + reservationId);
+                    return new RuntimeException("Reservation not found for ID: " + reservationId); // Using RuntimeException
+                });
+
+        try {
+            // Regenerate the PDF ticket
+            byte[] pdfBytes = pdfService.generateFormattedTicket(reservationId);
+            String fileName = "Bus_Ticket_" + reservationId + ".pdf";
+
+            // Send the ticket asynchronously
+            asyncService.sendTicketAsync(reservation, pdfBytes, fileName);
+        } catch (Exception e) {
+            LOGGER.errorLog(CLASSNAME, "resendTicket", "Error preparing email content: " + e.getMessage());
+            throw new RuntimeException("Error resending the ticket: " + e.getMessage()); // Using RuntimeException
+        }
+
+        // Create response map
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Your ticket has been resent to " + reservation.getEmail());
+
+        return response; // Returning message as JSON (Map is automatically converted to JSON)
     }
 
 

@@ -6,6 +6,7 @@ import com.one.digitalapi.entity.Reservations;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 public interface ReservationService {
 
@@ -22,5 +23,7 @@ public interface ReservationService {
     public List<BookedSeatDTO> getAllBookedSeats();
 
     public List<Reservations> getReservationsByUserId(String userId);
+
+    public Map<String, String> resendTicket(Integer reservationId);
 }
 
