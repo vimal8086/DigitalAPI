@@ -113,6 +113,10 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setBus(bus);
         reservation.setUser(user);
 
+        if (reservationDTO.getBookingDate() != null){
+            reservation.setBookingDate(reservationDTO.getBookingDate());
+        }
+
         int baseFare = bus.getFarePerSeat() * noOfSeats;
         double discountAmount = 0.0;
 
@@ -211,7 +215,7 @@ public class ReservationServiceImpl implements ReservationService {
             throw new ReservationException("Reservation Already CANCELLED");
         }
 
-        Integer refundAmount = calculateRefund(existingReservation);
+        Double refundAmount = calculateRefund(existingReservation);
         LOGGER.infoLog(CLASSNAME, "deleteReservation", "Calculated refund amount: " + refundAmount);
 
         Bus bus = existingReservation.getBus();
@@ -371,7 +375,7 @@ public class ReservationServiceImpl implements ReservationService {
 
 
     // Only Refund Applicable if user cancel booking in one hour
-    private Integer calculateRefund(Reservations reservation) {
+    private Double calculateRefund(Reservations reservation) {
 
         LOGGER.debugLog(CLASSNAME, "calculateRefund", "Calculating refund");
 
@@ -379,12 +383,12 @@ public class ReservationServiceImpl implements ReservationService {
 
         LocalDateTime journeyDateTime = reservation.getJourneyDate();
 
-        Integer fare = reservation.getFare();
+        Double fare = reservation.getTotalAmount() - reservation.getGstAmount();
 
         if (journeyDateTime.isAfter(now) || journeyDateTime.minusHours(1).isAfter(now)) {
             return fare;
         }
-        return 0;
+        return 0.0;
     }
 
 
@@ -405,7 +409,7 @@ public class ReservationServiceImpl implements ReservationService {
         return 0.0;
     }
 
-    private String refundPayment(String paymentId, Integer refundAmount) throws RazorpayException {
+    private String refundPayment(String paymentId, Double refundAmount) throws RazorpayException {
 
         if (paymentId == null || paymentId.trim().isEmpty()) {
             throw new IllegalArgumentException("Payment ID is required for refund.");

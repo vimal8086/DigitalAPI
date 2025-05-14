@@ -79,7 +79,7 @@ spring:
           starttls:
             enable: true
 cors:
-  allowed-origins: "http://localhost:3000"
+  allowed-origins: "http://localhost:5173"
 
 razorpay:
   keyId: rzp_test_hDoWPxUvpOeof6

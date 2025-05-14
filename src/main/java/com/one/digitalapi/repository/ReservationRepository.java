@@ -26,7 +26,7 @@ public interface ReservationRepository extends JpaRepository<Reservations, Integ
     void updateReservationStatus(@Param("reservationId") Integer reservationId,
                                  @Param("status") String status,
                                  @Param("cancellationReason") String cancellationReason,
-                                 @Param("refundAmount") Integer refundAmount,
+                                 @Param("refundAmount") Double refundAmount,
                                  @Param("refundStatus") String refundStatus,
                                  @Param("refundTime") LocalDateTime refundTime);
 

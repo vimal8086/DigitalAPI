@@ -85,12 +85,19 @@ public class ReservationDTO {
 
     private boolean reviewAdded;
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime bookingDate;
+
 
     public ReservationDTO() {
         super();
     }
 
-    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO, String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime, String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount, List<PassengerDTO> passengers, Double discountAmount, String paymentId, boolean reviewAdded) {
+    public ReservationDTO(String userId, String source, String destination, Integer noOfSeatsToBook, LocalDateTime journeyDate, BusDTO busDTO,
+                          String username, String mobileNumber, String email, String gender, String pickupAddress, String pickupTime,
+                          String dropAddress, String dropTime, String orderId, Double gstAmount, Double totalAmount,
+                          List<PassengerDTO> passengers, Double discountAmount, String paymentId, boolean reviewAdded, LocalDateTime bookingDate) {
         this.userId = userId;
         this.source = source;
         this.destination = destination;
@@ -112,6 +119,7 @@ public class ReservationDTO {
         this.discountAmount = discountAmount;
         this.paymentId = paymentId;
         this.reviewAdded = reviewAdded;
+        this.bookingDate = bookingDate;
     }
 
     // Getters and Setters
@@ -231,5 +239,13 @@ public class ReservationDTO {
 
     public void setReviewAdded(boolean reviewAdded) {
         this.reviewAdded = reviewAdded;
+    }
+
+    public LocalDateTime getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
     }
 }

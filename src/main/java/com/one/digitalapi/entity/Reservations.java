@@ -57,7 +57,7 @@ public class Reservations {
 
     private String cancellationReason;
 
-    private Integer refundAmount;
+    private Double refundAmount;
 
     @NotNull(message = "Pickup address cannot be null.")
     @NotBlank(message = "Pickup address cannot be blank.")
@@ -116,6 +116,12 @@ public class Reservations {
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime refundTime;
+
+
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime bookingDate;
+
 
     // Checked User has added review-rating or not
     @Transient  //  ensures it's not stored in the database
@@ -228,11 +234,11 @@ public class Reservations {
         this.cancellationReason = cancellationReason;
     }
 
-    public Integer getRefundAmount() {
+    public Double getRefundAmount() {
         return refundAmount;
     }
 
-    public void setRefundAmount(Integer refundAmount) {
+    public void setRefundAmount(Double refundAmount) {
         this.refundAmount = refundAmount;
     }
 
@@ -388,15 +394,23 @@ public class Reservations {
         this.reviewAdded = reviewAdded;
     }
 
+    public LocalDateTime getBookingDate() {
+        return bookingDate;
+    }
+
+    public void setBookingDate(LocalDateTime bookingDate) {
+        this.bookingDate = bookingDate;
+    }
+
     // Constructor with new fields
     public Reservations(Integer reservationId, String reservationStatus,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String reservationType,
                         LocalDateTime reservationDate, LocalDateTime journeyDate,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String source,
                         @NotNull(message = "This Field can not be null..") @NotBlank(message = "This Field can not be blank..") @NotEmpty(message = "This Field can not be empty..") String destination,
-                        Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Integer refundAmount,
+                        Integer noOfSeatsBooked, Integer fare, Bus bus, User user, String cancellationReason, Double refundAmount,
                         String username, String mobileNumber, String email, String gender, Discount discount, String pickupAddress, String pickupTime, String dropAddress, String dropTime,
-                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount, String paymentId, String refundStatus, LocalDateTime refundTime, boolean reviewAdded) {
+                        String orderId, Double gstAmount, Double totalAmount, Double discountAmount, String paymentId, String refundStatus, LocalDateTime refundTime, boolean reviewAdded, LocalDateTime bookingDate) {
         super();
         this.reservationId = reservationId;
         this.reservationStatus = reservationStatus;
@@ -428,6 +442,7 @@ public class Reservations {
         this.refundStatus = refundStatus;
         this.refundTime = refundTime;
         this.reviewAdded = reviewAdded;
+        this.bookingDate = bookingDate;
     }
 
     public Reservations() {

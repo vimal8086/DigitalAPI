@@ -93,6 +93,8 @@ public class AuthController {
                 response.put("email", user.getEmail());
                 response.put("contactNumber", user.getContactNumber());
                 response.put("id", user.getId());
+                response.put("admin", user.isAdmin());
+
 
                 LOGGER.infoLog(CLASSNAME, strMethodName, "Login successful for user: {} " + request.getUserId());
 
