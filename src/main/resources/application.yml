@@ -94,6 +94,7 @@ springdoc:
 jwt:
   secret: "c2VjdXJlLXNlY3JldC1rZXktZm9yLWp3dC1hdXRoZW50aWNhdGlvbg=="  # Replace with a strong secret key
   expirationMs: 3600000       # Token expiration time in milliseconds (e.g., 1 hour)
+  refreshExpirationMs: 604800000 # 7 days validity for refresh token
 
 management:
   endpoints:

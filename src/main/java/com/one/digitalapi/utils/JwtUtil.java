@@ -29,6 +29,17 @@ public class JwtUtil {
                 .compact();
     }
 
+    public String generateRefreshToken(String username) {
+        // 7 days validity for refresh token
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(new Date())
+                .setExpiration(new Date(System.currentTimeMillis() + jwtProperties.getRefreshExpirationMs()))
+                .signWith(signingKey, SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
