@@ -30,19 +30,30 @@ public class RouteServiceImpl implements RouteService {
 
     @Override
     public Route updateRoute(Route route) {
-        // Prevent same 'routeFrom' and 'routeTo'
+        // Step 1: Retrieve existing route by ID
+        Route existingRoute = routeRepository.findById(route.getRouteID())
+                .orElseThrow(() -> new RouteException("Route not found with ID: " + route.getRouteID()));
+
+        // Step 2: Prevent same 'routeFrom' and 'routeTo'
         if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
             throw new RouteException("RouteFrom and RouteTo cannot be the same.");
         }
 
-        // Prevent updating to an already existing route in the database
+        // Step 3: Prevent updating to an already existing route (excluding the current one)
         boolean routeExists = routeRepository.existsByRouteFromIgnoreCaseAndRouteToIgnoreCase(route.getRouteFrom(), route.getRouteTo());
-        if (routeExists) {
+        if (routeExists &&
+                (!route.getRouteFrom().equalsIgnoreCase(existingRoute.getRouteFrom()) ||
+                        !route.getRouteTo().equalsIgnoreCase(existingRoute.getRouteTo()))) {
             throw new RouteException("This route already exists in the database.");
         }
 
-        return routeRepository.save(route);
+        // Step 4: Update the fields
+        existingRoute.setRouteFrom(route.getRouteFrom());
+        existingRoute.setRouteTo(route.getRouteTo());
+
+        return routeRepository.save(existingRoute);
     }
+
 
     @Override
     public void deleteRoute(int routeId) {

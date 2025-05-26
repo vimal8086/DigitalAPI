@@ -60,22 +60,24 @@ public class RouteController {
     }
 
     @PutMapping
-    @Operation(summary = "Update a route", description = "Update a route")
+    @Operation(summary = "Update a route using routeId as request param", description = "Update a route using routeId in request parameter")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Route updated successfully"),
             @ApiResponse(responseCode = "400", description = "Invalid request"),
             @ApiResponse(responseCode = "404", description = "Route not found")
     })
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Map<String, Object>> updateRoute(@Valid @RequestBody Route route) {
-        String methodName = "updateRoute";
-        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route: " + route);
+    public ResponseEntity<Map<String, Object>> updateRouteByRequestParam(
+            @RequestParam("routeId") int routeId,
+            @Valid @RequestBody Route route) {
 
+        String methodName = "updateRouteByRequestParam";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route ID: " + routeId + ", Data: " + route);
 
         // Step 1: Check if the route exists
-        Route existingRoute = routeService.viewRoute(route.getRouteID());
+        Route existingRoute = routeService.viewRoute(routeId);
         if (existingRoute == null) {
-        return ResponseEntity.status(404).body(Map.of("error", "Route not found for ID: " + route.getRouteID()));
+            return ResponseEntity.status(404).body(Map.of("error", "Route not found for ID: " + routeId));
         }
 
         // Prevent same 'routeFrom' and 'routeTo'
@@ -88,6 +90,8 @@ public class RouteController {
             return ResponseEntity.badRequest().body(Map.of("error", "This route already exists in the database."));
         }
 
+        // Set the routeId to ensure proper update
+        route.setRouteID(routeId);
         Route updatedRoute = routeService.updateRoute(route);
         LOGGER.infoLog(CLASSNAME, methodName, "Route updated successfully: " + updatedRoute);
 
@@ -96,6 +100,8 @@ public class RouteController {
                 "route", updatedRoute
         ));
     }
+
+
 
     @DeleteMapping("/{routeId}")
     @Operation(summary = "Delete a route", description = "Delete route with route id")
