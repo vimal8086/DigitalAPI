@@ -164,10 +164,13 @@ public class UserController {
         if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
 
         User user = userOpt.get();
+
+        String mobileNumber = user.getContactNumber();
         user.setPassword(passwordEncoder.encode(newPassword));
         userRepository.save(user);
 
-        return ResponseEntity.ok(Map.of("message", "Password changed successfully."));
+        return ResponseEntity.ok(Map.of("mobileNumber", mobileNumber,
+                "message", "Password changed successfully."));
     }
 
 
