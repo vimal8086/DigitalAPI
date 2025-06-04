@@ -81,6 +81,34 @@ public class DestinationController {
         return ResponseEntity.ok(savedDestination);
     }
 
+
+    @DeleteMapping("/delete")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Delete a destination", description = "Deletes a destination using its ID")
+    public ResponseEntity<Map<String, Object>> deleteDestination(@RequestParam Long id) {
+
+        String method = "deleteDestination";
+        LOGGER.infoLog(CLASSNAME, method, "Received request to delete destination with ID: " + id);
+
+        Map<String, Object> response = new HashMap<>();
+
+        Optional<Destination> destinationOptional = destinationRepository.findById(id);
+        if (destinationOptional.isEmpty()) {
+            LOGGER.warnLog(CLASSNAME, method, "Destination not found with ID: " + id);
+            throw new DestinationException("Destination is not found with the ID", id.toString());
+        }
+
+        destinationRepository.deleteById(id);
+
+        LOGGER.infoLog(CLASSNAME, method, "Successfully deleted destination with ID: " + id);
+        response.put("status", HttpStatus.OK.value());
+        response.put("message", "Destination deleted successfully");
+        response.put("deletedId", id);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
     // Global Exception Handling for DestinationException and LoginException
     @ExceptionHandler(DestinationException.class)
     public ResponseEntity<Map<String, Object>> handleDestinationException(DestinationException ex) {

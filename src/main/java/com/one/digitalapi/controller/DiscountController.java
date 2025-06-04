@@ -193,6 +193,46 @@ public class DiscountController {
         return ResponseEntity.ok(discountList);
     }
 
+
+    @GetMapping("/all")
+    @Operation(summary = "Get all discounts (unfiltered)", description = "Retrieves a list of all discounts, regardless of start or end date")
+    @PreAuthorize("hasRole('ADMIN')") // Or change access as needed
+    public ResponseEntity<List<Discount>> getAllDiscountsUnfiltered() {
+
+        String methodName = "getAllDiscountsUnfiltered";
+
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to get all discounts (unfiltered)");
+
+        List<Discount> discounts = discountService.getAllDiscountsUnfiltered();
+
+        List<Discount> discountList = new ArrayList<>();
+        if (discounts != null && !discounts.isEmpty()) {
+            for (Discount discount : discounts) {
+                if (discount.getImage() != null && discount.getImage().getId() != null) {
+                    try {
+                        discount.setDiscountImageId(discount.getImage().getId());
+
+                        byte[] imageBytes = discountImageService.getImage(discount.getImage().getId());
+
+                        String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                        String mimeType = MediaType.IMAGE_PNG_VALUE;
+                        String imageWithMime = "data:" + mimeType + ";base64," + base64Image;
+
+                        discount.setDiscountImage(imageWithMime);
+                    } catch (RuntimeException ex) {
+                        discount.setDiscountImage(null);
+                    }
+                }
+                discountList.add(discount);
+            }
+        }
+
+        LOGGER.infoLog(CLASSNAME, methodName, "Unfiltered discounts retrieved successfully");
+
+        return ResponseEntity.ok(discountList);
+    }
+
+
     @GetMapping("/image/{id}")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<byte[]> getImage(@PathVariable Long id) {

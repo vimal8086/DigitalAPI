@@ -12,4 +12,6 @@ public interface DiscountService {
     public void deleteDiscount(Discount discount);
 
     public List<Discount> getAllDiscounts();
+
+    public List<Discount> getAllDiscountsUnfiltered();
 }
