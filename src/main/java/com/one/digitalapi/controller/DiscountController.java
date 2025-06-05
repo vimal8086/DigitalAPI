@@ -69,17 +69,32 @@ public class DiscountController {
         return new ResponseEntity<>(createdDiscount, HttpStatus.CREATED);
     }
 
+
     @GetMapping("/{id}")
     @Operation(summary = "Get a discount by ID", description = "Retrieves a discount by its ID")
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
     public ResponseEntity<Discount> getDiscountById(@PathVariable Long id) {
-
         String methodName = "getDiscountById";
-
         LOGGER.infoLog(CLASSNAME, methodName, "Received request to retrieve discount with ID: {}", id);
 
         Discount discount = discountRepository.findById(id)
                 .orElseThrow(() -> new DiscountException("Discount not found with id: " + id));
+
+        if (discount.getImage() != null && discount.getImage().getId() != null) {
+            try {
+                discount.setDiscountImageId(discount.getImage().getId());
+
+                byte[] imageBytes = discountImageService.getImage(discount.getImage().getId());
+
+                String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                String mimeType = MediaType.IMAGE_PNG_VALUE; // or dynamic type if supported
+                String imageWithMime = "data:" + mimeType + ";base64," + base64Image;
+
+                discount.setDiscountImage(imageWithMime);
+            } catch (RuntimeException ex) {
+                discount.setDiscountImage(null);
+            }
+        }
 
         LOGGER.infoLog(CLASSNAME, methodName, "Discount retrieved successfully: {}" + discount);
 
@@ -152,6 +167,7 @@ public class DiscountController {
 
         return ResponseEntity.ok(response);
     }
+
 
     @GetMapping
     @Operation(summary = "Get all discounts", description = "Retrieves a list of all discounts")
