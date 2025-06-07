@@ -59,40 +59,44 @@ public class RouteController {
         ));
     }
 
+
     @PutMapping
     @Operation(summary = "Update a route using routeId as request param", description = "Update a route using routeId in request parameter")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Route updated successfully"),
-            @ApiResponse(responseCode = "400", description = "Invalid request"),
-            @ApiResponse(responseCode = "404", description = "Route not found")
-    })
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, Object>> updateRouteByRequestParam(
             @RequestParam("routeId") int routeId,
-            @Valid @RequestBody Route route) {
+            @Valid @RequestBody Route updatedData) {
 
         String methodName = "updateRouteByRequestParam";
-        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route ID: " + routeId + ", Data: " + route);
+        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update route ID: " + routeId + ", Data: " + updatedData);
 
-        // Step 1: Check if the route exists
+        // Step 1: Retrieve existing route
         Route existingRoute = routeService.viewRoute(routeId);
         if (existingRoute == null) {
             return ResponseEntity.status(404).body(Map.of("error", "Route not found for ID: " + routeId));
         }
 
-        // Prevent same 'routeFrom' and 'routeTo'
-        if (route.getRouteFrom().equalsIgnoreCase(route.getRouteTo())) {
+        // Step 2: Validation
+        if (updatedData.getRouteFrom().equalsIgnoreCase(updatedData.getRouteTo())) {
             return ResponseEntity.badRequest().body(Map.of("error", "RouteFrom and RouteTo cannot be the same."));
         }
 
-        // Prevent duplicate routes
-        if (routeService.routeExists(route.getRouteFrom(), route.getRouteTo())) {
-            return ResponseEntity.badRequest().body(Map.of("error", "This route already exists in the database."));
+        // Step 3: Prevent duplicate (only if from/to changed)
+        boolean isFromChanged = !existingRoute.getRouteFrom().equalsIgnoreCase(updatedData.getRouteFrom());
+        boolean isToChanged = !existingRoute.getRouteTo().equalsIgnoreCase(updatedData.getRouteTo());
+
+        if ((isFromChanged || isToChanged) &&
+                routeService.routeExists(updatedData.getRouteFrom(), updatedData.getRouteTo())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "This route already exists."));
         }
 
-        // Set the routeId to ensure proper update
-        route.setRouteID(routeId);
-        Route updatedRoute = routeService.updateRoute(route);
+        // Step 4: Apply updates
+        existingRoute.setRouteFrom(updatedData.getRouteFrom());
+        existingRoute.setRouteTo(updatedData.getRouteTo());
+        existingRoute.setDistance(updatedData.getDistance()); // ✅ ensure distance is set
+
+        // Step 5: Persist update
+        Route updatedRoute = routeService.updateRoute(existingRoute);
         LOGGER.infoLog(CLASSNAME, methodName, "Route updated successfully: " + updatedRoute);
 
         return ResponseEntity.ok(Map.of(
@@ -100,7 +104,6 @@ public class RouteController {
                 "route", updatedRoute
         ));
     }
-
 
 
     @DeleteMapping("/{routeId}")
