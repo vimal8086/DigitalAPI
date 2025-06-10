@@ -5,7 +5,7 @@ import java.util.List;
 public interface BusService {
 
     public Bus addBus(Bus bus);
-    public Bus updateBus(Bus bus);
+    public Bus updateBus(Long busId, Bus busDetails);
     public Bus deleteBus(int busId);
     public Bus viewBus(int busId);
     public List<Bus> viewBusByType(String BusType);

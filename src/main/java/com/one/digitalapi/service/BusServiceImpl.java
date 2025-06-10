@@ -5,10 +5,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.one.digitalapi.entity.Amenity;
-import com.one.digitalapi.entity.Bus;
-import com.one.digitalapi.entity.CancellationRule;
-import com.one.digitalapi.entity.Route;
+import com.one.digitalapi.entity.*;
 import com.one.digitalapi.exception.BusException;
 import com.one.digitalapi.repository.BusRepository;
 import com.one.digitalapi.repository.RouteRepository;
@@ -62,44 +59,76 @@ public class BusServiceImpl implements BusService {
         return bRepo.save(bus);
     }
 
-
     @Override
-    public Bus updateBus(Bus bus) {
-        Bus existingBus = bRepo.findById(bus.getBusId())
-                .orElseThrow(() -> new BusException("Bus with ID " + bus.getBusId() + " not found"));
+    public Bus updateBus(Long busId, Bus busDetails) {
 
-        Route route = rRepo.findByRouteFromAndRouteTo(bus.getRouteFrom(), bus.getRouteTo());
+        Bus existingBus = bRepo.findById(Math.toIntExact(busId))
+                .orElseThrow(() -> new BusException("Bus with ID " + busId + " not found"));
+
+        // Update simple fields
+        existingBus.setBusName(busDetails.getBusName());
+        existingBus.setDriverName(busDetails.getDriverName());
+        existingBus.setBusType(busDetails.getBusType());
+        existingBus.setRouteFrom(busDetails.getRouteFrom());
+        existingBus.setRouteTo(busDetails.getRouteTo());
+        existingBus.setArrivalTime(busDetails.getArrivalTime());
+        existingBus.setDepartureTime(busDetails.getDepartureTime());
+        existingBus.setFarePerSeat(busDetails.getFarePerSeat());
+        existingBus.setSeats(busDetails.getSeats());
+        existingBus.setAvailableSeats(busDetails.getAvailableSeats());
+        existingBus.setContactNumber(busDetails.getContactNumber());
+        existingBus.setBusNumber(busDetails.getBusNumber());
+        existingBus.setTrackingUrl(busDetails.getTrackingUrl());
+        existingBus.setEmail(busDetails.getEmail());
+        existingBus.setAddress(busDetails.getAddress());
+        existingBus.setActive(busDetails.isActive());
+
+        // Update Route
+        Route route = rRepo.findByRouteFromAndRouteTo(busDetails.getRouteFrom(), busDetails.getRouteTo());
         if (route == null) {
             throw new BusException("Invalid route!");
         }
+        existingBus.setRoute(route);
 
-        bus.setRoute(route);
-
-        // User Can Deactivate Bus
-        bus.setActive(bus.isActive());
-
-
-        // Handle amenities
-        List<Amenity> finalAmenities = new ArrayList<>();
-        if (bus.getAmenities() != null) {
-            for (Amenity amenity : bus.getAmenities()) {
-                amenity.setBus(bus);
-                finalAmenities.add(amenity);
+        // Handle Amenities
+        if (busDetails.getAmenities() != null) {
+            for (Amenity amenity : busDetails.getAmenities()) {
+                amenity.setBus(existingBus);
             }
+            existingBus.getAmenities().clear();
+            existingBus.getAmenities().addAll(busDetails.getAmenities());
         }
-        bus.setAmenities(finalAmenities); // avoid assigning pre-attached list
 
-        // Handle cancellation rules
-        List<CancellationRule> finalRules = new ArrayList<>();
-        if (bus.getCancellationRules() != null) {
-            for (CancellationRule rule : bus.getCancellationRules()) {
-                rule.setBus(bus);
-                finalRules.add(rule);
+        // Handle Cancellation Rules
+        if (busDetails.getCancellationRules() != null) {
+            for (CancellationRule rule : busDetails.getCancellationRules()) {
+                rule.setBus(existingBus);
             }
+            existingBus.getCancellationRules().clear();
+            existingBus.getCancellationRules().addAll(busDetails.getCancellationRules());
         }
-        bus.setCancellationRules(finalRules);
-        return bRepo.save(bus);
+
+        // Handle Pickup Points
+        if (busDetails.getPickupPoints() != null) {
+            for (PickupPoint pickup : busDetails.getPickupPoints()) {
+                pickup.setBus(existingBus);
+            }
+            existingBus.getPickupPoints().clear();
+            existingBus.getPickupPoints().addAll(busDetails.getPickupPoints());
+        }
+
+        // Handle Drop Points
+        if (busDetails.getDropPoints() != null) {
+            for (DropPoint drop : busDetails.getDropPoints()) {
+                drop.setBus(existingBus);
+            }
+            existingBus.getDropPoints().clear();
+            existingBus.getDropPoints().addAll(busDetails.getDropPoints());
+        }
+
+        return bRepo.save(existingBus);
     }
+
 
     @Override
     public Bus deleteBus(int busId) {

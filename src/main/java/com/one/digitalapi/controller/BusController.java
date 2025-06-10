@@ -79,20 +79,23 @@ public class BusController {
         return new ResponseEntity<>(bus, HttpStatus.OK);
     }
 
-    @PutMapping
-    @Operation(summary = "Update a bus", description = "Update a bus")
+
+    @PutMapping("/{busId}")
+    @Operation(summary = "Update a bus", description = "Update a bus using busId")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Bus updated successfully"),
             @ApiResponse(responseCode = "404", description = "Bus not found")
     })
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Bus> updateBusById(@Validated(DefaultValidation.class) @RequestBody Bus bus) {
-        String methodName = "updateBusById";
-        LOGGER.infoLog(CLASSNAME, methodName, "Received request to update bus: " + bus);
-        Bus updatedBus = busService.updateBus(bus);
-        LOGGER.infoLog(CLASSNAME, methodName, "Bus updated successfully: " + updatedBus);
+    public ResponseEntity<Bus> updateBusById(
+            @PathVariable Long busId,
+            @Validated(DefaultValidation.class) @RequestBody Bus bus) {
+        LOGGER.infoLog(CLASSNAME, "updateBusById", "Received request to update bus: " + bus);
+        Bus updatedBus = busService.updateBus(busId, bus);
+        LOGGER.infoLog(CLASSNAME, "updateBusById", "Bus updated successfully: " + updatedBus);
         return new ResponseEntity<>(updatedBus, HttpStatus.OK);
     }
+
 
     @DeleteMapping("/delete/{busId}")
     @Operation(summary = "Delete a bus", description = "Delete bus with bus id")
