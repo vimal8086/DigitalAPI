@@ -175,8 +175,6 @@ public class UserController {
                 "message", "Password changed successfully."));
     }
 
-
-
     @PostMapping("/change-existing-password")
     @PreAuthorize("isAuthenticated()")
     @Operation(summary = "Change Existing Password using current password (Change Password)", description = "If Any User need to change his password then use this API, Only Login User Can Access this API")
@@ -232,6 +230,20 @@ public class UserController {
         }
     }
 
+
+    @GetMapping("/count-by-type")
+    @PreAuthorize("hasRole('ADMIN')") // Optional: restrict to admins only
+    @Operation(summary = "Get count of admin and regular users", description = "Returns total count of admin and application (non-admin) users")
+    public ResponseEntity<Map<String, Long>> getUserCountByType() {
+        long totalAdminUsers = userRepository.countByAdmin(true);
+        long totalApplicationUsers = userRepository.countByAdmin(false);
+
+        Map<String, Long> response = new HashMap<>();
+        response.put("totalAdminUsers", totalAdminUsers);
+        response.put("totalApplicationUsers", totalApplicationUsers);
+
+        return ResponseEntity.ok(response);
+    }
 
     // Global Exception Handling for UserException
     @ExceptionHandler(UserException.class)

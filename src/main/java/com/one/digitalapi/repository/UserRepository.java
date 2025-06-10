@@ -18,4 +18,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     Optional<User> findByContactNumber(String contact);
+
+    long countByAdmin(boolean admin);
 }
