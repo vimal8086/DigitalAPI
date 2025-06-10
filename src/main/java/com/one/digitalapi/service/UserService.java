@@ -61,12 +61,12 @@ public class UserService {
             existingUser.setEmail(updatedUserData.getEmail());
         }
 
-        if (!existingUser.getUserId().equals(updatedUserData.getUserId())
+       /* if (!existingUser.getUserId().equals(updatedUserData.getUserId())
                 && userRepository.existsByUserId(updatedUserData.getUserId())) {
             throw new UserException("User Id already in use");
         }
         existingUser.setUserId(updatedUserData.getUserId());
-
+*/
 
         if (!existingUser.getContactNumber().equals(updatedUserData.getContactNumber())
                 && userRepository.existsByContactNumber(updatedUserData.getContactNumber())) {
