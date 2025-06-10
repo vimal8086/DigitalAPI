@@ -1,4 +1,5 @@
 package com.one.digitalapi.controller;
+import com.one.digitalapi.dto.ChangePasswordRequest;
 import com.one.digitalapi.entity.User;
 import com.one.digitalapi.exception.UserException;
 import com.one.digitalapi.logger.DefaultLogger;
@@ -12,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -152,8 +154,8 @@ public class UserController {
         }
     }
 
-
     @PutMapping("/change-password")
+    @Operation(summary = "Change Password With OTP (Forgot Password)", description = "If Any User Forgot his password then use this API")
     public ResponseEntity<?> changePassword(@RequestParam String email,
                                             @RequestParam String newPassword) {
         if (!otpService.isOtpVerified(email)) {
@@ -171,6 +173,63 @@ public class UserController {
 
         return ResponseEntity.ok(Map.of("mobileNumber", mobileNumber,
                 "message", "Password changed successfully."));
+    }
+
+
+
+    @PostMapping("/change-existing-password")
+    @PreAuthorize("isAuthenticated()")
+    @Operation(summary = "Change Existing Password using current password (Change Password)", description = "If Any User need to change his password then use this API, Only Login User Can Access this API")
+    public ResponseEntity<?> changeExistingPassword(@RequestBody @Valid ChangePasswordRequest request) {
+        String method = "changeExistingPassword";
+        LOGGER.infoLog(CLASSNAME, method, "Password change request");
+
+        try {
+            // Get mobile number of currently logged-in user
+            String contactNumber = SecurityContextHolder.getContext().getAuthentication().getName();
+
+            // Fetch user from database
+            Optional<User> optionalUser = userRepository.findByContactNumber(contactNumber);
+            if (optionalUser.isEmpty()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("error", "User not found.");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            }
+
+
+            User currentUser = optionalUser.get();
+
+            // Check if old password matches
+            if (!passwordEncoder.matches(request.getOldPassword(), currentUser.getPassword())) {
+                return ResponseEntity.badRequest().body(Map.of("error","Old password is incorrect"));
+            }
+
+            // Check if new and confirm password match
+            if (!request.getNewPassword().equals(request.getConfirmPassword())) {
+                return ResponseEntity.badRequest().body(Map.of("error","New password and confirm password do not match"));
+            }
+
+            // Check if new password is same as old password
+            if (passwordEncoder.matches(request.getNewPassword(), currentUser.getPassword())) {
+                return ResponseEntity.badRequest().body(Map.of("error","New password must be different from the old password"));
+            }
+
+            // Set and encode new password
+            currentUser.setPassword(passwordEncoder.encode(request.getNewPassword()));
+            userRepository.save(currentUser);
+
+            return ResponseEntity.ok(Map.of("mobileNumber", contactNumber,
+                    "message", "Password changed successfully"));
+
+        } catch (Exception e) {
+            LOGGER.errorLog(CLASSNAME, method, "Password change failed: " + e.getMessage());
+
+            Map<String, Object> response = new HashMap<>();
+
+            response.put("error", e.getMessage());
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
 
