@@ -158,6 +158,15 @@ public class UserController {
     @Operation(summary = "Change Password With OTP (Forgot Password)", description = "If Any User Forgot his password then use this API")
     public ResponseEntity<?> changePassword(@RequestParam String email,
                                             @RequestParam String newPassword) {
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "New password is required"));
+        }
+
+        if (newPassword.length() < 8) {
+            return ResponseEntity.badRequest().body(Map.of("error", "New password must be at least 8 characters long"));
+        }
+
         if (!otpService.isOtpVerified(email)) {
             return ResponseEntity.badRequest().body(Map.of("error","OTP verification required."));
         }
