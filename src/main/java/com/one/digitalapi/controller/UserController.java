@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -130,59 +131,103 @@ public class UserController {
 
     @PostMapping("/change-password/send-otp")
     public ResponseEntity<?> sendOtp(@RequestParam String email) {
+        String methodName = "sendOtp";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received OTP request for email: " + email);
 
-        if (!userRepository.existsByEmail(email)) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Email not registered."));
+        try {
+            if (!userRepository.existsByEmail(email)) {
+                LOGGER.warnLog(CLASSNAME, methodName, "OTP request failed - Email not registered: " + email);
+                return ResponseEntity.badRequest().body(Map.of("error", "Email not registered."));
+            }
+
+            otpService.sendOtp(email);
+            LOGGER.infoLog(CLASSNAME, methodName, "OTP sent successfully to: " + email);
+
+            return ResponseEntity.ok(Map.of("message", "OTP sent to registered email"));
+        } catch (AuthenticationException ex) {
+            LOGGER.errorLog(CLASSNAME, methodName, "Authentication error while sending OTP to: " + email + " - " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Authentication failed while sending OTP."));
+        } catch (Exception ex) {
+            LOGGER.errorLog(CLASSNAME, methodName, "Unexpected error while sending OTP to: " + email + " - " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "An error occurred while sending OTP."));
         }
-
-        otpService.sendOtp(email);
-
-        return ResponseEntity.ok(Map.of("message", "OTP sent to registered email"));
     }
+
 
     @PostMapping("/change-password/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp) {
+        String methodName = "verifyOtp";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received OTP verification request for email: " + email);
 
-        boolean isVerified = otpService.verifyOtp(email, otp);
+        try {
+            boolean isVerified = otpService.verifyOtp(email, otp);
 
-        if (isVerified) {
-            return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
-                    Map.of("error", "Invalid or expired OTP.")
+            if (isVerified) {
+                LOGGER.infoLog(CLASSNAME, methodName, "OTP verified successfully for email: " + email);
+                return ResponseEntity.ok(Map.of("message", "OTP verified successfully."));
+            } else {
+                LOGGER.warnLog(CLASSNAME, methodName, "OTP verification failed for email: " + email);
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                        Map.of("error", "Invalid or expired OTP.")
+                );
+            }
+        } catch (Exception ex) {
+            LOGGER.errorLog(CLASSNAME, methodName, "Unexpected error during OTP verification for email: " + email + " - " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("error", "An error occurred during OTP verification.")
             );
         }
     }
 
+
     @PutMapping("/change-password")
-    @Operation(summary = "Change Password With OTP (Forgot Password)", description = "If Any User Forgot his password then use this API")
+    @Operation(summary = "Change Password With OTP (Forgot Password)", description = "If any user forgot their password, they can use this API.")
     public ResponseEntity<?> changePassword(@RequestParam String email,
                                             @RequestParam String newPassword) {
+        String methodName = "changePassword";
+        LOGGER.infoLog(CLASSNAME, methodName, "Received password change request for email: " + email);
 
-        if (newPassword == null || newPassword.trim().isEmpty()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "New password is required"));
+        try {
+            if (newPassword == null || newPassword.trim().isEmpty()) {
+                LOGGER.warnLog(CLASSNAME, methodName, "Password change failed - new password is empty for email: " + email);
+                return ResponseEntity.badRequest().body(Map.of("error", "New password is required"));
+            }
+
+            if (newPassword.length() < 8) {
+                LOGGER.warnLog(CLASSNAME, methodName, "Password change failed - new password too short for email: " + email);
+                return ResponseEntity.badRequest().body(Map.of("error", "New password must be at least 8 characters long"));
+            }
+
+            if (!otpService.isOtpVerified(email)) {
+                LOGGER.warnLog(CLASSNAME, methodName, "Password change failed - OTP not verified for email: " + email);
+                return ResponseEntity.badRequest().body(Map.of("error", "OTP verification required."));
+            }
+
+            Optional<User> userOpt = userRepository.findByEmail(email);
+            if (userOpt.isEmpty()) {
+                LOGGER.warnLog(CLASSNAME, methodName, "Password change failed - User not found for email: " + email);
+                return ResponseEntity.notFound().build();
+            }
+
+            User user = userOpt.get();
+            String mobileNumber = user.getContactNumber();
+
+            user.setPassword(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+
+            LOGGER.infoLog(CLASSNAME, methodName, "Password changed successfully for email: " + email);
+            return ResponseEntity.ok(Map.of(
+                    "mobileNumber", mobileNumber,
+                    "message", "Password changed successfully."
+            ));
+        } catch (Exception ex) {
+            LOGGER.errorLog(CLASSNAME, methodName, "Unexpected error while changing password for email: " + email + " - " + ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                    Map.of("error", "An error occurred while changing password.")
+            );
         }
-
-        if (newPassword.length() < 8) {
-            return ResponseEntity.badRequest().body(Map.of("error", "New password must be at least 8 characters long"));
-        }
-
-        if (!otpService.isOtpVerified(email)) {
-            return ResponseEntity.badRequest().body(Map.of("error","OTP verification required."));
-        }
-
-        Optional<User> userOpt = userRepository.findByEmail(email);
-        if (userOpt.isEmpty()) return ResponseEntity.notFound().build();
-
-        User user = userOpt.get();
-
-        String mobileNumber = user.getContactNumber();
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
-
-        return ResponseEntity.ok(Map.of("mobileNumber", mobileNumber,
-                "message", "Password changed successfully."));
     }
+
 
     @PostMapping("/change-existing-password")
     @PreAuthorize("isAuthenticated()")
